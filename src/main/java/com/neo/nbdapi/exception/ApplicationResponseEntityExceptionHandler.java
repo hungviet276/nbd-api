@@ -4,6 +4,7 @@ import com.neo.nbdapi.utils.Constants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -41,6 +42,19 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
                         "Server error : " + ex.getMessage());
 
         return new ResponseEntity(responseBasicObj, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * The method handle invalid username or password throw by AbstractUserDetailAuthenticationProvider
+     * @param request
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(WebRequest request) {
+        ResponseBasicObj  responseBasicObj = new ResponseBasicObj(400, "Tài khoản hoặc mật khẩu không đúng");
+
+        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }
 
     /**
