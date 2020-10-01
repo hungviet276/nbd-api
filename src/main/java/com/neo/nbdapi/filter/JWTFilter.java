@@ -26,6 +26,14 @@ public class JWTFilter extends GenericFilterBean {
         this.tokenProvider = tokenProvider;
     }
 
+    /**
+     * function validate token and permission for URI ENDPOINT and HTTP METHOD
+     * @param servletRequest
+     * @param servletResponse
+     * @param filterChain
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {

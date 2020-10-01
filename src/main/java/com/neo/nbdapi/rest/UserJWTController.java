@@ -6,6 +6,8 @@ import com.neo.nbdapi.filter.JWTFilter;
 import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
 import com.neo.nbdapi.utils.Constants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX)
 public class UserJWTController {
+
+    private Logger logger = LogManager.getLogger(UserJWTController.class);
 
     private final TokenProvider tokenProvider;
 
@@ -39,13 +42,14 @@ public class UserJWTController {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
+    /**
+     * API authenticate
+     * @param loginVM
+     * @return
+     * @throws SQLException
+     */
     @PostMapping(Constants.APPLICATION_API.MODULE.URI_LOGIN)
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
-
-        ResultSet resultSet = paginationDAO.getResultPagination("SELECT * FROM user_info", 1, 2, new Object[]{});
-        long resultCount = paginationDAO.countResultQuery("SELECT * FROM user_info", new Object[]{});
-        System.out.println(resultCount);
-
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
 

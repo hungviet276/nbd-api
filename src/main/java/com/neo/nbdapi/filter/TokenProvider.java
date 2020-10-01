@@ -44,6 +44,11 @@ public class TokenProvider {
         this.tokenValidityInMilliseconds = 8640000;
     }
 
+    /**
+     * function generate token from username
+     * @param authentication
+     * @return
+     */
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -61,6 +66,13 @@ public class TokenProvider {
                 .compact();
     }
 
+    /**
+     * function get information from token
+     * @param token
+     * @param path
+     * @param method
+     * @return
+     */
     public Authentication getAuthentication(String token, String path, String method) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -82,6 +94,11 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    /**
+     * function validate token
+     * @param authToken
+     * @return
+     */
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);

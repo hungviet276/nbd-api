@@ -5,9 +5,6 @@
      to make all loggers asynchronous. -->
 
 <Configuration status="WARN">
-    <CustomLevels>
-        <CustomLevel name="API_LOG" intLevel="350" />
-    </CustomLevels>
 
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">

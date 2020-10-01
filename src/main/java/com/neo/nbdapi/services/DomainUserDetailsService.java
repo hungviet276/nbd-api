@@ -29,6 +29,12 @@ public class DomainUserDetailsService implements UserDetailsService {
         this.userInfoDAO = userInfoDAO;
     }
 
+    /**
+     *  function get user_info by username from database
+     *
+     * @param username
+     * @return
+     */
     @SneakyThrows
     @Override
     @Transactional

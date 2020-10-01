@@ -2,6 +2,8 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +11,8 @@ import java.sql.*;
 
 @Repository
 public class PaginationDAOImpl implements PaginationDAO {
+
+    private Logger logger = LogManager.getLogger(PaginationDAOImpl.class);
 
     @Autowired
     private HikariDataSource ds;
@@ -35,7 +39,7 @@ public class PaginationDAOImpl implements PaginationDAO {
                     sqlPagination.append(((pageNumber - 1) * recordPerPage));
 
                 }
-                System.out.println(sqlPagination);
+                logger.debug("JDBC execute query: {}", sqlPagination);
                 PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
                 for (int i = 0; i < parameter.length; i++) {
                     statement.setObject(i + 1, parameter[i]);

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * class user_info
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
