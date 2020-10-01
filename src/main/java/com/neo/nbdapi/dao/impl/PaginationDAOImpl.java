@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.PaginationDAO;
+import com.neo.nbdapi.exception.BusinessException;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,52 +20,52 @@ public class PaginationDAOImpl implements PaginationDAO {
 
     @Override
     public ResultSet getResultPagination(String sql, int pageNumber, int recordPerPage, Object... parameter) throws SQLException {
-        try {
             if (recordPerPage > 0) {
-                Connection connection = ds.getConnection();
-                StringBuilder sqlPagination = new StringBuilder("");
-                if (pageNumber < 2) {
-                    sqlPagination.append("select rownum stt, xlpt.* from (");
-                    sqlPagination.append(sql);
-                    sqlPagination.append(") xlpt where rownum < ");
-                    sqlPagination.append(recordPerPage + 1);
-                } else {
-                    sqlPagination.append("select /*+ first_rows(");
-                    sqlPagination.append(recordPerPage);
-                    sqlPagination.append(") */ xlpt.* from (select rownum row_stt, xlpt.* from (");
-                    sqlPagination.append(sql);
-                    sqlPagination.append(") xlpt where rownum <= ");
-                    sqlPagination.append(pageNumber * recordPerPage);
-                    sqlPagination.append(" ) xlpt where row_stt > ");
-                    sqlPagination.append(((pageNumber - 1) * recordPerPage));
+                try (Connection connection = ds.getConnection()) {
+                    StringBuilder sqlPagination = new StringBuilder("");
+                    if (pageNumber < 2) {
+                        sqlPagination.append("select rownum stt, xlpt.* from (");
+                        sqlPagination.append(sql);
+                        sqlPagination.append(") xlpt where rownum < ");
+                        sqlPagination.append(recordPerPage + 1);
+                    } else {
+                        sqlPagination.append("select /*+ first_rows(");
+                        sqlPagination.append(recordPerPage);
+                        sqlPagination.append(") */ xlpt.* from (select rownum row_stt, xlpt.* from (");
+                        sqlPagination.append(sql);
+                        sqlPagination.append(") xlpt where rownum <= ");
+                        sqlPagination.append(pageNumber * recordPerPage);
+                        sqlPagination.append(" ) xlpt where row_stt > ");
+                        sqlPagination.append(((pageNumber - 1) * recordPerPage));
 
+                    }
+                    logger.debug("JDBC execute query: {}", sqlPagination);
+                    PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
+                    for (int i = 0; i < parameter.length; i++) {
+                        statement.setObject(i + 1, parameter[i]);
+                    }
+                    return statement.executeQuery();
                 }
-                logger.debug("JDBC execute query: {}", sqlPagination);
-                PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
-                for (int i = 0; i < parameter.length; i++) {
-                    statement.setObject(i + 1, parameter[i]);
-                }
-                return statement.executeQuery();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return null;
     }
 
     @Override
-    public long countResultQuery(String sql, Object... parameter) throws SQLException {
-        Connection connection = ds.getConnection();
-        StringBuilder sqlPagination = new StringBuilder("");
-        sqlPagination.append("SELECT count(1) FROM (");
-        sqlPagination.append(sql);
-        sqlPagination.append(")");
-        PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
-        for (int i = 0; i < parameter.length; i++) {
-            statement.setObject(i + 1, parameter[i]);
+    public long countResultQuery(String sql, Object... parameter) throws BusinessException {
+        try (Connection connection = ds.getConnection()) {
+            StringBuilder sqlPagination = new StringBuilder("");
+            sqlPagination.append("SELECT count(1) FROM (");
+            sqlPagination.append(sql);
+            sqlPagination.append(")");
+            PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
+            for (int i = 0; i < parameter.length; i++) {
+                statement.setObject(i + 1, parameter[i]);
+            }
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException e) {
+            throw new BusinessException("Lỗi hệ thống: " + e.getMessage());
         }
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
-        return resultSet.getLong(1);
     }
 }

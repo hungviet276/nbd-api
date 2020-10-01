@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
@@ -30,22 +31,24 @@ public class UserInfoDAOImpl implements UserInfoDAO {
     @Override
     public UserInfo findUserInfoByUsername(String username) throws SQLException {
         UserInfo userInfo = null;
-        Connection connection = ds.getConnection();
-        String sql = "SELECT id, password FROM user_info WHERE id = ?";
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT id, password FROM user_info WHERE id = ?";
+            // log sql
+            logger.debug("JDBC execute query : {}", sql);
 
-        // log sql
-        logger.debug("JDBC execute query : {}", sql);
-
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, username);
-        ResultSet resultSet = statement.executeQuery();
-        while (resultSet.next()) {
-            userInfo = UserInfo
-                    .builder()
-                    .id(resultSet.getString(1))
-                    .password(resultSet.getString(2))
-                    .build();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userInfo = UserInfo
+                        .builder()
+                        .id(resultSet.getString(1))
+                        .password(resultSet.getString(2))
+                        .build();
+            }
+            if (userInfo == null)
+                throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
+            return userInfo;
         }
-        return userInfo;
     }
 }
