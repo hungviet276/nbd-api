@@ -33,8 +33,6 @@ public class DomainUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String username) {
-        log.debug("Authenticating {}", username);
-        System.out.println("run service");
         UserInfo userInfo = userInfoDAO.findUserInfoByUsername(username);
         if (userInfo == null)
             throw new UsernameNotFoundException("User " + username + " was not found in the database");

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Don't forget to set system property
+-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+     to make all loggers asynchronous. -->
+
+<Configuration status="WARN">
+    <CustomLevels>
+        <CustomLevel name="API_LOG" intLevel="350" />
+    </CustomLevels>
+
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
+        </Console>
+        <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-api.log"
+                     filePattern="logs/$${date:yyyy-MM}/nbd-api-%d{yyyy-MM-dd}-%i.log">
+
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="2048 MB"/>
+            </Policies>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root>
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+        <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="AsyncLogDebugFile"/>
+        </Logger>
+    </Loggers>
+</Configuration>

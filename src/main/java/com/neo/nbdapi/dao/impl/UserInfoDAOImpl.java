@@ -23,7 +23,6 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
     @Override
     public UserInfo findUserInfoByUsername(String username) throws SQLException {
-        System.out.println("run dao");
         UserInfo userInfo = null;
         System.out.println(passwordEncoder.encode("administrator"));
         try {
@@ -43,7 +42,6 @@ public class UserInfoDAOImpl implements UserInfoDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(userInfo);
         return userInfo;
     }
 }

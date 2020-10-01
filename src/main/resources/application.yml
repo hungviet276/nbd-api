@@ -29,3 +29,9 @@ casbin:
   #Whether to enable the CasbinWatcher mechanism, the default is not enabled.
   #If the mechanism is enabled, casbin.storeType must be jdbc, otherwise the configuration is invalid.
   enableWatcher: false
+log4j:
+  logger:
+    org:
+      springframework:
+        jdbc:
+          core: TRACE

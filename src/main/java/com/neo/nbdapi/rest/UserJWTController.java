@@ -1,10 +1,12 @@
 package com.neo.nbdapi.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.filter.JWTFilter;
 import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
 import com.neo.nbdapi.utils.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX)
@@ -27,17 +31,24 @@ public class UserJWTController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    @Autowired
+    private PaginationDAO paginationDAO;
+
     public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
     @PostMapping(Constants.APPLICATION_API.MODULE.URI_LOGIN)
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
+
+        ResultSet resultSet = paginationDAO.getResultPagination("SELECT * FROM user_info", 1, 2, new Object[]{});
+        long resultCount = paginationDAO.countResultQuery("SELECT * FROM user_info", new Object[]{});
+        System.out.println(resultCount);
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
-        System.out.println("run controller");
+
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication);
