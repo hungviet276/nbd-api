@@ -1,0 +1,8 @@
+2020-10-02 00:06:41,369 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 11380 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 00:06:41,370 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 00:06:41,370 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 00:06:43,165 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 1.883 seconds (JVM running for 4293.447)
+2020-10-02 00:06:48,233 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 11380 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 00:06:48,233 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 00:06:48,233 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 00:06:49,448 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 1.268 seconds (JVM running for 4299.731)
