@@ -1,14 +1,12 @@
 package com.neo.nbdapi.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.filter.JWTFilter;
 import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
 import com.neo.nbdapi.utils.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,7 @@ import javax.validation.Valid;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping(Constants.APPLICATION_API.API_PREFIX)
+@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {
 
     private Logger logger = LogManager.getLogger(UserJWTController.class);
@@ -33,9 +31,6 @@ public class UserJWTController {
     private final TokenProvider tokenProvider;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    @Autowired
-    private PaginationDAO paginationDAO;
 
     public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.tokenProvider = tokenProvider;
@@ -48,7 +43,7 @@ public class UserJWTController {
      * @return
      * @throws SQLException
      */
-    @PostMapping(Constants.APPLICATION_API.MODULE.URI_LOGIN)
+    @PostMapping
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());

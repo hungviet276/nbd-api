@@ -6,11 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.casbin.jcasbin.main.Enforcer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +23,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class TokenProvider {
 
-    private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
+    private Logger logger = LogManager.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
 
@@ -80,12 +79,12 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
         User principal = new User(claims.getSubject(), "", authorities);
+
+        // log test
+        logger.debug("username: {}", claims.getSubject());
 
         if (claims.getSubject() != null && !enforcer.enforce(claims.getSubject(), path, method)) {
             return new UsernamePasswordAuthenticationToken(null , token, authorities);
@@ -104,8 +103,8 @@ public class TokenProvider {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.info("Invalid JWT token.");
-            log.trace("Invalid JWT token trace.", e);
+            logger.info("Invalid JWT token.");
+            logger.trace("Invalid JWT token trace.", e);
         }
         return false;
     }

@@ -1,5 +1,7 @@
 package com.neo.nbdapi.filter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +19,8 @@ import java.io.IOException;
  * found.
  */
 public class JWTFilter extends GenericFilterBean {
+
+    private Logger logger = LogManager.getLogger(JWTFilter.class);
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
@@ -41,9 +45,15 @@ public class JWTFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
         String path = httpServletRequest.getRequestURI();
         String method = httpServletRequest.getMethod();
+
+        // log test
+        logger.debug("path : {}, method: {}", path, method);
+
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt, path, method);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (authentication.getPrincipal() != null) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
