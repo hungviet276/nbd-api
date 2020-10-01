@@ -51,7 +51,7 @@ public class PaginationDAOImpl implements PaginationDAO {
     }
 
     @Override
-    public long countResultQuery(String sql, Object... parameter) throws BusinessException {
+    public long countResultQuery(String sql, Object... parameter) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             StringBuilder sqlPagination = new StringBuilder("");
             sqlPagination.append("SELECT count(1) FROM (");
@@ -64,8 +64,6 @@ public class PaginationDAOImpl implements PaginationDAO {
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
             return resultSet.getLong(1);
-        } catch (SQLException e) {
-            throw new BusinessException("Lỗi hệ thống: " + e.getMessage());
         }
     }
 }
