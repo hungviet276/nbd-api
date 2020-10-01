@@ -13,7 +13,7 @@ pipeline {
                      def pom = readMavenPom file: 'pom.xml'
                      version = pom.version
                      name = pom.name
-                    sh 'mvn clean package dockerfile:build'
+                    sh 'mvn clean install package dockerfile:build'
                     sh "docker push levietthang1997/${name}:${version}"
                     sh "docker-compose up -d --build"
                 }
