@@ -1,7 +1,6 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.PaginationDAO;
-import com.neo.nbdapi.exception.BusinessException;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
