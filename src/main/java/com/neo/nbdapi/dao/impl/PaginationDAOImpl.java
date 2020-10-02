@@ -17,6 +17,15 @@ public class PaginationDAOImpl implements PaginationDAO {
     @Autowired
     private HikariDataSource ds;
 
+    /**
+     * Get result paging
+     * @param sql
+     * @param pageNumber
+     * @param recordPerPage
+     * @param parameter
+     * @return
+     * @throws SQLException
+     */
     @Override
     public ResultSet getResultPagination(String sql, int pageNumber, int recordPerPage, Object... parameter) throws SQLException {
             if (recordPerPage > 0) {
@@ -49,6 +58,13 @@ public class PaginationDAOImpl implements PaginationDAO {
         return null;
     }
 
+    /**
+     * count all result query of pagination
+     * @param sql
+     * @param parameter
+     * @return
+     * @throws SQLException
+     */
     @Override
     public long countResultQuery(String sql, Object... parameter) throws SQLException {
         try (Connection connection = ds.getConnection()) {

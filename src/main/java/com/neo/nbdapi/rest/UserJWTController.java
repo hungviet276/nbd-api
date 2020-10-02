@@ -1,12 +1,15 @@
 package com.neo.nbdapi.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.filter.JWTFilter;
 import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
+import com.neo.nbdapi.services.UserInfoService;
 import com.neo.nbdapi.utils.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,9 @@ public class UserJWTController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    @Autowired
+    private UserInfoService userInfoService;
+
     public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
@@ -44,7 +50,7 @@ public class UserJWTController {
      * @throws SQLException
      */
     @PostMapping
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
+    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -52,7 +58,8 @@ public class UserJWTController {
         String jwt = tokenProvider.createToken(authentication);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
+
+        return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(), httpHeaders, HttpStatus.OK);
     }
     /**
      * Object to return as body in JWT Authentication.

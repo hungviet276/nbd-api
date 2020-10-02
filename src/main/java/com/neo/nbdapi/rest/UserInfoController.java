@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
+
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_USER_INFO)
 public class UserInfoController {
@@ -20,7 +22,7 @@ public class UserInfoController {
     private UserInfoService userInfoService;
 
     @GetMapping("/get-user-and-menu")
-    public UserAndMenuDTO getUserInfoAndListMenu() {
+    public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
         return userInfoService.getUserInfoAndListMenu();
     }
 }

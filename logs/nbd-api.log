@@ -10,3 +10,37 @@
 2020-10-02 00:40:51,935 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
 2020-10-02 00:40:51,935 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
 2020-10-02 00:40:56,644 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.377 seconds (JVM running for 6.923)
+2020-10-02 11:17:42,024 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 1524 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:17:42,025 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:17:42,025 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 11:17:46,525 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.052 seconds (JVM running for 6.664)
+2020-10-02 11:19:14,941 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST
+2020-10-02 11:19:15,610 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 11:21:04,410 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 11380 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:21:04,411 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:21:04,411 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 11:21:08,529 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.687 seconds (JVM running for 6.243)
+2020-10-02 11:21:11,217 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST
+2020-10-02 11:21:11,912 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 11:21:12,099 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] Username: administrator
+2020-10-02 11:21:59,489 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 12152 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:21:59,489 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:21:59,490 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 11:22:03,203 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.321 seconds (JVM running for 5.551)
+2020-10-02 11:22:05,637 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST
+2020-10-02 11:22:06,117 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 11:22:06,286 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] Username: administrator
+2020-10-02 11:22:50,651 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 11736 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:22:50,652 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:22:50,652 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 11:22:54,849 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.717 seconds (JVM running for 5.96)
+2020-10-02 11:22:57,357 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST
+2020-10-02 11:22:57,635 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 11:22:57,838 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-2] Username: administrator
+2020-10-02 11:25:09,243 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 12904 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:25:09,244 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:25:09,244 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 11:25:13,158 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.386 seconds (JVM running for 5.648)
+2020-10-02 11:27:36,971 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/authenticate, method: POST
+2020-10-02 11:27:37,491 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-1] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 11:27:37,693 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-1] Username: administrator
