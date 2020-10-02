@@ -86,8 +86,8 @@ public class TokenProvider {
         // log test
         logger.debug("username: {}", claims.getSubject());
 
-        if (claims.getSubject() != null && !enforcer.enforce(claims.getSubject(), path, method)) {
-            return new UsernamePasswordAuthenticationToken(null , token, authorities);
+        if (claims.getSubject() != null /*&& !enforcer.enforce(claims.getSubject(), path, method)*/) {
+            return new UsernamePasswordAuthenticationToken(claims.getSubject() , token, authorities);
         }
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);

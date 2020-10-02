@@ -7,6 +7,7 @@ public interface Constants {
         public class MODULE {
             public static final String URI_LOGIN = "/authenticate";
             public static final String URI_USER_INFO = "/user-info";
+            public static final String URI_MAIL_CONFIG = "/mail-config";
         }
     }
 

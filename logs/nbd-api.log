@@ -44,3 +44,134 @@
 2020-10-02 11:27:36,971 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/authenticate, method: POST
 2020-10-02 11:27:37,491 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-1] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
 2020-10-02 11:27:37,693 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-1] Username: administrator
+2020-10-02 11:50:09,095 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 13680 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 11:50:09,095 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 11:50:09,096 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:38:11,031 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 13984 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:38:11,033 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:38:11,033 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:38:15,960 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.816 seconds (JVM running for 7.732)
+2020-10-02 13:39:21,297 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-4] path : /favicon.ico, method: GET
+2020-10-02 13:39:21,313 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-4] path : /error, method: GET
+2020-10-02 13:40:03,729 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-8] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:40:03,730 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-8] path : /error, method: POST
+2020-10-02 13:43:01,493 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-10] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:43:01,597 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-10] username: administrator
+2020-10-02 13:43:01,671 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-10] path : /error, method: POST
+2020-10-02 13:43:01,674 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-10] username: administrator
+2020-10-02 13:43:11,829 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:43:11,839 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:43:11,844 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /error, method: POST
+2020-10-02 13:43:11,857 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:44:19,686 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 11472 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:44:19,687 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:44:19,687 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:44:24,327 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.462 seconds (JVM running for 6.825)
+2020-10-02 13:44:27,876 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:44:27,943 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:44:28,046 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /error, method: POST
+2020-10-02 13:44:28,051 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:45:06,672 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 4208 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:45:06,673 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:45:06,673 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:45:10,995 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.042 seconds (JVM running for 6.433)
+2020-10-02 13:45:40,717 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:45:40,782 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:45:40,865 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /error, method: POST
+2020-10-02 13:45:40,869 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:46:31,940 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 10580 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:46:31,941 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:46:31,942 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:46:36,252 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.041 seconds (JVM running for 6.314)
+2020-10-02 13:46:41,389 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:46:41,450 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:46:41,531 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /error, method: POST
+2020-10-02 13:46:41,534 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:46:46,539 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-3] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:46:46,542 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-3] username: administrator
+2020-10-02 13:46:46,545 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-3] path : /error, method: POST
+2020-10-02 13:46:46,548 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-3] username: administrator
+2020-10-02 13:47:13,624 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-5] path : /api/v1/authenticate, method: POST
+2020-10-02 13:47:14,179 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-5] JDBC execute query : SELECT id, password FROM user_info WHERE id = ?
+2020-10-02 13:47:14,331 DEBUG c.n.n.d.i.UserInfoDAOImpl [http-nio-8080-exec-5] Username: administrator
+2020-10-02 13:47:49,343 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-6] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:47:49,346 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-6] username: administrator
+2020-10-02 13:47:49,348 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-6] path : /error, method: POST
+2020-10-02 13:47:49,351 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-6] username: administrator
+2020-10-02 13:49:32,131 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 6976 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:49:32,132 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:49:32,132 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:49:56,893 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 12280 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:49:56,894 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:49:56,894 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:50:58,787 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 14760 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:50:58,788 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:50:58,788 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:51:02,827 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.663 seconds (JVM running for 6.247)
+2020-10-02 13:51:05,766 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:51:05,826 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:51:05,841 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /error, method: POST
+2020-10-02 13:51:05,843 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:51:52,750 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 1920 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:51:52,750 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:51:52,750 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:51:56,557 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.4 seconds (JVM running for 5.68)
+2020-10-02 13:51:59,734 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:51:59,795 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 13:51:59,963 DEBUG c.n.n.d.i.PaginationDAOImpl [http-nio-8080-exec-1] JDBC execute query: select rownum stt, xlpt.* from (SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config) xlpt where rownum < 13
+2020-10-02 13:56:10,877 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 4044 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 13:56:10,879 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 13:56:10,879 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 13:56:14,924 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.578 seconds (JVM running for 5.858)
+2020-10-02 13:56:17,817 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:56:17,879 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:57:14,520 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-3] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:57:14,524 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-3] username: administrator
+2020-10-02 13:57:24,180 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-4] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:57:24,186 INFO c.n.n.f.TokenProvider [http-nio-8080-exec-4] Invalid JWT token.
+2020-10-02 13:57:24,204 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-4] path : /error, method: POST
+2020-10-02 13:57:24,207 INFO c.n.n.f.TokenProvider [http-nio-8080-exec-4] Invalid JWT token.
+2020-10-02 13:58:06,885 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-7] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:58:06,895 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-7] username: administrator
+2020-10-02 13:58:57,432 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-10] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:58:57,439 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-10] username: administrator
+2020-10-02 13:59:40,816 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:59:40,821 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 13:59:44,596 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-5] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 13:59:44,600 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-5] username: administrator
+2020-10-02 14:00:10,725 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-7] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 14:00:10,730 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-7] username: administrator
+2020-10-02 14:00:33,352 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-9] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 14:00:33,357 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-9] username: administrator
+2020-10-02 14:10:25,890 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 2460 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 14:10:25,891 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 14:10:25,891 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 14:10:31,292 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 6.138 seconds (JVM running for 7.727)
+2020-10-02 14:11:52,482 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:11:52,550 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 14:13:23,884 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 3268 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 14:13:23,885 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 14:13:23,885 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 14:13:28,213 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.843 seconds (JVM running for 6.274)
+2020-10-02 14:13:32,464 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:13:32,524 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-2] username: administrator
+2020-10-02 14:13:50,753 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-4] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:13:50,757 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-4] username: administrator
+2020-10-02 14:14:16,038 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-5] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:14:16,043 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-5] username: administrator
+2020-10-02 14:16:16,323 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-69MST1A with PID 16948 (C:\Users\acer\IdeaProjects\nbd-api\target\classes started by acer in C:\Users\acer\IdeaProjects\nbd-api)
+2020-10-02 14:16:16,324 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-02 14:16:16,324 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-02 14:16:20,817 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.09 seconds (JVM running for 6.536)
+2020-10-02 14:16:28,122 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:16:28,215 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 14:16:29,470 DEBUG c.n.n.s.i.MailConfigServiceImpl [http-nio-8080-exec-1] Execute value: false
+2020-10-02 14:16:49,269 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-3] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 14:16:49,272 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-3] username: administrator
+2020-10-02 14:22:36,762 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-7] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 14:22:36,766 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-7] username: administrator
+2020-10-02 14:23:33,289 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-10] path : /api/v1/mail-config/get-list-mail-config-pagination, method: POST
+2020-10-02 14:23:33,300 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-10] username: administrator
+2020-10-02 14:23:42,618 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/mail-config/create-mail-config, method: POST
+2020-10-02 14:23:42,621 DEBUG c.n.n.f.TokenProvider [http-nio-8080-exec-1] username: administrator
+2020-10-02 14:23:43,048 DEBUG c.n.n.s.i.MailConfigServiceImpl [http-nio-8080-exec-1] Execute value: false
