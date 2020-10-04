@@ -1,6 +1,8 @@
 package com.neo.nbdapi.rest.vm;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public class DefaultRequestPagingVM implements Serializable {
@@ -9,6 +11,8 @@ public class DefaultRequestPagingVM implements Serializable {
     private String draw;
 
     @NotEmpty(message = "start không được trống")
+    @Pattern(regexp = "\\d", message = "start phải là số")
+    @Size(min = 1, max = 9999999, message = "start trong khoảng 1 đến 9999999")
     private String start;
 
     @NotEmpty(message = "length không được trống")
