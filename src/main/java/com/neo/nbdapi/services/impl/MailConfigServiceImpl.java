@@ -34,38 +34,37 @@ public class MailConfigServiceImpl implements MailConfigService {
 
     @Override
     public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        Connection connection = ds.getConnection();
-        int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
-        int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
-        String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
-        ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber, recordPerPage);
-        List<MailConfig> mailConfigList = new ArrayList<>();
-        while(resultSetListData.next()) {
-            MailConfig mailConfig = MailConfig.builder()
-                    .id(resultSetListData.getInt(1))
-                    .ip(resultSetListData.getString(2))
-                    .port(resultSetListData.getString(3))
-                    .username(resultSetListData.getString(4))
-                    .password(resultSetListData.getString(5))
-                    .domain(resultSetListData.getString(6))
-                    .senderName(resultSetListData.getString(7))
-                    .emailAddress(resultSetListData.getString(8))
-                    .protocol(resultSetListData.getString(9))
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
+            ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber, recordPerPage);
+            List<MailConfig> mailConfigList = new ArrayList<>();
+            while(resultSetListData.next()) {
+                MailConfig mailConfig = MailConfig.builder()
+                        .id(resultSetListData.getInt(1))
+                        .ip(resultSetListData.getString(2))
+                        .port(resultSetListData.getString(3))
+                        .username(resultSetListData.getString(4))
+                        .password(resultSetListData.getString(5))
+                        .domain(resultSetListData.getString(6))
+                        .senderName(resultSetListData.getString(7))
+                        .emailAddress(resultSetListData.getString(8))
+                        .protocol(resultSetListData.getString(9))
+                        .build();
+                mailConfigList.add(mailConfig);
+            }
+
+            // count result
+            long total = paginationDAO.countResultQuery("SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config");
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordFiltered(mailConfigList.size())
+                    .recordTotal(total)
+                    .content(mailConfigList)
                     .build();
-            mailConfigList.add(mailConfig);
         }
-
-        connection.close();
-
-        // count result
-        long total = paginationDAO.countResultQuery("SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config");
-        return DefaultPaginationDTO
-                .builder()
-                .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
-                .recordFiltered(mailConfigList.size())
-                .recordTotal(total)
-                .content(mailConfigList)
-                .build();
     }
 
     @Override
@@ -81,8 +80,7 @@ public class MailConfigServiceImpl implements MailConfigService {
             statement.setString(6, createMailConfigVM.getSenderName());
             statement.setString(7, createMailConfigVM.getEmailAddress());
             statement.setString(8, createMailConfigVM.getProtocol());
-            boolean status = statement.execute();
-            logger.debug("Execute value: {}", status);
+            statement.execute();
             DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
