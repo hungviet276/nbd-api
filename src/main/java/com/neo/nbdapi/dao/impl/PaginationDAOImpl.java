@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class PaginationDAOImpl implements PaginationDAO {
@@ -27,9 +29,8 @@ public class PaginationDAOImpl implements PaginationDAO {
      * @throws SQLException
      */
     @Override
-    public ResultSet getResultPagination(String sql, int pageNumber, int recordPerPage, Object... parameter) throws SQLException {
-            if (recordPerPage > 0) {
-                try (Connection connection = ds.getConnection()) {
+    public ResultSet getResultPagination(Connection connection, String sql, int pageNumber, int recordPerPage, Object... parameter) throws SQLException {
+        if (recordPerPage > 0) {
                     StringBuilder sqlPagination = new StringBuilder("");
                     if (pageNumber < 2) {
                         sqlPagination.append("select rownum stt, xlpt.* from (");
@@ -48,12 +49,11 @@ public class PaginationDAOImpl implements PaginationDAO {
 
                     }
                     logger.debug("JDBC execute query: {}", sqlPagination);
-                    PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
+                    PreparedStatement statement = connection.prepareStatement(sqlPagination.toString(), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                     for (int i = 0; i < parameter.length; i++) {
                         statement.setObject(i + 1, parameter[i]);
                     }
                     return statement.executeQuery();
-                }
             }
         return null;
     }
