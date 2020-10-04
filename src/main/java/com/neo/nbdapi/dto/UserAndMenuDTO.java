@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserAndMenuDTO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private String userId;
 	private String password;
 
