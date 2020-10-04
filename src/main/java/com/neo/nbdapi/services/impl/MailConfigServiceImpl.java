@@ -32,41 +32,28 @@ public class MailConfigServiceImpl implements MailConfigService {
 	@Autowired
 	private HikariDataSource ds;
 
-	@Override
-	public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM)
-			throws SQLException, BusinessException {
-		Connection connection = ds.getConnection();
-		StringBuilder sqlPagination = new StringBuilder("");
-		int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
-		int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
-		String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
-		if (pageNumber < 2) {
-			sqlPagination.append("select rownum stt, xlpt.* from (");
-			sqlPagination.append(sql);
-			sqlPagination.append(") xlpt where rownum < ");
-			sqlPagination.append(recordPerPage + 1);
-		} else {
-			sqlPagination.append("select /*+ first_rows(");
-			sqlPagination.append(recordPerPage);
-			sqlPagination.append(") */ xlpt.* from (select rownum row_stt, xlpt.* from (");
-			sqlPagination.append(sql);
-			sqlPagination.append(") xlpt where rownum <= ");
-			sqlPagination.append(pageNumber * recordPerPage);
-			sqlPagination.append(" ) xlpt where row_stt > ");
-			sqlPagination.append(((pageNumber - 1) * recordPerPage));
-
-		}
-		PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
-		ResultSet resultSetListData = statement.executeQuery();
-		List<MailConfig> mailConfigList = new ArrayList<>();
-		while (resultSetListData.next()) {
-			MailConfig mailConfig = MailConfig.builder().id(resultSetListData.getInt(1))
-					.ip(resultSetListData.getString(2)).port(resultSetListData.getString(3))
-					.username(resultSetListData.getString(4)).password(resultSetListData.getString(5))
-					.domain(resultSetListData.getString(6)).senderName(resultSetListData.getString(7))
-					.emailAddress(resultSetListData.getString(8)).protocol(resultSetListData.getString(9)).build();
-			mailConfigList.add(mailConfig);
-		}
+    @Override
+    public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        Connection connection = ds.getConnection();
+        int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+        int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+        String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
+        ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber, recordPerPage);
+        List<MailConfig> mailConfigList = new ArrayList<>();
+        while(resultSetListData.next()) {
+            MailConfig mailConfig = MailConfig.builder()
+                    .id(resultSetListData.getInt(1))
+                    .ip(resultSetListData.getString(2))
+                    .port(resultSetListData.getString(3))
+                    .username(resultSetListData.getString(4))
+                    .password(resultSetListData.getString(5))
+                    .domain(resultSetListData.getString(6))
+                    .senderName(resultSetListData.getString(7))
+                    .emailAddress(resultSetListData.getString(8))
+                    .protocol(resultSetListData.getString(9))
+                    .build();
+            mailConfigList.add(mailConfig);
+        }
 
 		connection.close();
 
