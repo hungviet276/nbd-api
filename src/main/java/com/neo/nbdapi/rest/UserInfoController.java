@@ -16,13 +16,13 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_USER_INFO)
 public class UserInfoController {
-    private Logger logger = LogManager.getLogger(UserInfoController.class);
+	private Logger logger = LogManager.getLogger(UserInfoController.class);
 
-    @Autowired
-    private UserInfoService userInfoService;
+	@Autowired
+	private UserInfoService userInfoService;
 
-    @GetMapping("/get-user-and-menu")
-    public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
-        return userInfoService.getUserInfoAndListMenu();
-    }
+	@GetMapping("/get-user-and-menu")
+	public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
+		return userInfoService.getUserInfoAndListMenu();
+	}
 }

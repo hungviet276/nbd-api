@@ -21,71 +21,73 @@ import java.util.List;
 @RestController
 public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @Override
-    @SuppressWarnings("unused")
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<FieldError> fieldErrorList = ex.getBindingResult().getFieldErrors();
-        String message = "";
-        if (fieldErrorList.size() > 0) {
-            message = fieldErrorList.get(0).getDefaultMessage();
-        }
-        ResponseBasicObj responseBasicObj = new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST, message);
-        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
-    }
+	@Override
+	@SuppressWarnings("unused")
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		List<FieldError> fieldErrorList = ex.getBindingResult().getFieldErrors();
+		String message = "";
+		if (fieldErrorList.size() > 0) {
+			message = fieldErrorList.get(0).getDefaultMessage();
+		}
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST, message);
+		return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
+	}
 
-    @SuppressWarnings("unchecked")
-    @ExceptionHandler(Exception.class)
-    public  ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
-        ex.printStackTrace();
-        ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.INTERNAL_SERVER_ERROR,
-                        "Server error : " + ex.getMessage());
+	@SuppressWarnings("unchecked")
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+		ex.printStackTrace();
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(Constants.EXCEPTION.INTERNAL_SERVER_ERROR,
+				"Server error : " + ex.getMessage());
 
-        return new ResponseEntity(responseBasicObj, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+		return new ResponseEntity(responseBasicObj, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
-    /**
-     * The method handle invalid username or password throw by AbstractUserDetailAuthenticationProvider
-     * @param request
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCredentialsException(WebRequest request) {
-        ResponseBasicObj  responseBasicObj = new ResponseBasicObj(400, "Tài khoản hoặc mật khẩu không đúng");
+	/**
+	 * The method handle invalid username or password throw by
+	 * AbstractUserDetailAuthenticationProvider
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<Object> handleBadCredentialsException(WebRequest request) {
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(400, "Tài khoản hoặc mật khẩu không đúng");
 
-        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
-    }
+		return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
+	}
 
-    /**
-     * The method handle only StoreBusinessException
-     * @param ex
-     * @param request
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    @ExceptionHandler(BusinessException.class)
-    public  ResponseEntity<Object> handleAgencyException(BusinessException ex, WebRequest request) {
+	/**
+	 * The method handle only StoreBusinessException
+	 * 
+	 * @param ex
+	 * @param request
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<Object> handleAgencyException(BusinessException ex, WebRequest request) {
 
-        ResponseBasicObj  responseBasicObj = new ResponseBasicObj(ex.getCode(),
-                ex.getMessage());
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(ex.getCode(), ex.getMessage());
 
-        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
-    }
+		return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
+	}
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.BAD_REQUEST,
-                        "Missing parameter :" + ex.getParameterName());
-        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
-    }
+	@Override
+	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
+				"Missing parameter :" + ex.getParameterName());
+		return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
+	}
 
-    @Override
-    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.BAD_REQUEST,
-                        "Missing path variable :" + ex.getVariableName());
-        return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
-    }
+	@Override
+	protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+		ResponseBasicObj responseBasicObj = new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
+				"Missing path variable :" + ex.getVariableName());
+		return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
+	}
 }

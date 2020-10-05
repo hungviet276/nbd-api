@@ -22,60 +22,41 @@ import org.springframework.web.filter.CorsFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final TokenProvider tokenProvider;
+	private final TokenProvider tokenProvider;
 
-    private final CorsFilter corsFilter;
+	private final CorsFilter corsFilter;
 
-    public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter) {
-        this.tokenProvider = tokenProvider;
-        this.corsFilter = corsFilter;
-    }
+	public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter) {
+		this.tokenProvider = tokenProvider;
+		this.corsFilter = corsFilter;
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring()
-                .antMatchers(HttpMethod.OPTIONS, "/**")
-                .antMatchers("/i18n/**")
-                .antMatchers("/test/**");
-    }
+	@Override
+	public void configure(WebSecurity web) {
+		web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**").antMatchers("/i18n/**").antMatchers("/test/**");
+	}
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .disable()
-                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling()
-                .and()
-                .headers()
-                .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
-                .and()
-                .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-                .and()
-                .featurePolicy("geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'")
-                .and()
-                .frameOptions()
-                .deny()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN).permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic()
-                .and()
-                .apply(securityConfigurerAdapter());
-    }
+	@Override
+	public void configure(HttpSecurity http) throws Exception {
+		http.csrf().disable().addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+				.exceptionHandling().and().headers()
+				.contentSecurityPolicy(
+						"default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
+				.and().referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN).and()
+				.featurePolicy(
+						"geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'self'; payment 'none'")
+				.and().frameOptions().deny().and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+				.antMatchers(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
+				.permitAll().anyRequest().authenticated().and().httpBasic().and().apply(securityConfigurerAdapter());
+	}
 
-    private JWTConfigurer securityConfigurerAdapter() {
-        return new JWTConfigurer(tokenProvider);
-    }
+	private JWTConfigurer securityConfigurerAdapter() {
+		return new JWTConfigurer(tokenProvider);
+	}
 }

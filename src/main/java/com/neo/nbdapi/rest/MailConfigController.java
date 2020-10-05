@@ -20,16 +20,18 @@ import java.sql.SQLException;
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_MAIL_CONFIG)
 public class MailConfigController {
 
-    @Autowired
-    private MailConfigService mailConfigService;
+	@Autowired
+	private MailConfigService mailConfigService;
 
-    @PostMapping("/get-list-mail-config-pagination")
-    public DefaultPaginationDTO getListMailConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        return mailConfigService.getListMailConfigPagination(defaultRequestPagingVM);
-    }
+	@PostMapping("/get-list-mail-config-pagination")
+	public DefaultPaginationDTO getListMailConfigPagination(
+			@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+		return mailConfigService.getListMailConfigPagination(defaultRequestPagingVM);
+	}
 
-    @PostMapping("/create-mail-config")
-    public DefaultResponseDTO createMailConfig(@RequestBody @Valid CreateMailConfigVM createMailConfigVM) throws SQLException {
-        return mailConfigService.createMailConfig(createMailConfigVM);
-    }
+	@PostMapping("/create-mail-config")
+	public DefaultResponseDTO createMailConfig(@RequestBody @Valid CreateMailConfigVM createMailConfigVM)
+			throws SQLException {
+		return mailConfigService.createMailConfig(createMailConfigVM);
+	}
 }

@@ -22,29 +22,28 @@ import java.util.stream.Collectors;
 @Component("userDetailsService")
 public class DomainUserDetailsService implements UserDetailsService {
 
-    private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
+	private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
 
-    private final UserInfoDAO userInfoDAO;
+	private final UserInfoDAO userInfoDAO;
 
-    public DomainUserDetailsService(UserInfoDAO userInfoDAO) {
-        this.userInfoDAO = userInfoDAO;
-    }
+	public DomainUserDetailsService(UserInfoDAO userInfoDAO) {
+		this.userInfoDAO = userInfoDAO;
+	}
 
-    /**
-     *  function get user_info by username from database
-     *
-     * @param username
-     * @return
-     */
-    @SneakyThrows
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(final String username) {
-        UserInfo userInfo = userInfoDAO.findUserInfoByUsername(username);
-        if (userInfo == null)
-            throw new UsernameNotFoundException("User " + username + " was not found in the database");
-        Set<SimpleGrantedAuthority> simpleGrantedAuthorities = new HashSet<>();
-        return   new User(userInfo.getId(),
-                userInfo.getPassword(), simpleGrantedAuthorities);
-    }
+	/**
+	 * function get user_info by username from database
+	 *
+	 * @param username
+	 * @return
+	 */
+	@SneakyThrows
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(final String username) {
+		UserInfo userInfo = userInfoDAO.findUserInfoByUsername(username);
+		if (userInfo == null)
+			throw new UsernameNotFoundException("User " + username + " was not found in the database");
+		Set<SimpleGrantedAuthority> simpleGrantedAuthorities = new HashSet<>();
+		return new User(userInfo.getId(), userInfo.getPassword(), simpleGrantedAuthorities);
+	}
 }

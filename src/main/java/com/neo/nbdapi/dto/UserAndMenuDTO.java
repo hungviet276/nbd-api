@@ -14,9 +14,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserAndMenuDTO implements Serializable {
-    private String userId;
+	private String userId;
+	private String password;
 
-    private List<MenuDTO> menus;
+	private List<MenuDTO> menus;
 
-    private List<ApiUrlDTO> urlApi;
+	private List<ApiUrlDTO> urlApi;
 }

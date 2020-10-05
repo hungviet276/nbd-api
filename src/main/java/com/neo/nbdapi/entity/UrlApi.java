@@ -1,11 +1,11 @@
 package com.neo.nbdapi.entity;
 
 public class UrlApi {
-    private int id;
+	private int id;
 
-    private String url;
+	private String url;
 
-    private String method;
+	private String method;
 
-    private int menuId;
+	private int menuId;
 }

@@ -15,11 +15,11 @@ import java.io.Serializable;
 @Builder
 public class LoginVM implements Serializable {
 
-    @NotNull
-    @Size(min = 1, max = 50)
-    private String username;
+	@NotNull
+	@Size(min = 1, max = 50)
+	private String username;
 
-    @NotNull
-    @Size(min = 4, max = 100)
-    private String password;
+	@NotNull
+	@Size(min = 4, max = 100)
+	private String password;
 }

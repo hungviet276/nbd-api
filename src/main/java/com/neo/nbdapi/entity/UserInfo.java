@@ -16,33 +16,33 @@ import java.util.Date;
 @Builder
 public class UserInfo {
 
-    private String id;
+	private String id;
 
-    private String password;
+	private String password;
 
-    private String name;
+	private String name;
 
-    private String mobile;
+	private String mobile;
 
-    private String position;
+	private String position;
 
-    private String email;
+	private String email;
 
-    private int gender;
+	private int gender;
 
-    private int statusId;
+	private int statusId;
 
-    private int checkRole;
+	private int checkRole;
 
-    private int dateRole;
+	private int dateRole;
 
-    private int cardNumber;
+	private int cardNumber;
 
-    private String code;
+	private String code;
 
-    private String officeCode;
+	private String officeCode;
 
-    private Date createdDate;
+	private Date createdDate;
 
-    private String createdBy;
+	private String createdBy;
 }

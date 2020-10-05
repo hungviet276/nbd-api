@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MenuDTO {
-    private int id;
+	private int id;
 
-    private String menuUrl;
+	private String menuUrl;
 }

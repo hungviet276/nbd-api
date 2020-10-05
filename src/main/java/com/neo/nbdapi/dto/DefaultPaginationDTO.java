@@ -12,14 +12,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class DefaultPaginationDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private int draw;
+	private int draw;
 
-    private long recordTotal;
+	private long recordTotal;
 
-    private long recordFiltered;
+	private long recordFiltered;
 
-    private Object content;
+	private Object content;
 }
-

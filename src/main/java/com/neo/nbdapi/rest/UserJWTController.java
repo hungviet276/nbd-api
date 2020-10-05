@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,56 +31,63 @@ import java.sql.SQLException;
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {
 
-    private Logger logger = LogManager.getLogger(UserJWTController.class);
+	private Logger logger = LogManager.getLogger(UserJWTController.class);
 
-    private final TokenProvider tokenProvider;
+	private final TokenProvider tokenProvider;
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+	private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    @Autowired
-    private UserInfoService userInfoService;
+	@Autowired
+	private UserInfoService userInfoService;
 
-    public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.tokenProvider = tokenProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-    }
+	@Autowired
+	PasswordEncoder encoder;
 
-    /**
-     * API authenticate
-     * @param loginVM
-     * @return
-     * @throws SQLException
-     */
-    @PostMapping
-    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.createToken(authentication);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+	public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+		this.tokenProvider = tokenProvider;
+		this.authenticationManagerBuilder = authenticationManagerBuilder;
+	}
 
-        return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(), httpHeaders, HttpStatus.OK);
-    }
-    /**
-     * Object to return as body in JWT Authentication.
-     */
-    static class JWTToken {
+	/**
+	 * API authenticate
+	 * 
+	 * @param loginVM
+	 * @return
+	 * @throws SQLException
+	 */
+	@PostMapping
+	public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				loginVM.getUsername(), loginVM.getPassword());
+		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = tokenProvider.createToken(authentication);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
-        private String idToken;
+		String encodepass = encoder.encode(loginVM.getPassword());
+		return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(authentication.getName(), encodepass),
+				httpHeaders, HttpStatus.OK);
+	}
 
-        JWTToken(String idToken) {
-            this.idToken = idToken;
-        }
+	/**
+	 * Object to return as body in JWT Authentication.
+	 */
+	static class JWTToken {
 
-        @JsonProperty("id_token")
-        String getIdToken() {
-            return idToken;
-        }
+		private String idToken;
 
-        void setIdToken(String idToken) {
-            this.idToken = idToken;
-        }
-    }
+		JWTToken(String idToken) {
+			this.idToken = idToken;
+		}
+
+		@JsonProperty("id_token")
+		String getIdToken() {
+			return idToken;
+		}
+
+		void setIdToken(String idToken) {
+			this.idToken = idToken;
+		}
+	}
 }

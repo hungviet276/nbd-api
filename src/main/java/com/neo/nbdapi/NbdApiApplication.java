@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class NbdApiApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(NbdApiApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(NbdApiApplication.class, args);
+	}
 
 }

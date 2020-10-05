@@ -10,19 +10,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateMailConfigVM {
-    private String ip;
+	private String ip;
 
-    private String port;
+	private String port;
 
-    private String username;
+	private String username;
 
-    private String password;
+	private String password;
 
-    private String domain;
+	private String domain;
 
-    private String senderName;
+	private String senderName;
 
-    private String emailAddress;
+	private String emailAddress;
 
-    private String protocol;
+	private String protocol;
 }

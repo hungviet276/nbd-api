@@ -9,7 +9,8 @@ import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import java.sql.SQLException;
 
 public interface MailConfigService {
-    DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
+	DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM)
+			throws SQLException, BusinessException;
 
-    DefaultResponseDTO createMailConfig(CreateMailConfigVM createMailConfigVM) throws SQLException;
+	DefaultResponseDTO createMailConfig(CreateMailConfigVM createMailConfigVM) throws SQLException;
 }
