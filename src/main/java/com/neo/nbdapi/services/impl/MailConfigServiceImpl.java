@@ -34,11 +34,12 @@ public class MailConfigServiceImpl implements MailConfigService {
 
     @Override
     public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
-            ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber, recordPerPage);
+            ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber + 1, recordPerPage);
             List<MailConfig> mailConfigList = new ArrayList<>();
             while(resultSetListData.next()) {
                 MailConfig mailConfig = MailConfig.builder()
@@ -60,8 +61,8 @@ public class MailConfigServiceImpl implements MailConfigService {
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
-                    .recordFiltered(mailConfigList.size())
-                    .recordTotal(total)
+                    .recordsFiltered(mailConfigList.size())
+                    .recordsTotal(total)
                     .content(mailConfigList)
                     .build();
         }

@@ -54,4 +54,14 @@ public class DefaultRequestPagingVM implements Serializable {
     public void setSearch(String search) {
         this.search = search;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultRequestPagingVM{" +
+                "draw='" + draw + '\'' +
+                ", start='" + start + '\'' +
+                ", length='" + length + '\'' +
+                ", search='" + search + '\'' +
+                '}';
+    }
 }

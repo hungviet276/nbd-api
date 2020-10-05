@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ApiUrlDTO {
+	
     private String url;
 
     private String method;
