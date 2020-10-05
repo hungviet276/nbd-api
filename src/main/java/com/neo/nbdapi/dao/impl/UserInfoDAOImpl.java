@@ -37,9 +37,8 @@ public class UserInfoDAOImpl implements UserInfoDAO {
      */
     @Override
     public UserInfo findUserInfoByUsername(String username) throws SQLException {
-
-        UserInfo userInfo = null;
         try (Connection connection = ds.getConnection()) {
+            UserInfo userInfo = null;
             String sql = "SELECT id, password FROM user_info WHERE id = ?";
             // log sql
             logger.debug("JDBC execute query : {}", sql);

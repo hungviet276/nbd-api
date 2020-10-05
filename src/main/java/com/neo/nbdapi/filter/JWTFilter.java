@@ -47,7 +47,7 @@ public class JWTFilter extends GenericFilterBean {
         String method = httpServletRequest.getMethod();
 
         // log test
-        logger.debug("path : {}, method: {}", path, method);
+        logger.debug("path : {}, method: {}, token: {}", path, method, jwt);
 
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt, path, method);
