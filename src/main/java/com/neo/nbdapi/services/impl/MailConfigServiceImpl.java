@@ -102,15 +102,15 @@ public class MailConfigServiceImpl implements MailConfigService {
 
             while (resultSetListData.next()) {
                 MailConfig mailConfig = MailConfig.builder()
-                        .id(resultSetListData.getInt(2))
-                        .ip(resultSetListData.getString(3))
-                        .port(resultSetListData.getString(4))
-                        .username(resultSetListData.getString(5))
-                        .password(resultSetListData.getString(6))
-                        .domain(resultSetListData.getString(7))
-                        .senderName(resultSetListData.getString(8))
-                        .emailAddress(resultSetListData.getString(9))
-                        .protocol(resultSetListData.getString(10))
+                        .id(resultSetListData.getInt("id"))
+                        .ip(resultSetListData.getString("ip"))
+                        .port(resultSetListData.getString("port"))
+                        .username(resultSetListData.getString("username"))
+                        .password(resultSetListData.getString("password"))
+                        .domain(resultSetListData.getString("domain"))
+                        .senderName(resultSetListData.getString("sender_name"))
+                        .emailAddress(resultSetListData.getString("email_address"))
+                        .protocol(resultSetListData.getString("protocol"))
                         .build();
                 mailConfigList.add(mailConfig);
             }
