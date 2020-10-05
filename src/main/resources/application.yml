@@ -1,4 +1,3 @@
-
 casbin:
   enableCasbin: true
   useSyncedEnforcer: false
