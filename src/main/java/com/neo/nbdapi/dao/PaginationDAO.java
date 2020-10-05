@@ -8,6 +8,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface PaginationDAO {
-    ResultSet getResultPagination(Connection connection, String sql, int pageNumber, int recordPerPage, Object... parameter) throws SQLException;
-    public long countResultQuery(String sql, Object... parameter) throws SQLException, BusinessException;
+    ResultSet getResultPagination(Connection connection, String sql, int pageNumber, int recordPerPage, List<Object> parameter) throws SQLException;
+    public long countResultQuery(String sql, List<Object> parameter) throws SQLException, BusinessException;
 }

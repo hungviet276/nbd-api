@@ -1,5 +1,7 @@
 package com.neo.nbdapi.services.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
@@ -8,10 +10,15 @@ import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.CreateMailConfigVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.MailConfigService;
+import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -32,32 +39,84 @@ public class MailConfigServiceImpl implements MailConfigService {
     @Autowired
     private HikariDataSource ds;
 
+    @Autowired
+    @Qualifier("objectMapper")
+    private ObjectMapper objectMapper;
+
     @Override
     public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
-            String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config";
-            ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql, pageNumber + 1, recordPerPage);
+            String search = defaultRequestPagingVM.getSearch();
+
+            StringBuilder sql = new StringBuilder("SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config  WHERE 1 = 1 ");
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    SearchMailConfig objectSearch = objectMapper.readValue(search, SearchMailConfig.class);
+                    if (Strings.isNotEmpty(objectSearch.getId())) {
+                        sql.append(" AND id = ? ");
+                        paramSearch.add(objectSearch.getId());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getIp())) {
+                        sql.append(" AND ip LIKE ? ");
+                        paramSearch.add("%" + objectSearch.getIp() + "%");
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getPort())) {
+                        sql.append(" AND port = ? ");
+                        paramSearch.add(objectSearch.getIp());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getUsername())) {
+                        sql.append(" AND username = ? ");
+                        paramSearch.add(objectSearch.getUsername());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getPassword())) {
+                        sql.append(" AND password = ? ");
+                        paramSearch.add(objectSearch.getPassword());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getDomain())) {
+                        sql.append(" AND domain = ? ");
+                        paramSearch.add(objectSearch.getDomain());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getSenderName())) {
+                        sql.append(" AND sender_name = ? ");
+                        paramSearch.add(objectSearch.getSenderName());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getEmail())) {
+                        sql.append(" AND email_address = ? ");
+                        paramSearch.add(objectSearch.getEmail());
+                    }
+                    if (Strings.isNotEmpty(objectSearch.getProtocol())) {
+                        sql.append(" AND protocol = ? ");
+                        paramSearch.add(objectSearch.getProtocol());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
             List<MailConfig> mailConfigList = new ArrayList<>();
-            while(resultSetListData.next()) {
+
+            while (resultSetListData.next()) {
                 MailConfig mailConfig = MailConfig.builder()
-                        .id(resultSetListData.getInt(1))
-                        .ip(resultSetListData.getString(2))
-                        .port(resultSetListData.getString(3))
-                        .username(resultSetListData.getString(4))
-                        .password(resultSetListData.getString(5))
-                        .domain(resultSetListData.getString(6))
-                        .senderName(resultSetListData.getString(7))
-                        .emailAddress(resultSetListData.getString(8))
-                        .protocol(resultSetListData.getString(9))
+                        .id(resultSetListData.getInt(2))
+                        .ip(resultSetListData.getString(3))
+                        .port(resultSetListData.getString(4))
+                        .username(resultSetListData.getString(5))
+                        .password(resultSetListData.getString(6))
+                        .domain(resultSetListData.getString(7))
+                        .senderName(resultSetListData.getString(8))
+                        .emailAddress(resultSetListData.getString(9))
+                        .protocol(resultSetListData.getString(10))
                         .build();
                 mailConfigList.add(mailConfig);
             }
 
             // count result
-            long total = paginationDAO.countResultQuery("SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config");
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
