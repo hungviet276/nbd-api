@@ -16,9 +16,9 @@ public class DefaultPaginationDTO implements Serializable {
 
     private int draw;
 
-    private long recordTotal;
+    private long recordsTotal;
 
-    private long recordFiltered;
+    private long recordsFiltered;
 
     private Object content;
 }
