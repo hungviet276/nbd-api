@@ -908,3 +908,35 @@
 2020-10-05 16:32:39,350 DEBUG c.n.n.s.i.MailConfigServiceImpl [http-nio-8080-exec-10] defaultRequestPagingVM: DefaultRequestPagingVM{draw='3', start='0', length='10', search='{"s_id":"","s_ip":"","s_port":"","s_username":"","s_password":"","s_domain":"","s_sendername":"","s_email":"","s_protocol":""}'}
 2020-10-05 16:32:39,401 DEBUG c.n.n.s.i.MailConfigServiceImpl [http-nio-8080-exec-10] NUMBER OF SEARCH : 0
 2020-10-05 16:32:39,402 DEBUG c.n.n.d.i.PaginationDAOImpl [http-nio-8080-exec-10] JDBC execute query: select rownum row_stt, xlpt.* from (SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config  WHERE 1 = 1 ) xlpt where rownum < 11
+2020-10-06 11:38:31,639 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 4868 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 11:38:31,651 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 11:38:31,652 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 11:39:28,525 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 8400 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 11:39:28,535 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 11:39:28,536 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 11:39:32,298 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.24 seconds (JVM running for 5.331)
+2020-10-06 11:39:35,712 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/authenticate, method: POST, token: null
+2020-10-06 13:06:42,628 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 6224 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 13:06:42,653 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 13:06:42,657 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 13:07:05,949 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 9680 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 13:07:05,964 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 13:07:05,964 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 13:07:09,594 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 4.36 seconds (JVM running for 6.39)
+2020-10-06 13:07:12,940 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/authenticate, method: POST, token: null
+2020-10-06 13:13:28,936 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST, token: null
+2020-10-06 13:19:33,417 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 1460 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 13:19:33,433 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 13:19:33,435 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 13:19:38,179 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 5.36 seconds (JVM running for 6.905)
+2020-10-06 13:20:01,752 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST, token: null
+2020-10-06 13:22:31,822 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 1152 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 13:22:31,836 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 13:22:31,838 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 13:22:51,728 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 20.422 seconds (JVM running for 21.883)
+2020-10-06 13:22:58,940 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-2] path : /api/v1/authenticate, method: POST, token: null
+2020-10-06 13:23:48,890 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on DESKTOP-QGCHK36 with PID 11772 (E:\NEO\2020\NBD\Code\V4\nbd-api\target\classes started by admin in E:\NEO\2020\NBD\Code\V4\nbd-api)
+2020-10-06 13:23:48,905 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-06 13:23:48,906 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
+2020-10-06 13:23:56,142 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 7.833 seconds (JVM running for 9.311)
+2020-10-06 13:24:21,723 DEBUG c.n.n.f.JWTFilter [http-nio-8080-exec-1] path : /api/v1/authenticate, method: POST, token: null
