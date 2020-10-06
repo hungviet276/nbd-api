@@ -66,7 +66,7 @@ public class UserInfoDAOImpl implements UserInfoDAO {
      * @throws SQLException
      */
     @Override
-    public UserAndMenuDTO findMenuAndApiUrlOfUser(String username) throws SQLException {
+    public UserAndMenuDTO findMenuAndApiUrlOfUser(String username, String ...args) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             logger.debug("Username: {}", username);
             // get list menu access of user
@@ -101,6 +101,7 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
             UserAndMenuDTO userAndMenuDTO = UserAndMenuDTO.builder()
                     .userId(username)
+					.password(args[0])
                     .menus(menuDTOList)
                     .urlApi(apiUrlList)
                     .build();

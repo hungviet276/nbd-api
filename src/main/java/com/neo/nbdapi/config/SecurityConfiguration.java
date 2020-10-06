@@ -22,19 +22,19 @@ import org.springframework.web.filter.CorsFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final TokenProvider tokenProvider;
+	private final TokenProvider tokenProvider;
 
-    private final CorsFilter corsFilter;
+	private final CorsFilter corsFilter;
 
-    public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter) {
-        this.tokenProvider = tokenProvider;
-        this.corsFilter = corsFilter;
-    }
+	public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter) {
+		this.tokenProvider = tokenProvider;
+		this.corsFilter = corsFilter;
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
     @Override
     public void configure(WebSecurity web) {

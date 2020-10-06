@@ -4,6 +4,9 @@ import com.neo.nbdapi.dto.UserAndMenuDTO;
 
 import java.sql.SQLException;
 
-public interface UserInfoService {
-    UserAndMenuDTO getUserInfoAndListMenu() throws SQLException;
+import org.springframework.security.authentication.AuthenticationProvider;
+
+public interface UserInfoService{
+	UserAndMenuDTO getUserInfoAndListMenu() throws SQLException;
+	UserAndMenuDTO getUserInfoAndListMenu(String username, String password) throws SQLException;
 }

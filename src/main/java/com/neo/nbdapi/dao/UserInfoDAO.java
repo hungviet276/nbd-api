@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
 public interface UserInfoDAO {
-    UserInfo findUserInfoByUsername(String username) throws SQLException;
-    UserAndMenuDTO findMenuAndApiUrlOfUser(String username) throws SQLException;
+	UserInfo findUserInfoByUsername(String username) throws SQLException;
+
+	UserAndMenuDTO findMenuAndApiUrlOfUser(String username, String ...args) throws SQLException;
 }
