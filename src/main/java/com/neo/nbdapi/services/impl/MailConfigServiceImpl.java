@@ -40,7 +40,7 @@ public class MailConfigServiceImpl implements MailConfigService {
     private HikariDataSource ds;
 
     @Autowired
-    @Qualifier("objectMapper")
+//    @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
 
     @Override
