@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git branch: "master", url: 'https://10.252.10.175/thanglv/nbd-api.git'
+                git branch: "develop", url: 'https://10.252.10.175/thanglv/nbd-api.git'
             }
         }
         stage('Build') {
