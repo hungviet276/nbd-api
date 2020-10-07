@@ -18,7 +18,7 @@ import java.sql.SQLException;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_MAIL_CONFIG)
-public class MailConfigController {
+public class UsersManagerController {
 
     @Autowired
     private MailConfigService mailConfigService;

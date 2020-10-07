@@ -9,6 +9,7 @@ import com.neo.nbdapi.entity.MailConfig;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.CreateMailConfigVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+
 import com.neo.nbdapi.services.MailConfigService;
 import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.zaxxer.hikari.HikariDataSource;
