@@ -17,5 +17,5 @@ public interface MailConfigService {
 
     DefaultResponseDTO editMailConfig(EditMailConfigVM editMailConfigVM) throws SQLException, BusinessException;
 
-    DefaultResponseDTO deleteMailConfig(DeleteMailConfigVM deleteMailConfigVM);
+    DefaultResponseDTO deleteMailConfig(DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException;
 }

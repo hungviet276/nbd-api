@@ -182,7 +182,12 @@ public class MailConfigServiceImpl implements MailConfigService {
     }
 
     @Override
-    public DefaultResponseDTO deleteMailConfig(DeleteMailConfigVM deleteMailConfigVM) {
-        return null;
+    public DefaultResponseDTO deleteMailConfig(DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException {
+        long countMailConfig = mailConfigDAO.countMailConfigById(Long.parseLong(deleteMailConfigVM.getId()));
+        if (countMailConfig < 1)
+            throw new BusinessException("Không tìm thấy cấu hình email");
+
+        mailConfigDAO.delete(Long.parseLong(deleteMailConfigVM.getId()));
+        return new DefaultResponseDTO(1, "Thành công");
     }
 }

@@ -62,7 +62,6 @@ public class MailConfigDAOImpl implements MailConfigDAO {
     @Override
     public void editMailConfig(MailConfig mailConfig) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            System.out.println(mailConfig);
             String sql = "UPDATE mail_config SET ip = ?, port = ?, username = ?, password = ?, domain = ?, sender_name = ?, email_address = ?, protocol = ? WHERE id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, mailConfig.getIp());
@@ -74,6 +73,28 @@ public class MailConfigDAOImpl implements MailConfigDAO {
             statement.setString(7, mailConfig.getEmailAddress());
             statement.setString(8, mailConfig.getProtocol());
             statement.setLong(9, mailConfig.getId());
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public long countMailConfigById(long id) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT COUNT(1) FROM mail_config WHERE id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        }
+    }
+
+    @Override
+    public void delete(long id) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "DELETE FROM mail_config WHERE id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
             statement.executeUpdate();
         }
     }

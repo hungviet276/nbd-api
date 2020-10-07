@@ -38,7 +38,7 @@ public class MailConfigController {
     }
 
     @DeleteMapping("/delete-mail-config")
-    public DefaultResponseDTO deleteMailConfig(@RequestBody @Valid DeleteMailConfigVM deleteMailConfigVM) {
+    public DefaultResponseDTO deleteMailConfig(@RequestBody @Valid DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException {
         return mailConfigService.deleteMailConfig(deleteMailConfigVM);
     }
 }
