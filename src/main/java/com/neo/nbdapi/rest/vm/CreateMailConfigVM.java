@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateMailConfigVM {
+
     private String ip;
 
     private String port;

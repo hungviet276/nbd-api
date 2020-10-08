@@ -7,7 +7,7 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.GroupMailRecieve;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.GroupMailReceiveVM;
+import com.neo.nbdapi.rest.vm.CreateGroupMailReceiveVM;
 import com.neo.nbdapi.services.GroupMailRecevelService;
 import com.neo.nbdapi.services.objsearch.SearchGroupMailReceive;
 import com.zaxxer.hikari.HikariDataSource;
@@ -109,24 +109,18 @@ public class GroupReceiveMailServiceImpl implements GroupMailRecevelService {
     }
 
     @Override
-    public DefaultResponseDTO createGroupReceiveMails(GroupMailReceiveVM groupMailReceiveVM) throws SQLException {
+    public DefaultResponseDTO createGroupReceiveMails(CreateGroupMailReceiveVM createGroupMailReceiveVM) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String sql = "insert into GROUP_RECEIVE_MAIL(ID,NAME,CODE,STATUS,DESCRIPTION)values(GROUP_RECEIVE_MAIL_SEQ.nextval,?,?,?,?)";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, groupMailReceiveVM.getName());
-            statement.setString(2, groupMailReceiveVM.getCode());
-            statement.setString(3, groupMailReceiveVM.getStatus());
-            statement.setString(4, groupMailReceiveVM.getDescription());
+            statement.setString(1, createGroupMailReceiveVM.getName());
+            statement.setString(2, createGroupMailReceiveVM.getCode());
+            statement.setString(3, createGroupMailReceiveVM.getStatus());
+            statement.setString(4, createGroupMailReceiveVM.getDescription());
             statement.execute();
             DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
-            return defaultResponseDTO;
-        } catch (Exception e){
-            e.printStackTrace();
-            DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-            defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Thêm mới không thành công");
             return defaultResponseDTO;
         }
     }

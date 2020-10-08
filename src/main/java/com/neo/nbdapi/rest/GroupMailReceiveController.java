@@ -5,7 +5,9 @@ import java.sql.SQLException;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.GroupMailReceiveVM;
+import com.neo.nbdapi.rest.vm.DeleteMailConfigVM;
+import com.neo.nbdapi.rest.vm.EditMailConfigVM;
+import com.neo.nbdapi.rest.vm.CreateGroupMailReceiveVM;
 import com.neo.nbdapi.services.GroupMailRecevelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +29,16 @@ public class GroupMailReceiveController {
     }
 
     @PostMapping
-    public DefaultResponseDTO getListMailConfigPagination(@RequestBody @Valid GroupMailReceiveVM groupMailReceiveVM) throws SQLException, BusinessException {
-        return groupMailRecevelService.createGroupReceiveMails(groupMailReceiveVM);
+    public DefaultResponseDTO getListMailConfigPagination(@RequestBody @Valid CreateGroupMailReceiveVM createGroupMailReceiveVM) throws SQLException, BusinessException {
+        return groupMailRecevelService.createGroupReceiveMails(createGroupMailReceiveVM);
+    }
+    @PutMapping
+    public DefaultResponseDTO editMailConfig(@RequestBody @Valid EditMailConfigVM editMailConfigVM) throws SQLException, BusinessException {
+        return null;
+    }
+
+    @DeleteMapping
+    public DefaultResponseDTO deleteMailConfig(@RequestBody @Valid DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException {
+        return null;
     }
 }
