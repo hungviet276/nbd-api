@@ -11,7 +11,7 @@
     <groupId>com.neo</groupId>
     <artifactId>nbd-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>nbd-api</name>
     <description>Demo project for Spring Boot</description>
 
