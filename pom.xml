@@ -10,8 +10,8 @@
     </parent>
     <groupId>com.neo</groupId>
     <artifactId>nbd-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <version>1.0</version>
+    <packaging>jar</packaging>
     <name>nbd-api</name>
     <description>Demo project for Spring Boot</description>
 
@@ -171,20 +171,20 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.13</version>
+                <version>1.4.6</version>
                 <executions>
                     <execution>
                         <id>default</id>
                         <goals>
                             <goal>build</goal>
                         </goals>
+                        <configuration>
+                            <skipDockerInfo>true</skipDockerInfo>
+                            <repository>levietthang1997/${project.name}</repository>
+                            <tag>${project.name}-${project.version}</tag>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <repository>levietthang1997/${project.name}</repository>
-                    <tag>${project.version}</tag>
-                    <skipDockerInfo>true</skipDockerInfo>
-                </configuration>
             </plugin>
         </plugins>
     </build>

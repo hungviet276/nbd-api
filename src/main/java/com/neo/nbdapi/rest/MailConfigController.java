@@ -5,7 +5,7 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.CreateMailConfigVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.DeleteMailConfigVM;
+import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.EditMailConfigVM;
 import com.neo.nbdapi.services.MailConfigService;
 import com.neo.nbdapi.utils.Constants;
@@ -38,7 +38,7 @@ public class MailConfigController {
     }
 
     @DeleteMapping("/delete-mail-config")
-    public DefaultResponseDTO deleteMailConfig(@RequestBody @Valid DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException {
-        return mailConfigService.deleteMailConfig(deleteMailConfigVM);
+    public DefaultResponseDTO deleteMailConfig(@RequestBody @Valid DefaultDeleteVM defaultDeleteVM) throws SQLException, BusinessException {
+        return mailConfigService.deleteMailConfig(defaultDeleteVM);
     }
 }
