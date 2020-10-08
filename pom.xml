@@ -182,7 +182,7 @@
                 </executions>
                 <configuration>
                     <repository>levietthang1997/${project.name}</repository>
-                    <tag>${project.version}</tag>
+                    <tag>${project.name}-${project.version}</tag>
                     <skipDockerInfo>true</skipDockerInfo>
                 </configuration>
             </plugin>
