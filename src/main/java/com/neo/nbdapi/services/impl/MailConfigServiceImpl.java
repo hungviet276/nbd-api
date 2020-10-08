@@ -100,6 +100,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     e.printStackTrace();
                 }
             }
+            sql.append(" ORDER BY id DESC ");
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
@@ -128,6 +129,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     .content(mailConfigList)
                     .build();
         } catch (Exception e) {
+            e.printStackTrace();
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
