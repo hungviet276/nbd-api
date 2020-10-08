@@ -11,7 +11,11 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateGroupMailReceiveVM {
+public class GroupMailReceiveVM {
+
+    @NotNull(message = "Id không được để trống")
+    private Long id;
+
     @NotNull(message = "Tên không được để trống")
     private String name;
 
@@ -19,7 +23,7 @@ public class CreateGroupMailReceiveVM {
     private String code;
 
     @NotNull(message = "status không được để trống")
-    private String status;
+    private Integer status;
 
     private String description;
 }

@@ -12,13 +12,13 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GroupMailRecieve {
+public class GroupMailReceive {
 
     private Long id;
 
     private String code;
 
-    private String status;
+    private Integer status;
 
     private String name;
 
