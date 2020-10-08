@@ -1,10 +1,12 @@
 version: '3.8'
 services:
-  nbd_dev_application:
+  nbd_api_dev:
     build:
       context: ./
       dockerfile: Dockerfile
     container_name: nbd-api-dev
+    environment:
+      - spring.profiles.active=true
     ports:
-      - "8888:8888"
+      - "8080:8080"
     tty: true

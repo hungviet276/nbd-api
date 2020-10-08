@@ -1,6 +1,5 @@
 package com.neo.nbdapi.services.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.MailConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
@@ -10,13 +9,11 @@ import com.neo.nbdapi.entity.MailConfig;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.CreateMailConfigVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.DeleteMailConfigVM;
+import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.EditMailConfigVM;
 import com.neo.nbdapi.services.MailConfigService;
 import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -182,12 +178,12 @@ public class MailConfigServiceImpl implements MailConfigService {
     }
 
     @Override
-    public DefaultResponseDTO deleteMailConfig(DeleteMailConfigVM deleteMailConfigVM) throws SQLException, BusinessException {
-        long countMailConfig = mailConfigDAO.countMailConfigById(Long.parseLong(deleteMailConfigVM.getId()));
+    public DefaultResponseDTO deleteMailConfig(DefaultDeleteVM defaultDeleteVM) throws SQLException, BusinessException {
+        long countMailConfig = mailConfigDAO.countMailConfigById(Long.parseLong(defaultDeleteVM.getId()));
         if (countMailConfig < 1)
             throw new BusinessException("Không tìm thấy cấu hình email");
 
-        mailConfigDAO.delete(Long.parseLong(deleteMailConfigVM.getId()));
+        mailConfigDAO.delete(Long.parseLong(defaultDeleteVM.getId()));
         return new DefaultResponseDTO(1, "Thành công");
     }
 }

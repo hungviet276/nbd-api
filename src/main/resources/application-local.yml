@@ -1,3 +1,4 @@
+
 spring:
   profiles:
     active: local
@@ -22,3 +23,5 @@ spring:
       pool-name: NBD_API
       data-source-properties:
         v$session.program=NBD_API
+server:
+  port: 8080

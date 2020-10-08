@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DeleteMailConfigVM {
+public class DefaultDeleteVM {
 
     @NotEmpty(message = "id không được trống")
     private String id;
