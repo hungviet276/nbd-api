@@ -59,6 +59,7 @@ public class MenuServiceImpl implements MenuService {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         List<Menu> menuList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
+            // pageNumber = start, recordPerPage = length
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
@@ -66,6 +67,7 @@ public class MenuServiceImpl implements MenuService {
             StringBuilder sql = new StringBuilder("SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
+            // set param query to sql
             if (Strings.isNotEmpty(search)) {
                 try {
                     SearchMenu objectSearch = objectMapper.readValue(search, SearchMenu.class);
@@ -98,6 +100,7 @@ public class MenuServiceImpl implements MenuService {
                 }
             }
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            // get result query by paging
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
@@ -119,7 +122,7 @@ public class MenuServiceImpl implements MenuService {
                 menuList.add(menu);
             }
 
-            // count result
+            // count result, totalElements
             long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
             return DefaultPaginationDTO
                     .builder()
@@ -158,10 +161,11 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public DefaultResponseDTO createMenu(CreateMenuVM createMenuVM) throws SQLException, BusinessException {
 
+        // if parent of menu not null, check parentMenuId exists in system
         Menu parentMenu = null;
         if (Strings.isNotEmpty(createMenuVM.getParentId())) {
             parentMenu = menuDAO.findMenuById(Long.parseLong(createMenuVM.getParentId()));
-            System.out.println("run here");
+            // if parent menu not exists throw exception parentMenuId invalid
             if (parentMenu == null)
                 throw new BusinessException("Menu cha không tồn tại trong hệ thống");
         }
@@ -174,6 +178,7 @@ public class MenuServiceImpl implements MenuService {
                 .detailFile(createMenuVM.getDetailFile())
                 .publish(Integer.parseInt(createMenuVM.getPublish()))
                 .build();
+        // if parentMenu not set, default parentId = 0 and level = 0
         if (parentMenu != null) {
             menuCreate.setParentId(parentMenu.getId());
             menuCreate.setMenuLevel(parentMenu.getMenuLevel() + 1);
@@ -192,10 +197,12 @@ public class MenuServiceImpl implements MenuService {
      */
     @Override
     public DefaultResponseDTO editMenu(EditMenuVM editMenuVM) throws SQLException, BusinessException {
+        // check menuId exists to edit
         Menu menu = menuDAO.findMenuById(Long.parseLong(editMenuVM.getId()));
         if (menu == null)
             throw new BusinessException("Menu không tồn tại trong hệ thống");
 
+        // if not set parentMenuId => default parentId = 0 and level = 0
         Menu parentMenu = null;
         if (Strings.isNotEmpty(editMenuVM.getParentId())) {
             parentMenu = menuDAO.findMenuById(Long.parseLong(editMenuVM.getParentId()));
@@ -203,6 +210,7 @@ public class MenuServiceImpl implements MenuService {
             if (parentMenu == null)
                 throw new BusinessException("Menu cha không tồn tại trong hệ thống");
 
+            // check parentMenu from edit request is child of current menu, if is child => throw exception
             boolean isParent = checkMenuFirstIsParentOfSecond(menu.getId(), parentMenu.getId());
             if (!isParent)
                 throw new BusinessException("Menu " + menu.getName() + " đang là cha của menu " + parentMenu.getName());
@@ -227,6 +235,13 @@ public class MenuServiceImpl implements MenuService {
         return new DefaultResponseDTO(1, "Sửa menu thành công");
     }
 
+    /**
+     * method delete menu
+     * @param deleteMenuVM
+     * @return
+     * @throws SQLException
+     * @throws BusinessException
+     */
     @Override
     public DefaultResponseDTO deleteMenu(DefaultDeleteVM deleteMenuVM) throws SQLException, BusinessException {
         Menu menu = menuDAO.findMenuById(Long.parseLong(deleteMenuVM.getId()));
