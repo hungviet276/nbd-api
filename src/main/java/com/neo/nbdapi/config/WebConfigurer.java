@@ -22,7 +22,8 @@ import java.nio.file.Paths;
 import static java.net.URLDecoder.decode;
 
 /**
- * Configuration of web application with Servlet 3.0 APIs.
+ * @author thanglv on 10/9/2020
+ * @project NBD
  */
 @Configuration
 public class WebConfigurer implements ServletContextInitializer, WebServerFactoryCustomizer<WebServerFactory> {

@@ -76,8 +76,10 @@ public class PaginationDAOImpl implements PaginationDAO {
                 statement.setObject(i + 1, parameter.get(i));
             }
             ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            return resultSet.getLong(1);
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
         }
     }
 }

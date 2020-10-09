@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.entity.MailConfig;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.Menu;
+import com.neo.nbdapi.exception.BusinessException;
+import com.neo.nbdapi.rest.vm.CreateMenuVM;
+import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.EditMenuVM;
 import com.neo.nbdapi.services.MenuService;
-import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.neo.nbdapi.services.objsearch.SearchMenu;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +27,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @project NBD
+ * @author thanglv
+ */
 @Service
 public class MenuServiceImpl implements MenuService {
 
@@ -42,6 +49,11 @@ public class MenuServiceImpl implements MenuService {
     @Autowired
     private HikariDataSource ds;
 
+    /**
+     * service get list menu pagination
+     * @param defaultRequestPagingVM
+     * @return DefaultPaginationDTO
+     */
     @Override
     public DefaultPaginationDTO getListMenuPagination(DefaultRequestPagingVM defaultRequestPagingVM) {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -94,6 +106,7 @@ public class MenuServiceImpl implements MenuService {
                         .name(resultSetListData.getString("name"))
                         .displayOrder(resultSetListData.getInt("display_order"))
                         .pictureFile(resultSetListData.getString("picture_file"))
+                        .detailFile(resultSetListData.getString("detail_file"))
                         .menuLevel(resultSetListData.getInt("menu_level"))
                         .parentId(resultSetListData.getInt("parent_id"))
                         .publish(resultSetListData.getInt("publish"))
@@ -127,8 +140,107 @@ public class MenuServiceImpl implements MenuService {
         }
     }
 
+    /**
+     * service get all menu
+     * @return
+     * @throws SQLException
+     */
     @Override
     public List<Menu> getAllMenu() throws SQLException {
         return menuDAO.findAll();
+    }
+
+    /**
+     * service create menu
+     * @param createMenuVM
+     * @return
+     */
+    @Override
+    public DefaultResponseDTO createMenu(CreateMenuVM createMenuVM) throws SQLException, BusinessException {
+
+        Menu parentMenu = null;
+        if (Strings.isNotEmpty(createMenuVM.getParentId())) {
+            parentMenu = menuDAO.findMenuById(Long.parseLong(createMenuVM.getParentId()));
+            System.out.println("run here");
+            if (parentMenu == null)
+                throw new BusinessException("Menu cha không tồn tại trong hệ thống");
+        }
+
+        Menu menuCreate = Menu
+                .builder()
+                .name(createMenuVM.getName())
+                .displayOrder(Integer.parseInt(createMenuVM.getDisplayOrder()))
+                .pictureFile(createMenuVM.getPictureFile())
+                .detailFile(createMenuVM.getDetailFile())
+                .publish(Integer.parseInt(createMenuVM.getPublish()))
+                .build();
+        if (parentMenu != null) {
+            menuCreate.setParentId(parentMenu.getId());
+            menuCreate.setMenuLevel(parentMenu.getMenuLevel() + 1);
+        } else {
+            menuCreate.setMenuLevel(0);
+            menuCreate.setParentId(0);
+        }
+        menuDAO.createMenu(menuCreate);
+        return new DefaultResponseDTO(1, "Tạo mới menu thành công");
+    }
+
+    /**
+     * service edit menu
+     * @param editMenuVM
+     * @return
+     */
+    @Override
+    public DefaultResponseDTO editMenu(EditMenuVM editMenuVM) throws SQLException, BusinessException {
+        Menu menu = menuDAO.findMenuById(Long.parseLong(editMenuVM.getId()));
+        if (menu == null)
+            throw new BusinessException("Menu không tồn tại trong hệ thống");
+
+        Menu parentMenu = null;
+        if (Strings.isNotEmpty(editMenuVM.getParentId())) {
+            parentMenu = menuDAO.findMenuById(Long.parseLong(editMenuVM.getParentId()));
+
+            if (parentMenu == null)
+                throw new BusinessException("Menu cha không tồn tại trong hệ thống");
+
+            boolean isParent = checkMenuFirstIsParentOfSecond(menu.getId(), parentMenu.getId());
+            if (!isParent)
+                throw new BusinessException("Menu " + menu.getName() + " đang là cha của menu " + parentMenu.getName());
+        }
+
+        menu = menu.toBuilder()
+                .name(editMenuVM.getName())
+                .displayOrder(Integer.parseInt(editMenuVM.getDisplayOrder()))
+                .pictureFile(editMenuVM.getPictureFile())
+                .detailFile(editMenuVM.getDetailFile())
+                .publish(Integer.parseInt(editMenuVM.getPublish()))
+                .build();
+
+        if (parentMenu == null) {
+            menu.setMenuLevel(0);
+            menu.setParentId(0);
+        } else {
+            menu.setParentId(menu.getId());
+            menu.setMenuLevel(menu.getMenuLevel() + 1);
+        }
+        menuDAO.editMenu(menu);
+        return new DefaultResponseDTO(1, "Sửa menu thành công");
+    }
+
+    @Override
+    public DefaultResponseDTO deleteMenu(DefaultDeleteVM deleteMenuVM) throws SQLException, BusinessException {
+        Menu menu = menuDAO.findMenuById(Long.parseLong(deleteMenuVM.getId()));
+        if (menu == null)
+            throw new BusinessException("Không tìm thấy menu trong hệ thống");
+
+        menuDAO.deleteMenu(menu);
+        return new DefaultResponseDTO(1, "Xoá menu khỏi hệ thống thành công");
+    }
+
+    private boolean checkMenuFirstIsParentOfSecond(long menuIdFirst, long menuIdLast) throws SQLException, BusinessException {
+        Menu menu = menuDAO.findPathOfMenuByMenuId(menuIdLast);
+
+        String pathParent = "/" + menuIdFirst + "/";
+        return menu != null && menu.getPath() != null && menu.getPath().indexOf(pathParent) > 0;
     }
 }

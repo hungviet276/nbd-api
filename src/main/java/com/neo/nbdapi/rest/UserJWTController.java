@@ -27,6 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.sql.SQLException;
 
+/**
+ * @author thanglv on 10/9/2020
+ * @project NBD
+ */
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {

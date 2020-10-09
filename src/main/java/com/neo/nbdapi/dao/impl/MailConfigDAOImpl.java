@@ -28,7 +28,7 @@ public class MailConfigDAOImpl implements MailConfigDAO {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             MailConfig mailConfig = null;
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 mailConfig = MailConfig.builder()
                         .id(resultSet.getLong("id"))
                         .ip(resultSet.getString("ip"))
@@ -94,8 +94,10 @@ public class MailConfigDAOImpl implements MailConfigDAO {
         ) {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            return resultSet.getLong(1);
+            if (resultSet.next())
+                return resultSet.getLong(1);
+            else
+                return 0;
         }
     }
 
