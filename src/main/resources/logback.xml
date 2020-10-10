@@ -26,7 +26,7 @@
         <Root>
             <AppenderRef ref="LogToConsole"/>
         </Root>
-        <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
+        <Logger name="com.neo.nbdapi.*" level="DEBUG" additivity="false">
             <AppenderRef ref="LogToConsole"/>
             <AppenderRef ref="AsyncLogDebugFile"/>
         </Logger>

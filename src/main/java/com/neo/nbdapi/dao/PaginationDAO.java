@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface PaginationDAO {
     ResultSet getResultPagination(Connection connection, String sql, int pageNumber, int recordPerPage, List<Object> parameter) throws SQLException;
-    public long countResultQuery(String sql, List<Object> parameter) throws SQLException, BusinessException;
+    long countResultQuery(String sql, List<Object> parameter) throws SQLException, BusinessException;
 }

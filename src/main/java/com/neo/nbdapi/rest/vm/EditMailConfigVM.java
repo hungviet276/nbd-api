@@ -5,49 +5,29 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CreateMailConfigVM {
+public class EditMailConfigVM {
 
-    /**
-     * ip cua mail
-     */
+    @NotEmpty(message = "id không được trống")
+    private String id;
+
     private String ip;
 
-    /**
-     * port mail
-     */
     private String port;
 
-    /**
-     * ten dang nhap cua mail
-     */
     private String username;
 
-    /**
-     * mat khau cua mail
-     */
     private String password;
 
-    /**
-     * domain cua mail
-     */
     private String domain;
 
-    /**
-     * nguoi gui
-     */
     private String senderName;
 
-    /**
-     * dia chi email
-     */
-    private String emailAddress;
+    private String email;
 
-    /**
-     * giao thuc
-     */
     private String protocol;
 }
