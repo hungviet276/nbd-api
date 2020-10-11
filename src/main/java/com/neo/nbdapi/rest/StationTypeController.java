@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.Parameter;
 import com.neo.nbdapi.entity.StationTimeSeries;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -35,6 +37,8 @@ import com.neo.nbdapi.services.impl.MailConfigServiceImpl;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/station-type")
 public class StationTypeController {
@@ -93,17 +97,37 @@ public class StationTypeController {
             if (Strings.isNotEmpty(search)) {
                 try {
                 	Map<String,String> params = objectMapper.readValue(search, Map.class);
-                    if (Strings.isNotEmpty(params.get("s_stationType"))) {
-                        sql.append(" and c.object_type_id = ? ");
-                        paramSearch.add(params.get("s_stationType"));
+                	if (Strings.isNotEmpty(params.get("s_tsName"))) {
+                        sql.append(" and a.TS_NAME = ? ");
+                        paramSearch.add(params.get("s_tsName"));
+                    }
+                    if (Strings.isNotEmpty(params.get("s_stationCode"))) {
+                        sql.append(" and b.station_code = ? ");
+                        paramSearch.add(params.get("s_stationCode"));
                     }
                     if (Strings.isNotEmpty(params.get("s_stationName"))) {
                         sql.append(" and a.STATION_NAME like ? ");
                         paramSearch.add("%" + params.get("s_stationName") + "%");
                     }
-                    if (Strings.isNotEmpty(params.get("s_status"))) {
-                        sql.append(" b.IS_ACTIVE = ? ");
-                        paramSearch.add(params.get("s_status"));
+                    if (Strings.isNotEmpty(params.get("s_stationLong"))) {
+                        sql.append(" and a.STATION_LONGTITUDE = ? ");
+                        paramSearch.add(params.get("s_stationLong"));
+                    }
+                    if (Strings.isNotEmpty(params.get("s_stationLat"))) {
+                        sql.append(" and a.STATION_LATITUDE = ? ");
+                        paramSearch.add(params.get("s_stationLat"));
+                    }
+                    if (Strings.isNotEmpty(params.get("s_provinceName"))) {
+                        sql.append(" and a.PROVINCE_NAME = ? ");
+                        paramSearch.add("%" + params.get("s_provinceName") + "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_districtName"))) {
+                        sql.append(" and a.DISTRICT_NAME = ? ");
+                        paramSearch.add("%" + params.get("s_districtName") + "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_wardName"))) {
+                        sql.append(" and a.WARD_NAME = ? ");
+                        paramSearch.add("%" + params.get("s_wardName") + "%");
                     }
                     
                 } catch (Exception e) {
@@ -179,18 +203,79 @@ public class StationTypeController {
         }
     }
     
-    @PostMapping("/create-temp-parameter")
-    public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException {
-    	String sql = "insert into PARAMETER_KTTV(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, STATION_ID, TIME_FREQUENCY) values (PARAMETER_KTTV_SEQ.nextval,?,?,?)";
+    @PostMapping("/create-parameter")
+    public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    	log.info(objectMapper.writeValueAsString(params));
+    	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+    	String sql = "insert into PARAMETER_KTTV(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY) values (PARAMETER_KTTV_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, params.get("parameter"));
-            statement.setString(2, params.get("parameterDes"));
-            statement.setString(3, params.get("unit"));
+            statement.setString(2, params.get("uuid"));
+            statement.setString(3, params.get("frequency"));
             statement.execute();
-            DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+            
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
+        }catch (Exception e) {
+        	defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+            return defaultResponseDTO;
+		}
+    }
+    
+    @PostMapping("/get-list-station-parameter-pagination")
+    public DefaultPaginationDTO getListStationParameterPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+
+            StringBuilder sql = new StringBuilder("select a.*,b.PARAMETER_TYPE_NAME, c.UNIT_NAME from PARAMETER_KTTV a, PARAMETER_TYPE b, unit c where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and b.UNIT_ID = c.UNIT_ID(+) ");
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                	Map<String,String> params = objectMapper.readValue(search, Map.class);
+                	if (Strings.isNotEmpty(params.get("s_uuid"))) {
+                        sql.append(" and uuid = ? ");
+                        paramSearch.add(params.get("s_uuid"));
+                    }
+                    
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            log.debug("SQL get-list-station-parameter-pagination : {}", sql.toString());
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
+            List<Parameter> list = new ArrayList<>();
+
+            while (rs.next()) {
+            	Parameter bo = Parameter.builder()
+                        .stationParamterId(rs.getInt("STATION_PARAMETER_ID"))
+                        .paramterTypeId(rs.getInt("PARAMETER_TYPE_ID"))
+                        .parameterName(rs.getString("PARAMETER_TYPE_NAME"))
+                        .stationId(rs.getInt("STATION_ID"))
+                        .timeFrequency(rs.getInt("TIME_FREQUENCY"))
+                        .uuid(rs.getString("UUID"))
+                        .unitName(rs.getString("UNIT_NAME"))
+                        .note("")
+                        .build();
+                list.add(bo);
+            }
+
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
         }
     }
     
@@ -209,8 +294,8 @@ public class StationTypeController {
     }
 
     @PostMapping("/create-station-time-series")
-    public DefaultResponseDTO createStationTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException {
-    	DefaultResponseDTO defaultResponseDTO = stationManagementService.createStationTimeSeries(params);
+    public DefaultResponseDTO createStationTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    	DefaultResponseDTO defaultResponseDTO = stationManagementService.createStationTimeSeriesPLSQL(params);
     	return defaultResponseDTO;
     }
     

@@ -7,7 +7,10 @@ import java.io.Serializable;
 
 public class DefaultRequestPagingVM implements Serializable {
 
-    @NotEmpty(message = "draw không được trống")
+
+	private static final long serialVersionUID = 1L;
+
+	@NotEmpty(message = "draw không được trống")
     private String draw;
 
     @NotEmpty(message = "start không được trống")
