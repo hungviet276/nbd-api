@@ -2,8 +2,10 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.LogActDAO;
+import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.entity.LogAct;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -16,11 +18,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sun.rmi.runtime.Log;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +47,9 @@ public class LogActServiceImpl implements LogActService {
 
     @Autowired
     private LogActDAO logActDAO;
+
+    @Autowired
+    private MenuDAO menuDAO;
 
     @Autowired
     private PaginationDAO paginationDAO;
@@ -133,5 +140,11 @@ public class LogActServiceImpl implements LogActService {
                     .content(logActList)
                     .build();
         }
+    }
+
+    @Override
+    public List<MenuDTO> getListMenuViewLogOfUser() throws SQLException {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return menuDAO.getListMenuAccessOfUserByUsername(username);
     }
 }

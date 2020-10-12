@@ -68,8 +68,8 @@ public class UserJWTController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
-		String encodepass = encoder.encode(loginVM.getPassword());
-		return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(authentication.getName(), encodepass),
+//		String encodepass = encoder.encode(loginVM.getPassword());
+		return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(),
 				httpHeaders, HttpStatus.OK);
 	}
 
