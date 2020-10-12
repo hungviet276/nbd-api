@@ -154,4 +154,26 @@ public class MenuDAOImpl implements MenuDAO {
             statement.executeUpdate();
         }
     }
+
+    @Override
+    public List<Menu> getListMenuAccessOfUserByUsername(String username) throws SQLException {
+        String sql = "SELECT mn.id menu_id, mn.name FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE ui.id = ?";
+        List<Menu> menuList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Menu menu = Menu
+                        .builder()
+                        .id(resultSet.getLong("id"))
+                        .name(resultSet.getString("name"))
+                        .build();
+                menuList.add(menu);
+            }
+            return menuList;
+        }
+    }
 }

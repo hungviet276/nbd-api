@@ -16,4 +16,6 @@ public interface MenuDAO {
     Menu findPathOfMenuByMenuId(long menuIdFirst) throws SQLException;
 
     void deleteMenu(Menu menu) throws SQLException;
+
+    List<Menu> getListMenuAccessOfUserByUsername(String username) throws SQLException;
 }

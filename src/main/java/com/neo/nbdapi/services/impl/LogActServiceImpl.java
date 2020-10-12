@@ -62,7 +62,7 @@ public class LogActServiceImpl implements LogActService {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("SELECT id, menu, act, created_by, created_at FROM log_act WHERE 1 = 1 ");
+            StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set param query to sql
