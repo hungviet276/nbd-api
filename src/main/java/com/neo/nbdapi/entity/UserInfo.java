@@ -14,6 +14,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/*
+Table user_info mapping
+ */
 public class UserInfo {
 
     private String id;

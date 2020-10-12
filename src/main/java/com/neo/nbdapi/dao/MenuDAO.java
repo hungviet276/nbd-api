@@ -1,5 +1,7 @@
 package com.neo.nbdapi.dao;
 
+import com.neo.nbdapi.dto.ApiUrlDTO;
+import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.entity.Menu;
 
 import java.sql.SQLException;
@@ -16,4 +18,8 @@ public interface MenuDAO {
     Menu findPathOfMenuByMenuId(long menuIdFirst) throws SQLException;
 
     void deleteMenu(Menu menu) throws SQLException;
+
+    List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException;
+
+    List<ApiUrlDTO> getListApiUrAccessOfUserByUsername(String username) throws SQLException;
 }
