@@ -211,8 +211,7 @@ public class MenuServiceImpl implements MenuService {
                 throw new BusinessException("Menu cha không tồn tại trong hệ thống");
 
             // check parentMenu from edit request is child of current menu, if is child => throw exception
-            boolean isParent = checkMenuFirstIsParentOfSecond(menu.getId(), parentMenu.getId());
-            if (!isParent)
+            if (checkMenuFirstIsParentOfSecond(menu.getId(), parentMenu.getId()))
                 throw new BusinessException("Menu " + menu.getName() + " đang là cha của menu " + parentMenu.getName());
         }
 

@@ -160,7 +160,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
-        String sql = "SELECT mn.id menu_id, mn.name, menu.detail_file FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE ui.id = ?";
+        String sql = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE ui.id = ?";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -171,8 +171,8 @@ public class MenuDAOImpl implements MenuDAO {
             while (resultSet.next()) {
                 MenuDTO menu = MenuDTO
                         .builder()
-                        .id(resultSet.getLong("id"))
-                        .name(resultSet.getString("name"))
+                        .id(resultSet.getLong("menu_id"))
+                        .name(resultSet.getString("menu_name"))
                         .detailFile(resultSet.getString("detail_file"))
                         .build();
                 menuList.add(menu);

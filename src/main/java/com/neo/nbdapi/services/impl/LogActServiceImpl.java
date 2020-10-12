@@ -5,6 +5,7 @@ import com.neo.nbdapi.dao.LogActDAO;
 import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.LogActDTO;
 import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.entity.LogAct;
 import com.neo.nbdapi.entity.Menu;
@@ -12,6 +13,7 @@ import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.LogActService;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
 import com.neo.nbdapi.services.objsearch.SearchMenu;
+import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,24 +64,20 @@ public class LogActServiceImpl implements LogActService {
     @Override
     public DefaultPaginationDTO getListLogActPagination(DefaultRequestPagingVM defaultRequestPagingVM) {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
-        List<LogAct> logActList = new ArrayList<>();
+        List<LogActDTO> logActList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             // pageNumber = start, recordPerPage = length
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
+            StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.id AS menu_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set param query to sql
             if (Strings.isNotEmpty(search)) {
                 try {
                     SearchLogAct objectSearch = objectMapper.readValue(search, SearchLogAct.class);
-                    if (Strings.isNotEmpty(objectSearch.getId())) {
-                        sql.append(" AND id = ? ");
-                        paramSearch.add(objectSearch.getId());
-                    }
                     if (Strings.isNotEmpty(objectSearch.getMenuId())) {
                         sql.append(" AND menu_id = ? ");
                         paramSearch.add(objectSearch.getMenuId());
@@ -93,11 +91,11 @@ public class LogActServiceImpl implements LogActService {
                         paramSearch.add("%" + objectSearch.getCreatedBy() + "%");
                     }
                     if (Strings.isNotEmpty(objectSearch.getFromDate())) {
-                        sql.append(" AND created_at >= TO_DATE(?, 'yyyy/mm/dd') ");
+                        sql.append(" AND created_at >= TO_DATE(?, 'dd/mm/yyyy') ");
                         paramSearch.add(objectSearch.getFromDate());
                     }
                     if (Strings.isNotEmpty(objectSearch.getToDate())) {
-                        sql.append(" AND created_at <= TO_DATE(?, 'yyyy/mm/dd') ");
+                        sql.append(" AND created_at <= TO_DATE(?, 'dd/mm/yyyy') ");
                         paramSearch.add(objectSearch.getToDate());
                     }
                 } catch (Exception e) {
@@ -105,18 +103,20 @@ public class LogActServiceImpl implements LogActService {
                 }
             }
             sql.append(" ORDER BY created_at DESC");
+            logger.debug("SQL QUERY: {}", sql);
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             // get result query by paging
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
-                LogAct logAct = LogAct
+                LogActDTO logAct = LogActDTO
                         .builder()
-                        .id(resultSetListData.getLong("id"))
+                        .id(resultSetListData.getLong("log_id"))
                         .menuId(resultSetListData.getLong("menu_id"))
+                        .menuName(resultSetListData.getString("menu_name"))
                         .act(resultSetListData.getString("act"))
                         .createdBy(resultSetListData.getString("created_by"))
-                        .createdAt(resultSetListData.getDate("created_at"))
+                        .createdAt(DateUtils.convertDateToString(resultSetListData.getDate("created_at")))
                         .build();
                 logActList.add(logAct);
             }

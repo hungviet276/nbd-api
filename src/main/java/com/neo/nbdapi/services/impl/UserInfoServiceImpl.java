@@ -31,6 +31,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 		List<ApiUrlDTO> apiUrlDTOList = menuDAO.getListApiUrAccessOfUserByUsername(username);
 		return UserAndMenuDTO
 				.builder()
+				.userId(username)
 				.menus(menuList)
 				.urlApi(apiUrlDTOList)
 				.build();
