@@ -15,4 +15,10 @@ public class MenuDTO {
     private String detailFile;
 
     private String name;
+
+    private long parentId;
+
+    private String pictureFile;
+
+    private int level;
 }

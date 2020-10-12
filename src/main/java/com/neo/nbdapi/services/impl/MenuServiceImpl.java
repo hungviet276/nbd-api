@@ -168,6 +168,9 @@ public class MenuServiceImpl implements MenuService {
             // if parent menu not exists throw exception parentMenuId invalid
             if (parentMenu == null)
                 throw new BusinessException("Menu cha không tồn tại trong hệ thống");
+
+            if (parentMenu.getMenuLevel() > 0 )
+                throw new BusinessException("Menu có tối đa 2 cấp");
         }
 
         Menu menuCreate = Menu
@@ -209,6 +212,10 @@ public class MenuServiceImpl implements MenuService {
 
             if (parentMenu == null)
                 throw new BusinessException("Menu cha không tồn tại trong hệ thống");
+
+            // menu max level = 1, min level = 0
+            if (parentMenu.getMenuLevel() > 0)
+                throw new BusinessException("Menu có tối đa 2 cấp");
 
             // check parentMenu from edit request is child of current menu, if is child => throw exception
             if (checkMenuFirstIsParentOfSecond(menu.getId(), parentMenu.getId()))
