@@ -1,11 +1,14 @@
 package com.neo.nbdapi.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -13,8 +16,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @ControllerAdvice
@@ -35,10 +40,10 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
 
     @SuppressWarnings("unchecked")
     @ExceptionHandler(Exception.class)
-    public  ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
         ex.printStackTrace();
         ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.INTERNAL_SERVER_ERROR,
+                new ResponseBasicObj(Constants.EXCEPTION.INTERNAL_SERVER_ERROR,
                         "Server error : " + ex.getMessage());
 
         return new ResponseEntity(responseBasicObj, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -46,28 +51,30 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
 
     /**
      * The method handle invalid username or password throw by AbstractUserDetailAuthenticationProvider
+     *
      * @param request
      * @return
      */
     @SuppressWarnings("unchecked")
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentialsException(WebRequest request) {
-        ResponseBasicObj  responseBasicObj = new ResponseBasicObj(400, "Tài khoản hoặc mật khẩu không đúng");
+        ResponseBasicObj responseBasicObj = new ResponseBasicObj(400, "Tài khoản hoặc mật khẩu không đúng");
 
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }
 
     /**
      * The method handle only StoreBusinessException
+     *
      * @param ex
      * @param request
      * @return
      */
     @SuppressWarnings("unchecked")
     @ExceptionHandler(BusinessException.class)
-    public  ResponseEntity<Object> handleAgencyException(BusinessException ex, WebRequest request) {
+    public ResponseEntity<Object> handleAgencyException(BusinessException ex, WebRequest request) {
 
-        ResponseBasicObj  responseBasicObj = new ResponseBasicObj(ex.getCode(),
+        ResponseBasicObj responseBasicObj = new ResponseBasicObj(ex.getCode(),
                 ex.getMessage());
 
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
@@ -76,7 +83,7 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.BAD_REQUEST,
+                new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
                         "Missing parameter :" + ex.getParameterName());
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }
@@ -84,7 +91,7 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
     @Override
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ResponseBasicObj responseBasicObj =
-                new ResponseBasicObj( Constants.EXCEPTION.BAD_REQUEST,
+                new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
                         "Missing path variable :" + ex.getVariableName());
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }

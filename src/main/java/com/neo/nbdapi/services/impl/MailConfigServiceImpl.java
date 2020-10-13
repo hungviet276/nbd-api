@@ -167,7 +167,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     .password(createMailConfigVM.getPassword())
                     .domain(createMailConfigVM.getDomain())
                     .senderName(createMailConfigVM.getSenderName())
-                    .emailAddress(createMailConfigVM.getEmailAddress())
+                    .emailAddress(createMailConfigVM.getEmail())
                     .protocol(createMailConfigVM.getProtocol())
                     .build();
             mailConfigDAO.createMailConfig(mailConfig);
