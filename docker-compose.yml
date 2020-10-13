@@ -5,8 +5,6 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: nbd-api-dev
-    environment:
-      - spring.profiles.active=true
     ports:
       - "8080:8080"
     tty: true

@@ -1,9 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.UserInfoDAO;
-import com.neo.nbdapi.dto.ApiUrlDTO;
-import com.neo.nbdapi.dto.MenuDTO;
-import com.neo.nbdapi.dto.UserAndMenuDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.entity.UserInfo;
 import com.zaxxer.hikari.HikariDataSource;
@@ -58,6 +56,7 @@ public class UserInfoDAOImpl implements UserInfoDAO {
             return userInfo;
         }
     }
+<<<<<<< HEAD
 
     /**
      * get list menu and api url of user
@@ -163,4 +162,6 @@ public class UserInfoDAOImpl implements UserInfoDAO {
         }
         return nameUserDTOs;
     }
+=======
+>>>>>>> develop
 }

@@ -16,11 +16,14 @@ import javax.validation.constraints.Size;
 @Builder
 public class CreateMailConfigVM {
 
+<<<<<<< HEAD
+=======
     /**
      * ip cua mail
      */
     @NotEmpty(message = "Địa chỉ ip không được trống")
     @Size(max = 100, message = "Ip dài tối đa 100 ký tự")
+>>>>>>> develop
     private String ip;
 
     /**

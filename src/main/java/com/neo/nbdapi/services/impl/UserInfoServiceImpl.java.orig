@@ -2,8 +2,14 @@ package com.neo.nbdapi.services.impl;
 
 import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dao.UserInfoDAO;
+<<<<<<< HEAD
+import com.neo.nbdapi.dto.GroupDetail;
+import com.neo.nbdapi.dto.NameUserDTO;
+import com.neo.nbdapi.dto.SelectDTO;
+=======
 import com.neo.nbdapi.dto.ApiUrlDTO;
 import com.neo.nbdapi.dto.MenuDTO;
+>>>>>>> develop
 import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.services.UserInfoService;
@@ -21,14 +27,7 @@ import java.util.List;
 public class UserInfoServiceImpl implements UserInfoService {
 
 	@Autowired
-	private UserInfoDAO userInfoDAO;
-	
-	@Autowired
-	private UserInfoDAO userInfoDAO
-	@Override
-	public UserAndMenuDTO getUserInfoAndListMenu(String username,String password) throws SQLException {
-		return userInfoDAO.findMenuAndApiUrlOfUser(username, password);
-	}
+	private MenuDAO menuDAO;
 
 	@Override
 	public List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException {
@@ -47,6 +46,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 				.menus(menuList)
 				.urlApi(apiUrlDTOList)
 				.build();
+	}
+	@Override
+	public List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException {
+		return userInfoDAO.getNameUserByGroupId(groupDetail);
 	}
 
 }
