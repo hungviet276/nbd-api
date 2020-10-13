@@ -1,4 +1,4 @@
-package com.neo.nbdapi.dto;
+package com.neo.nbdapi.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DefaultResponseDTO {
+public class GroupMailReceiveDetail {
 
-    private int status;
+    private Long id;
 
-    private String message;
+    private String name;
+
+    private String groupName;
+
 }

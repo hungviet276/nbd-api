@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DefaultResponseDTO {
-
-    private int status;
-
-    private String message;
+public class NameUserDTO implements Serializable {
+    private String id;
+    private String name;
 }

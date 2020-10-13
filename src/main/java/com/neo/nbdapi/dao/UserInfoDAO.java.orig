@@ -14,8 +14,13 @@ import java.util.List;
 
 public interface UserInfoDAO {
 	UserInfo findUserInfoByUsername(String username) throws SQLException;
+<<<<<<< HEAD
+
+	UserAndMenuDTO findMenuAndApiUrlOfUser(String username, String ...args) throws SQLException;
 
 	List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException;
 
 	List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException;
+=======
+>>>>>>> develop
 }
