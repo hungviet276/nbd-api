@@ -49,12 +49,20 @@ public class StationManagementService {
         return result;
     }
     
-    public DefaultResponseDTO createStationTimeSeriesPLSQL(Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO saveOrUpdateStationTimeSeriesPLSQL(Map<String,String> params,boolean isNew) throws SQLException, JsonProcessingException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql ="begin ? := STATION.create_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
+        String sql ="";
+        if(isNew) {
+        	sql = "begin ? := STATION.create_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
+        }else {
+        	sql = "begin ? := STATION.update_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
+        }
     	try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
     		log.info(objectMapper.writeValueAsString(params));
     		int i = 2;
+    		if(isNew) {
+    			st.setString(i++,params.get("stationId"));
+    		}
     		st.setString(i++,params.get("tsId"));
     		st.setString(i++,params.get("tsName"));
     		st.setString(i++,params.get("tsTypeId"));
@@ -86,6 +94,8 @@ public class StationManagementService {
     		st.setString(i++,params.get("projectName"));
     		st.setString(i++,params.get("pstorage"));
     		st.setString(i++,params.get("address"));
+    		st.setString(i++,params.get("uuid"));
+    		st.setString(i++,params.get("modeStationType"));
     		st.registerOutParameter(1, Types.VARCHAR);
     		st.execute();
     		
