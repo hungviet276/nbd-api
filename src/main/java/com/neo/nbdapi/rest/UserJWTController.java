@@ -27,6 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.sql.SQLException;
 
+/**
+ * @author thanglv on 10/9/2020
+ * @project NBD
+ */
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {
@@ -65,7 +69,9 @@ public class UserJWTController {
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
 		String encodepass = encoder.encode(loginVM.getPassword());
-		return new ResponseEntity<>(userInfoService.getUserInfoAndListMenu(authentication.getName(), encodepass),
+		UserAndMenuDTO userAndMenuDTO = userInfoService.getUserInfoAndListMenu();
+		userAndMenuDTO.setPassword(encodepass);
+		return new ResponseEntity<>(userAndMenuDTO,
 				httpHeaders, HttpStatus.OK);
 	}
 

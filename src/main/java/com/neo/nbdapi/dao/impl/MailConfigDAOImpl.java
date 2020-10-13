@@ -4,6 +4,7 @@ import com.neo.nbdapi.dao.MailConfigDAO;
 import com.neo.nbdapi.entity.MailConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -11,21 +12,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Service
+@Repository
 public class MailConfigDAOImpl implements MailConfigDAO {
 
     @Autowired
     private HikariDataSource ds;
 
+    /**
+     * method select mail config by id
+     * @param id
+     * @return
+     * @throws SQLException
+     */
     @Override
     public MailConfig findMailConfigById(Long id) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config WHERE id = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config WHERE id = ?";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             MailConfig mailConfig = null;
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 mailConfig = MailConfig.builder()
                         .id(resultSet.getLong("id"))
                         .ip(resultSet.getString("ip"))
@@ -42,11 +51,19 @@ public class MailConfigDAOImpl implements MailConfigDAO {
         }
     }
 
+    /**
+     * method insert mail config to table
+     * @param mailConfig
+     * @throws SQLException
+     */
     @Override
     public void createMailConfig(MailConfig mailConfig) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "INSERT INTO mail_config(id, ip, port, username, password, domain, sender_name, email_address, protocol) values (MAIL_CONFIG_SEQ.nextval, ?,?,?,?,?,?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "INSERT INTO mail_config(id, ip, port, username, password, domain, sender_name, email_address, protocol) values (MAIL_CONFIG_SEQ.nextval, ?,?,?,?,?,?,?,?)";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+
             statement.setString(1, mailConfig.getIp());
             statement.setString(2, mailConfig.getPort());
             statement.setString(3, mailConfig.getUsername());
@@ -59,11 +76,18 @@ public class MailConfigDAOImpl implements MailConfigDAO {
         }
     }
 
+    /**
+     * method edit mail config
+     * @param mailConfig
+     * @throws SQLException
+     */
     @Override
     public void editMailConfig(MailConfig mailConfig) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "UPDATE mail_config SET ip = ?, port = ?, username = ?, password = ?, domain = ?, sender_name = ?, email_address = ?, protocol = ? WHERE id = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "UPDATE mail_config SET ip = ?, port = ?, username = ?, password = ?, domain = ?, sender_name = ?, email_address = ?, protocol = ? WHERE id = ?";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
             statement.setString(1, mailConfig.getIp());
             statement.setString(2, mailConfig.getPort());
             statement.setString(3, mailConfig.getUsername());
@@ -79,21 +103,27 @@ public class MailConfigDAOImpl implements MailConfigDAO {
 
     @Override
     public long countMailConfigById(long id) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "SELECT COUNT(1) FROM mail_config WHERE id = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "SELECT COUNT(1) FROM mail_config WHERE id = ?";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            return resultSet.getLong(1);
+            if (resultSet.next())
+                return resultSet.getLong(1);
+            else
+                return 0;
         }
     }
 
     @Override
     public void delete(long id) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String sql = "DELETE FROM mail_config WHERE id = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "DELETE FROM mail_config WHERE id = ?";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
             statement.setLong(1, id);
             statement.executeUpdate();
         }

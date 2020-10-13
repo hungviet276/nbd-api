@@ -5,20 +5,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author thanglv on 10/12/2020
+ * @project NBD
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MenuDTO {
+public class LogActDTO {
     private long id;
 
-    private String detailFile;
+    private long menuId;
 
-    private String name;
+    private String menuName;
 
-    private long parentId;
+    private String act;
 
-    private String pictureFile;
+    private String createdBy;
 
-    private int level;
+    private String createdAt;
 }
