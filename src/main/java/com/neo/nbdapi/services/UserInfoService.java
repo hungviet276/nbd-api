@@ -13,8 +13,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 public interface UserInfoService {
 	UserAndMenuDTO getUserInfoAndListMenu() throws SQLException;
 
-	UserAndMenuDTO getUserInfoAndListMenu(String username, String password) throws SQLException;
-
 	List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException;
 
 	List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException;
