@@ -1,5 +1,6 @@
 package com.neo.nbdapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +12,12 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
+/*
+Table menu mapping
+ */
 public class Menu {
-    private int id;
+    private long id;
 
     private String name;
 
@@ -25,7 +29,7 @@ public class Menu {
 
     private int menuLevel;
 
-    private int parentId;
+    private long parentId;
 
     private int publish;
 
@@ -38,4 +42,10 @@ public class Menu {
     private Date createdDate;
 
     private Date modifiedDate;
+
+    @JsonIgnore
+    private int isLeaf;
+
+    @JsonIgnore
+    private String path;
 }

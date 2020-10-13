@@ -31,5 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
-/logs/nbd-api.log
-/logs/nbd-api.log
+logs/
+/logs/
+/logs/
+/logs/
+/logs/

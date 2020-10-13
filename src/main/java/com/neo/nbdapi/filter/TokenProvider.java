@@ -20,6 +20,10 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
+/**
+ * @author thanglv on 10/9/2020
+ * @project NBD
+ */
 @Component
 public class TokenProvider {
 

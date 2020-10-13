@@ -45,11 +45,20 @@ public class MailConfigServiceImpl implements MailConfigService {
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
 
+    /**
+     * method get list mail config pagination
+     * @param defaultRequestPagingVM
+     * @return
+     * @throws SQLException
+     * @throws BusinessException
+     */
     @Override
     public DefaultPaginationDTO getListMailConfigPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         List<MailConfig> mailConfigList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
+            logger.debug("mailConfigVM: {}", defaultRequestPagingVM);
+            // start = pageNumber, lenght = recordPerPage
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
@@ -57,6 +66,7 @@ public class MailConfigServiceImpl implements MailConfigService {
             StringBuilder sql = new StringBuilder("SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config  WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
+            // set value query to sql
             if (Strings.isNotEmpty(search)) {
                 try {
                     SearchMailConfig objectSearch = objectMapper.readValue(search, SearchMailConfig.class);
@@ -70,7 +80,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     }
                     if (Strings.isNotEmpty(objectSearch.getPort())) {
                         sql.append(" AND port = ? ");
-                        paramSearch.add(objectSearch.getIp());
+                        paramSearch.add(objectSearch.getPort());
                     }
                     if (Strings.isNotEmpty(objectSearch.getUsername())) {
                         sql.append(" AND username = ? ");
@@ -100,7 +110,9 @@ public class MailConfigServiceImpl implements MailConfigService {
                     e.printStackTrace();
                 }
             }
+            sql.append(" ORDER BY id DESC ");
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            // get list result by pagination
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
@@ -118,7 +130,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                 mailConfigList.add(mailConfig);
             }
 
-            // count result
+            // count totalElements
             long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
             return DefaultPaginationDTO
                     .builder()
@@ -128,6 +140,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     .content(mailConfigList)
                     .build();
         } catch (Exception e) {
+            e.printStackTrace();
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
@@ -138,8 +151,15 @@ public class MailConfigServiceImpl implements MailConfigService {
         }
     }
 
+    /**
+     * method create mail config
+     * @param createMailConfigVM
+     * @return
+     * @throws SQLException
+     */
     @Override
     public DefaultResponseDTO createMailConfig(CreateMailConfigVM createMailConfigVM) throws SQLException {
+        // do insert mailConfig
             MailConfig mailConfig = MailConfig.builder()
                     .ip(createMailConfigVM.getIp())
                     .port(createMailConfigVM.getPort())
@@ -147,7 +167,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     .password(createMailConfigVM.getPassword())
                     .domain(createMailConfigVM.getDomain())
                     .senderName(createMailConfigVM.getSenderName())
-                    .emailAddress(createMailConfigVM.getEmailAddress())
+                    .emailAddress(createMailConfigVM.getEmail())
                     .protocol(createMailConfigVM.getProtocol())
                     .build();
             mailConfigDAO.createMailConfig(mailConfig);
@@ -157,9 +177,18 @@ public class MailConfigServiceImpl implements MailConfigService {
             return defaultResponseDTO;
     }
 
+    /**
+     * method edit mail config
+     * @param editMailConfigVM
+     * @return
+     * @throws SQLException
+     * @throws BusinessException
+     */
     @Override
     public DefaultResponseDTO editMailConfig(EditMailConfigVM editMailConfigVM) throws SQLException, BusinessException {
+        // check mail config id is exists
         MailConfig mailConfig = mailConfigDAO.findMailConfigById(Long.parseLong(editMailConfigVM.getId()));
+        // if not exists => can not edit mail config, throw exception
         if (mailConfig == null)
             throw new BusinessException("Cấu hình email không tồn tại");
         MailConfig mailConfigEdit = mailConfig.toBuilder()
@@ -177,8 +206,16 @@ public class MailConfigServiceImpl implements MailConfigService {
         return new DefaultResponseDTO(1, "Sửa cấu hình email thành công");
     }
 
+    /**
+     * method delete mail config
+     * @param defaultDeleteVM
+     * @return
+     * @throws SQLException
+     * @throws BusinessException
+     */
     @Override
     public DefaultResponseDTO deleteMailConfig(DefaultDeleteVM defaultDeleteVM) throws SQLException, BusinessException {
+        // count result search of pagination, totalElements
         long countMailConfig = mailConfigDAO.countMailConfigById(Long.parseLong(defaultDeleteVM.getId()));
         if (countMailConfig < 1)
             throw new BusinessException("Không tìm thấy cấu hình email");
