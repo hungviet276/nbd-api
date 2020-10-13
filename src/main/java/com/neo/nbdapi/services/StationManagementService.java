@@ -60,7 +60,7 @@ public class StationManagementService {
     	try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
     		log.info(objectMapper.writeValueAsString(params));
     		int i = 2;
-    		if(isNew) {
+    		if(!isNew) {
     			st.setString(i++,params.get("stationId"));
     		}
     		st.setString(i++,params.get("tsId"));
@@ -74,7 +74,7 @@ public class StationManagementService {
     		st.setString(i++,params.get("stationName"));
     		st.setString(i++,params.get("stationLongName"));
     		st.setString(i++,params.get("longtitude"));
-    		st.setString(i++,params.get("lattitude"));
+    		st.setString(i++,params.get("latitude"));
     		st.setString(i++,params.get("catchementId"));
     		st.setString(i++,params.get("catchementName"));
     		st.setString(i++,params.get("areaId"));
@@ -104,14 +104,40 @@ public class StationManagementService {
     	}catch (Exception e) {
     		log.error(e.getMessage(),e);
 			defaultResponseDTO.setStatus(0);
-	        defaultResponseDTO.setMessage("Lỗi khi thêm mới: " + e.getMessage());
+			if(isNew) {
+				defaultResponseDTO.setMessage("Lỗi khi thêm mới: " + e.getMessage());
+			}else {
+				defaultResponseDTO.setMessage("Lỗi khi cập nhật: " + e.getMessage());
+			}
 	        return defaultResponseDTO;
 		}
     	defaultResponseDTO.setStatus(1);
-        defaultResponseDTO.setMessage("Thêm mới thành công");
+    	if(isNew) {
+    		defaultResponseDTO.setMessage("Thêm mới thành công");
+    	}else {
+    		defaultResponseDTO.setMessage("Cập nhật thành công");
+    	}
         return defaultResponseDTO;
     }
     
+    public DefaultResponseDTO deleteStationTimeSeriesPLSQL(String stationId) throws SQLException, JsonProcessingException {
+    	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+    	String sql = "begin ? := STATION.delete_station_series_times(?); end;";
+    	try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
+    		st.setString(2,stationId);
+    		st.registerOutParameter(1, Types.VARCHAR);
+    		st.execute();
+    		
+    		defaultResponseDTO.setStatus(1);
+	        defaultResponseDTO.setMessage("Xóa thành công");
+    	}catch (Exception e) {
+    		log.error(e.getMessage(),e);
+			defaultResponseDTO.setStatus(0);
+	        defaultResponseDTO.setMessage("Lỗi khi xóa: " + e.getMessage());
+	        return defaultResponseDTO;
+		}
+    	return defaultResponseDTO;
+    }
     public DefaultResponseDTO createStationTimeSeries(Map<String,String> params) throws SQLException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         
@@ -163,7 +189,7 @@ public class StationManagementService {
             statement.setString(idx++, params.get("stationCode"));
             statement.setString(idx++, params.get("stationName"));
             statement.setString(idx++, params.get("longtitude"));
-            statement.setString(idx++, params.get("lattitude"));
+            statement.setString(idx++, params.get("latitude"));
             statement.setString(idx++, params.get("address"));
             statement.setString(idx++, params.get("status"));
             statement.setInt(idx++, 1);
@@ -247,7 +273,7 @@ public class StationManagementService {
 	        statement.setString(idx++, params.get("stationName"));
 	        statement.setString(idx++, params.get("stationLongName"));
 	        statement.setString(idx++, params.get("longtitude"));
-	        statement.setString(idx++, params.get("lattitude"));
+	        statement.setString(idx++, params.get("latitude"));
 	        statement.setString(idx++, params.get("catchementId"));
 	        statement.setString(idx++, params.get("catchementName"));
 	        statement.setString(idx++, params.get("siteId"));

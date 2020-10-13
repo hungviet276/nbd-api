@@ -114,13 +114,13 @@ public class StationTypeController {
                         sql.append(" and a.STATION_NAME like ? ");
                         paramSearch.add("%" + params.get("s_stationName") + "%");
                     }
-                    if (Strings.isNotEmpty(params.get("s_stationLong"))) {
+                    if (Strings.isNotEmpty(params.get("s_longtitude"))) {
                         sql.append(" and a.LONGTITUDE = ? ");
-                        paramSearch.add(params.get("s_stationLong"));
+                        paramSearch.add(params.get("s_longtitude"));
                     }
-                    if (Strings.isNotEmpty(params.get("s_stationLat"))) {
+                    if (Strings.isNotEmpty(params.get("s_latitude"))) {
                         sql.append(" and a.LATITUDE = ? ");
-                        paramSearch.add(params.get("s_stationLat"));
+                        paramSearch.add(params.get("s_latitude"));
                     }
                     if (Strings.isNotEmpty(params.get("s_provinceName"))) {
                         sql.append(" and b.PROVINCE_NAME like ? ");
@@ -159,7 +159,7 @@ public class StationTypeController {
                         .elevation(rs.getFloat("ELEVATION"))
                         .stationName(rs.getString("STATION_NAME"))
                         .latitude(rs.getFloat("LATITUDE"))
-                        .longtitude(rs.getFloat("LONGITUDE"))
+                        .longtitude(rs.getFloat("LONGTITUDE"))
                         .trans_miss(rs.getInt("TRANS_MISS"))
                         .address(rs.getString("ADDRESS"))
                         .status(rs.getInt("STATUS"))
@@ -446,16 +446,8 @@ public class StationTypeController {
     }
     
     @PostMapping("/delete-station-time-series")
-    public DefaultResponseDTO deleteStationTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException {
-    	String sql = "delete STATION_TIME_SERIES where ID = ?";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
-            int idx = 1;
-            statement.setString(idx++, params.get("ID"));
-            statement.execute();
-            DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-            defaultResponseDTO.setStatus(1);
-            defaultResponseDTO.setMessage("Xóa thành công");
-            return defaultResponseDTO;
-        }
+    public DefaultResponseDTO deleteStationTimeSeries(@RequestParam(name="stationId") @Valid String stationId) throws SQLException, JsonProcessingException {
+    	DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(stationId);
+    	return defaultResponseDTO;
     }
 }
