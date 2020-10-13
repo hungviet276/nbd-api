@@ -57,7 +57,7 @@ public class MailConfigServiceImpl implements MailConfigService {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         List<MailConfig> mailConfigList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
-
+            logger.debug("mailConfigVM: {}", defaultRequestPagingVM);
             // start = pageNumber, lenght = recordPerPage
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
@@ -80,7 +80,7 @@ public class MailConfigServiceImpl implements MailConfigService {
                     }
                     if (Strings.isNotEmpty(objectSearch.getPort())) {
                         sql.append(" AND port = ? ");
-                        paramSearch.add(objectSearch.getIp());
+                        paramSearch.add(objectSearch.getPort());
                     }
                     if (Strings.isNotEmpty(objectSearch.getUsername())) {
                         sql.append(" AND username = ? ");
