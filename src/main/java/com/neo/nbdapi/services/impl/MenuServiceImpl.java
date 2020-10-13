@@ -234,8 +234,8 @@ public class MenuServiceImpl implements MenuService {
             menu.setMenuLevel(0);
             menu.setParentId(0);
         } else {
-            menu.setParentId(menu.getId());
-            menu.setMenuLevel(menu.getMenuLevel() + 1);
+            menu.setParentId(parentMenu.getId());
+            menu.setMenuLevel(parentMenu.getMenuLevel() + 1);
         }
         menuDAO.editMenu(menu);
         return new DefaultResponseDTO(1, "Sửa menu thành công");
