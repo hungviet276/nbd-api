@@ -1,6 +1,9 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.MenuDAO;
+import com.neo.nbdapi.dto.ApiUrlDTO;
+import com.neo.nbdapi.dto.MenuDTO;
+import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.entity.Menu;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -152,6 +155,54 @@ public class MenuDAOImpl implements MenuDAO {
         ) {
             statement.setLong(1, menu.getId());
             statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
+        String sql = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE publish = 1 AND ui.id = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id";
+        List<MenuDTO> menuList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                MenuDTO menu = MenuDTO
+                        .builder()
+                        .id(resultSet.getLong("menu_id"))
+                        .name(resultSet.getString("menu_name"))
+                        .detailFile(resultSet.getString("detail_file"))
+                        .parentId(resultSet.getLong("parent_id"))
+                        .pictureFile(resultSet.getString("picture_file"))
+                        .level(resultSet.getInt("menu_level"))
+                        .build();
+                menuList.add(menu);
+            }
+            return menuList;
+        }
+    }
+
+    @Override
+    public List<ApiUrlDTO> getListApiUrAccessOfUserByUsername(String username) throws SQLException {
+        String sql = "SELECT v1, v2 FROM casbin_rule cr WHERE v0 = ?";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSetApiUrl = statement.executeQuery();
+            List<ApiUrlDTO> apiUrlList = new ArrayList<>();
+            while (resultSetApiUrl.next()) {
+                ApiUrlDTO apiUrlDTO = ApiUrlDTO
+                        .builder()
+                        .url(resultSetApiUrl.getString(1))
+                        .method(resultSetApiUrl.getString(2))
+                        .build();
+                apiUrlList.add(apiUrlDTO);
+            }
+            return apiUrlList;
         }
     }
 }

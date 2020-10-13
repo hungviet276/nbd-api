@@ -18,6 +18,12 @@ public class MailConfigDAOImpl implements MailConfigDAO {
     @Autowired
     private HikariDataSource ds;
 
+    /**
+     * method select mail config by id
+     * @param id
+     * @return
+     * @throws SQLException
+     */
     @Override
     public MailConfig findMailConfigById(Long id) throws SQLException {
         String sql = "SELECT id, ip, port, username, password, domain, sender_name, email_address, protocol FROM mail_config WHERE id = ?";
@@ -45,6 +51,11 @@ public class MailConfigDAOImpl implements MailConfigDAO {
         }
     }
 
+    /**
+     * method insert mail config to table
+     * @param mailConfig
+     * @throws SQLException
+     */
     @Override
     public void createMailConfig(MailConfig mailConfig) throws SQLException {
         String sql = "INSERT INTO mail_config(id, ip, port, username, password, domain, sender_name, email_address, protocol) values (MAIL_CONFIG_SEQ.nextval, ?,?,?,?,?,?,?,?)";
@@ -65,6 +76,11 @@ public class MailConfigDAOImpl implements MailConfigDAO {
         }
     }
 
+    /**
+     * method edit mail config
+     * @param mailConfig
+     * @throws SQLException
+     */
     @Override
     public void editMailConfig(MailConfig mailConfig) throws SQLException {
         String sql = "UPDATE mail_config SET ip = ?, port = ?, username = ?, password = ?, domain = ?, sender_name = ?, email_address = ?, protocol = ? WHERE id = ?";

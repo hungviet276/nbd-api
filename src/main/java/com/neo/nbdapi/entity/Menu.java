@@ -13,6 +13,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
+/*
+Table menu mapping
+ */
 public class Menu {
     private long id;
 
