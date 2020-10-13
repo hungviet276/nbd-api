@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class SearchMenu {
 
+
     @JsonProperty("s_id")
     private String id;
 
