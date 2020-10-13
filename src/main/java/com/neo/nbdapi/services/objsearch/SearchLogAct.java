@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchLogAct {
 
+
     @JsonProperty("s_menu_id")
     private String menuId;
 
