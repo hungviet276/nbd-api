@@ -1,9 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.UserInfoDAO;
-import com.neo.nbdapi.dto.ApiUrlDTO;
-import com.neo.nbdapi.dto.MenuDTO;
-import com.neo.nbdapi.dto.UserAndMenuDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.entity.UserInfo;
 import com.zaxxer.hikari.HikariDataSource;
@@ -107,5 +105,60 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                     .build();
             return userAndMenuDTO;
         }
+    }
+
+    @Override
+    public List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException {
+        List<NameUserDTO> nameUserDTOs = new ArrayList<>();
+        try (Connection connection = ds.getConnection()) {
+            NameUserDTO nameUserDTO = null;
+            String sql = "";
+            if(selectDTO.getTerm() == null){
+                sql = "select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
+            } else{
+                sql = "select id, name from user_info where select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)and u.name like ? and rownum < 100";
+            }
+            // log sql
+            logger.debug("JDBC execute query : {}", sql);
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, selectDTO.getIdGroup());
+            if(selectDTO.getTerm() != null){
+                statement.setString(2, "%"+selectDTO.getTerm()+"%");
+            }
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                nameUserDTO = NameUserDTO
+                        .builder()
+                        .id(resultSet.getString("id"))
+                        .name(resultSet.getString("name"))
+                        .build();
+                nameUserDTOs.add(nameUserDTO);
+            }
+        }
+        return nameUserDTOs;
+    }
+
+    @Override
+    public List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException {
+        List<NameUserDTO> nameUserDTOs = new ArrayList<>();
+        try (Connection connection = ds.getConnection()) {
+            NameUserDTO nameUserDTO = null;
+            String sql = "select u.id, u.name from group_receive_mail_detail gd, user_info u where gd.id_group_receive_mail = ? and gd.USER_INFO_ID = u.id and gd.id = ?";
+            logger.debug("JDBC execute query : {}", sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, groupDetail.getIdGroup());
+            statement.setLong(2, groupDetail.getIdDetail());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                nameUserDTO = NameUserDTO
+                        .builder()
+                        .id(resultSet.getString("id"))
+                        .name(resultSet.getString("name"))
+                        .build();
+                nameUserDTOs.add(nameUserDTO);
+            }
+        }
+        return nameUserDTOs;
     }
 }

@@ -9,6 +9,7 @@ public interface Constants {
             public static final String URI_USER_INFO = "/user-info";
             public static final String URI_MAIL_CONFIG = "/mail-config";
             public static final String URI_GROUP_MAIL_RECEIVE = "/group-mail-receive";
+            public static final String URI_GROUP_MAIL_RECEIVE_DETAIL = "/group-mail-receive-detail";
         }
     }
 

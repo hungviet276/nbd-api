@@ -1,6 +1,9 @@
 package com.neo.nbdapi.services.impl;
 
 import com.neo.nbdapi.dao.UserInfoDAO;
+import com.neo.nbdapi.dto.GroupDetail;
+import com.neo.nbdapi.dto.NameUserDTO;
+import com.neo.nbdapi.dto.SelectDTO;
 import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.services.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -24,10 +28,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
+	public List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException {
+		return userInfoDAO.getNameUser(selectDTO);
+	}
+
+	@Override
 	public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 		String username = user.getName();
 		return userInfoDAO.findMenuAndApiUrlOfUser(username);
+	}
+	@Override
+	public List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException {
+		return userInfoDAO.getNameUserByGroupId(groupDetail);
 	}
 
 }

@@ -4,22 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GroupMailReceiveVM {
+public class GroupMailReceiveDetailVM {
 
     private Long id;
 
-    private String name;
+    private Long idGroup;
 
-    private String code;
+    private List<String> userReceive;
 
-    private Integer status;
-
-    private String description;
 }
