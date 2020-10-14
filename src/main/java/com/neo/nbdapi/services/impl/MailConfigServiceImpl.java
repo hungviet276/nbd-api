@@ -13,9 +13,12 @@ import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.EditMailConfigVM;
 import com.neo.nbdapi.services.MailConfigService;
 import com.neo.nbdapi.services.objsearch.SearchMailConfig;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class MailConfigServiceImpl implements MailConfigService {
+public class MailConfigServiceImpl implements MailConfigService, Constants {
 
     private Logger logger = LogManager.getLogger(MailConfigServiceImpl.class);
 
