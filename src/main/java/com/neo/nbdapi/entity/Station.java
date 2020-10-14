@@ -1,0 +1,54 @@
+/**
+ * 
+ */
+package com.neo.nbdapi.entity;
+
+import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Station {
+	private Long stationId;
+	private String stationCode;
+	private String stationName;
+	private String stationLongName;
+	private Float elevation;
+	private String image;
+	private Float latitude;
+	private Float longtitude;
+	private Integer trans_miss;
+	private String address;
+	private Integer status;
+	private Integer isDel;
+	private Date createdAt;
+	private Date updatedAt;
+	private Long areaId;
+	private String siteName;
+	private Long districtId;
+	private Long provinceId;
+	private Long riverId;
+	private Long stationTypeId;
+	private Long wardId;
+	private Integer is_active;
+	private Integer countryId;
+	private Integer siteId;
+	private String countryName;
+	private String provinceName;
+	private String districtName;
+	private String wardName;
+	private String riverName;
+	private String unitName;
+	private Integer projectId;
+	private String projectName;
+	private Integer objectTypeId;
+	private String objectType;
+	private String objectTypeName;
+	private Integer modeStationType;
+}
