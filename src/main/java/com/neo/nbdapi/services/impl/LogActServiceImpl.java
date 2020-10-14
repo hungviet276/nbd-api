@@ -13,10 +13,13 @@ import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.LogActService;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
 import com.neo.nbdapi.services.objsearch.SearchMenu;
+import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +39,7 @@ import java.util.List;
  */
 
 @Service
-public class LogActServiceImpl implements LogActService {
+public class LogActServiceImpl implements LogActService, Constants {
 
     private Logger logger = LogManager.getLogger(LogActServiceImpl.class);
 
@@ -63,7 +66,7 @@ public class LogActServiceImpl implements LogActService {
      */
     @Override
     public DefaultPaginationDTO getListLogActPagination(DefaultRequestPagingVM defaultRequestPagingVM) {
-        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        logger.debug( "defaultRequestPagingVM: {}", defaultRequestPagingVM);
         List<LogActDTO> logActList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             // pageNumber = start, recordPerPage = length
@@ -73,7 +76,7 @@ public class LogActServiceImpl implements LogActService {
 
             StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.id AS menu_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
-            logger.debug("Object search: {}", search);
+            logger.debug( "Object search: {}", search);
             // set param query to sql
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -103,8 +106,8 @@ public class LogActServiceImpl implements LogActService {
                 }
             }
             sql.append(" ORDER BY created_at DESC");
-            logger.debug("SQL QUERY: {}", sql);
-            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            logger.debug( "SQL QUERY: {}", sql);
+            logger.debug( "NUMBER OF SEARCH : {}", paramSearch.size());
             // get result query by paging
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
@@ -142,6 +145,11 @@ public class LogActServiceImpl implements LogActService {
         }
     }
 
+    /**
+     * service get list menu access of user
+     * @return
+     * @throws SQLException
+     */
     @Override
     public List<MenuDTO> getListMenuViewLogOfUser() throws SQLException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

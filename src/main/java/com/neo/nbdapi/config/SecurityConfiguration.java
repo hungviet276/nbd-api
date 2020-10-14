@@ -4,6 +4,7 @@ import com.neo.nbdapi.filter.JWTConfigurer;
 import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

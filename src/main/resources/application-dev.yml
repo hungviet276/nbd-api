@@ -1,5 +1,37 @@
-spring:
-  profiles:
-    active: local
 server:
   port: 8080
+spring:
+  devtools:
+    restart:
+      enabled: false
+      additional-exclude: static/**
+    livereload:
+      enabled: false # we use Webpack dev server + BrowserSync for livereload
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.252.10.199)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.252.10.199)(PORT=1521))(LOAD_BALANCE=true)(FAILOVER=true)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=nbd)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC))))
+    username: C2G5
+    password: nbd123456
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      connection-timeout: 20000       #maximum number of milliseconds that a client will wait for a connection
+      minimum-idle: 0                 #minimum number of idle connections maintained by HikariCP in a connection pool
+      maximum-pool-size: 256            #maximum pool size
+      idle-timeout: 10000             #maximum idle time for connection
+      max-lifetime: 2000              # maximum lifetime in milliseconds of a connection in the pool after it is closed.
+      pool-name: NBD_API
+      data-source-properties:
+        v$session.program=NBD_API
+casbin:
+  enableCasbin: true
+  useSyncedEnforcer: false
+  autoSave: true
+  storeType: jdbc
+  initializeSchema: create
+  model: classpath:casbin/model.conf
+  useDefaultModelIfModelNotSetting: true
+  enableWatcher: false
+logging:
+  config: classpath:logback.xml
+job:
+  update_data_do_man: D:/
