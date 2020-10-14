@@ -1264,3 +1264,6 @@
 2020-10-14 15:13:06,422 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
 2020-10-14 15:13:06,422 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
 2020-10-14 15:13:30,564 INFO c.n.n.NbdApiApplication [restartedMain] Started NbdApiApplication in 24.172 seconds (JVM running for 5324.896)
+2020-10-14 15:15:51,546 INFO c.n.n.NbdApiApplication [restartedMain] Starting NbdApiApplication on LAPTOP-9S5F1FQ9 with PID 11240 (D:\code\kttv\nbd-api\target\classes started by HP in D:\code\kttv\nbd-api)
+2020-10-14 15:15:51,547 DEBUG c.n.n.NbdApiApplication [restartedMain] Running with Spring Boot v2.3.4.RELEASE, Spring v5.2.9.RELEASE
+2020-10-14 15:15:51,547 INFO c.n.n.NbdApiApplication [restartedMain] The following profiles are active: local
