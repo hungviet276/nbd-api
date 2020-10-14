@@ -1,7 +1,6 @@
 package com.neo.nbdapi.rest.vm;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +29,5 @@ public class EditMailConfigVM {
     private String email;
 
     private String protocol;
+    
 }

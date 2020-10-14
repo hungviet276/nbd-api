@@ -6,7 +6,6 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.EditMailConfigVM;
 import com.neo.nbdapi.rest.vm.GroupMailReceiveVM;
 import com.neo.nbdapi.services.GroupMailReceiveService;
 import org.springframework.beans.factory.annotation.Autowired;
