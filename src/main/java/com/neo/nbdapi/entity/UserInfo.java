@@ -44,5 +44,8 @@ public class UserInfo {
 
     private Date createdDate;
 
+    private String createdDates;
+
     private String createdBy;
+
 }
