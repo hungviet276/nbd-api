@@ -10,7 +10,6 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EditMailConfigVM {
-
     @NotEmpty(message = "id không được trống")
     private String id;
 

@@ -12,6 +12,7 @@ public interface Constants {
             public static final String URI_GROUP_MAIL_RECEIVE_DETAIL = "/group-mail-receive-detail";
             public static final String URI_MENU_MANAGE = "/menu-manage";
             public static final String URI_LOG_ACT = "/log-act";
+            public static final String URI_USER_MANAGER = "/user-manager";
         }
     }
 
