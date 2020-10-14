@@ -11,6 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchMailConfig implements Serializable {
+
     @JsonProperty("s_id")
     String id;
 

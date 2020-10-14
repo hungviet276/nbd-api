@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
+/*
+Table mail_config mapping
+ */
 public class MailConfig {
-    private int id;
+    private long id;
 
     private String ip;
 

@@ -64,18 +64,22 @@ public class PaginationDAOImpl implements PaginationDAO {
      */
     @Override
     public long countResultQuery(String sql, List<Object> parameter) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            StringBuilder sqlPagination = new StringBuilder("");
-            sqlPagination.append("SELECT count(1) FROM (");
-            sqlPagination.append(sql);
-            sqlPagination.append(")");
-            PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
+        StringBuilder sqlPagination = new StringBuilder("");
+        sqlPagination.append("SELECT count(1) FROM (");
+        sqlPagination.append(sql);
+        sqlPagination.append(")");
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sqlPagination.toString());
+        ) {
             for (int i = 0; i < parameter.size(); i++) {
                 statement.setObject(i + 1, parameter.get(i));
             }
             ResultSet resultSet = statement.executeQuery();
-            resultSet.next();
-            return resultSet.getLong(1);
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
         }
     }
 }
