@@ -1,4 +1,4 @@
-package com.neo.nbdapi.dto;
+package com.neo.nbdapi.rest.vm;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SelectDTO implements Serializable {
-    private Long idGroup;
+public class SelectVM implements Serializable {
     private String term;
     private String _type;
 }
