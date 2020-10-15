@@ -1,5 +1,8 @@
 package com.neo.nbdapi.rest;
 
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -449,5 +452,40 @@ public class StationTypeController {
     public DefaultResponseDTO deleteStationTimeSeries(@RequestParam(name="stationId") @Valid String stationId) throws SQLException, JsonProcessingException {
     	DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(stationId);
     	return defaultResponseDTO;
+    }
+
+    @PostMapping("/control")
+    public DefaultResponseDTO controlStation(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String result = "";
+        try(Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
+            BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
+            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
+
+            os.write(params.get("command"));
+            os.newLine(); // kết thúc dòng
+            os.flush();  // đẩy dữ liệu đi.
+
+            String responseLine;
+            while ((responseLine = is.readLine()) != null) {
+                result += responseLine + "\n";
+                if (responseLine.indexOf("OK") != -1) {
+                    break;
+                }
+            }
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage(result);
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host " + params.get("host"));
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for the connection to " + params.get("host"));
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        }
+        return defaultResponseDTO;
     }
 }
