@@ -11,13 +11,17 @@
     <groupId>com.neo</groupId>
     <artifactId>nbd-api</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>nbd-api</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
         <java.version>1.8</java.version>
     </properties>
+
+    <modules>
+        <module>sync-data-nbd</module>
+    </modules>
 
     <dependencies>
         <dependency>
