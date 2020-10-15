@@ -99,9 +99,18 @@ public class StationManagementService {
     		st.setString(i++,params.get("username"));
     		st.registerOutParameter(1, Types.VARCHAR);
     		st.execute();
-    		
-    		defaultResponseDTO.setStatus(1);
-	        defaultResponseDTO.setMessage(st.getString(1));
+    		String result = st.getString(1);
+    		if(Objects.equals(result,"OK")){
+				defaultResponseDTO.setStatus(1);
+				if(isNew) {
+					defaultResponseDTO.setMessage("Thêm mới thành công");
+				}else {
+					defaultResponseDTO.setMessage("Cập nhật thành công");
+				}
+			}else {
+				defaultResponseDTO.setStatus(0);
+				defaultResponseDTO.setMessage(result);
+			}
     	}catch (Exception e) {
     		log.error(e.getMessage(),e);
 			defaultResponseDTO.setStatus(0);
@@ -112,12 +121,6 @@ public class StationManagementService {
 			}
 	        return defaultResponseDTO;
 		}
-    	defaultResponseDTO.setStatus(1);
-    	if(isNew) {
-    		defaultResponseDTO.setMessage("Thêm mới thành công");
-    	}else {
-    		defaultResponseDTO.setMessage("Cập nhật thành công");
-    	}
         return defaultResponseDTO;
     }
     
