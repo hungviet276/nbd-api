@@ -6,64 +6,19 @@
 
 <Configuration status="WARN">
 
-	<Appenders>
-        <Console name="LogActionApp" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
-        </Console>
-        <RollingFile name="AsyncLogDebugFile" fileName="logs/action/nbd-action.log"
-                     filePattern="logs/action/$${date:yyyy-MM}/nbd-action-%d{yyyy-MM-dd}-%i.log">
+    <CustomLevels>
+        <CustomLevel name="LOG_DEBUG" intLevel="350" />
+        <CustomLevel name="LOG_ACTION_CRUD" intLevel="450" />
+        <CustomLevel name="LOG_STATION" intLevel="550"/>
+    </CustomLevels>
 
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="2048 MB"/>
-            </Policies>
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-        </RollingFile>
-    </Appenders>
-    <Loggers>
-        <Root>
-            <AppenderRef ref="LogActionApp"/>
-        </Root>
-        <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
-            <AppenderRef ref="LogActionApp"/>
-            <AppenderRef ref="AsyncLogDebugFile"/>
-        </Logger>
-    </Loggers>
-    <Appenders>
-        <Console name="LogStation" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
-        </Console>
-        <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-station.log"
-                     filePattern="logs/$${date:yyyy-MM}/nbd-station-%d{yyyy-MM-dd}-%i.log">
-
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="2048 MB"/>
-            </Policies>
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-        </RollingFile>
-    </Appenders>
-    <Loggers>
-        <Root>
-            <AppenderRef ref="LogStation"/>
-        </Root>
-        <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
-            <AppenderRef ref="LogStation"/>
-            <AppenderRef ref="AsyncLogDebugFile"/>
-        </Logger>
-    </Loggers>
-    
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
             <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
         </Console>
-        <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-api.log"
-                     filePattern="logs/$${date:yyyy-MM}/nbd-api-%d{yyyy-MM-dd}-%i.log">
-
+        <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-api-debug.log"
+                     filePattern="logs/debug/nbd-api-debug-%d{yyyy-MM-dd}-%i.log">
+                <MarkerFilter marker="LOG_DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="2048 MB"/>
@@ -72,7 +27,33 @@
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
         </RollingFile>
+
+        <RollingFile  name="AsyncActionCrud" fileName="logs/nbd-action-crud.log"
+                      filePattern="logs/action/nbd-action-crud-%d{yyyy-MM-dd}-%i.log">
+            <MarkerFilter marker="LOG_ACTION_CRUD" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="2048 MB"/>
+            </Policies>
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+        </RollingFile>
+
+        <RollingFile  name="AsyncLogStation" fileName="logs/nbd-log-station.log"
+                      filePattern="logs/station/nbd-log-station-%d{yyyy-MM-dd}-%i.log">
+            <MarkerFilter marker="LOG_STATION" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="2048 MB"/>
+            </Policies>
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+        </RollingFile>
+
     </Appenders>
+
     <Loggers>
         <Root>
             <AppenderRef ref="LogToConsole"/>
@@ -80,6 +61,12 @@
         <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
             <AppenderRef ref="LogToConsole"/>
             <AppenderRef ref="AsyncLogDebugFile"/>
+        </Logger>
+
+        <Logger name="com.neo.nbdapi" level="INFO" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="AsyncActionCrud"/>
+            <AppenderRef ref="AsyncLogStation"/>
         </Logger>
     </Loggers>
 </Configuration>
