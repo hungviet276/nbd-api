@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class UsersManagerVM {
     private String id;
 
+    private String id_dub;
+
     private String password;
 
     private String name;
@@ -22,12 +24,22 @@ public class UsersManagerVM {
 
     private String email;
 
-    private Long gender;
+    private int gender;
 
-    private Long status_id;
+    private int status_id;
 
-    private Long check_roke;
+    private int check_roke;
 
-    private Long card_number;
+    private String card_number;
+
+    private String code;
+
+    private int group_user_id;
+
+    private String check_download_time;
+
+    private String thread_id;
+
+    private String user_login;
 
 }
