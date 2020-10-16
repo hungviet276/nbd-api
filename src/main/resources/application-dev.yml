@@ -33,5 +33,3 @@ casbin:
   enableWatcher: false
 logging:
   config: classpath:logback.xml
-job:
-  update_data_do_man: D:/

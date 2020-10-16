@@ -33,9 +33,3 @@ casbin:
   enableWatcher: false
 logging:
   config: classpath:logback.xml
-job:
-  update_data_do_man:
-    url_api_request: http://vnkttv.com:8080/rms-api/swt/report/getraw_1
-    file_name_pattern: doman*
-    method: POST
-    is_retry: false
