@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.Date;
 
 @RestController
-@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_USER_MANAGER)
+@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_VALUE_TYPES)
 public class UsersManagerController {
 
     private Logger logger = LogManager.getLogger(UsersManagerController.class);

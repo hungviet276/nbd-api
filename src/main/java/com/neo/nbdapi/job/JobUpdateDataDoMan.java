@@ -24,32 +24,32 @@ import java.nio.file.Files;
 @Component
 public class JobUpdateDataDoMan {
 
-    private Logger logger = LogManager.getLogger(JobUpdateDataDoMan.class);
-
-    private Marker markerDebug = MarkerManager.getMarker(Constants.LOGGER.MAKER_LOG_DEBUG);
-
-    @Value("${job.update_data_do_man.folder_data_path}")
-    private String folderDataPath;
-
-    @Value("${job.update_data_do_man.file_name_pattern}")
-    private String fileNamePattern;
-
-    @Value("${job.update_data_do_man.is_retry}")
-    private boolean isRetry;
-
-    @Autowired
-    @Qualifier("objectMapper")
-    private ObjectMapper mapper;
-
-    @Autowired
-    @Qualifier("restTemplate")
-    private RestTemplate restTemplate;
-
-    @Scheduled(cron = "* * * ? * *")
-    public void start() {
-        logger.debug("***JOB CAP NHAT DU LIEU DO MAN RUNNING ***");
-//        restTemplate.getForObject();
-        File folder = new File(folderDataPath);
-        File[] listFile = folder.listFiles(new FileDataFilter(fileNamePattern));
-    }
+//    private Logger logger = LogManager.getLogger(JobUpdateDataDoMan.class);
+//
+//    private Marker markerDebug = MarkerManager.getMarker(Constants.LOGGER.MAKER_LOG_DEBUG);
+//
+//    @Value("${job.update_data_do_man.folder_data_path}")
+//    private String folderDataPath;
+//
+//    @Value("${job.update_data_do_man.file_name_pattern}")
+//    private String fileNamePattern;
+//
+//    @Value("${job.update_data_do_man.is_retry}")
+//    private boolean isRetry;
+//
+//    @Autowired
+//    @Qualifier("objectMapper")
+//    private ObjectMapper mapper;
+//
+//    @Autowired
+//    @Qualifier("restTemplate")
+//    private RestTemplate restTemplate;
+//
+//    @Scheduled(cron = "* * * ? * *")
+//    public void start() {
+//        logger.debug("***JOB CAP NHAT DU LIEU DO MAN RUNNING ***");
+////        restTemplate.getForObject();
+//        File folder = new File(folderDataPath);
+//        File[] listFile = folder.listFiles(new FileDataFilter(fileNamePattern));
+//    }
 }
