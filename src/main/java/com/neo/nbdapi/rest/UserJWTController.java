@@ -7,8 +7,6 @@ import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
 import com.neo.nbdapi.services.UserInfoService;
 import com.neo.nbdapi.utils.Constants;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,8 +32,6 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {
-
-    private Logger logger = LogManager.getLogger(UserJWTController.class);
 
     private final TokenProvider tokenProvider;
 

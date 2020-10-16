@@ -20,4 +20,10 @@ public interface Constants {
         public static final int BAD_REQUEST = 400;
         public static final int INTERNAL_SERVER_ERROR = 500;
     }
+
+    class LOGGER {
+        public static final String MAKER_LOG_STATION = "LOG_STATION";
+        public static final String MAKER_LOG_ACTION_CRUD = "LOG_ACTION_CRUD";
+        public static final String MAKER_LOG_DEBUG= "LOG_DEBUG";
+    }
 }

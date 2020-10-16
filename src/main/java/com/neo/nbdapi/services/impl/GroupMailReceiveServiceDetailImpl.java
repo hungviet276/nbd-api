@@ -25,7 +25,6 @@ import java.util.List;
 
 @Service
 public class GroupMailReceiveServiceDetailImpl implements GroupMailReceiveServiceDetail {
-
     @Autowired
     private PaginationDAO paginationDAO;
 
@@ -148,8 +147,6 @@ public class GroupMailReceiveServiceDetailImpl implements GroupMailReceiveServic
             }
 
         }
-
-
         return groupMailReceiveDetailDAO.editGroupReceiveMailDetail(idUserDells,idUsersAdds,groupMailReceiveDetailVM.getIdGroup());
     }
 

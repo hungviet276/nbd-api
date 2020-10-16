@@ -147,7 +147,7 @@
 
     <profiles>
         <profile>
-            <id>local</id>
+            <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -179,7 +179,6 @@
                             <goal>build</goal>
                         </goals>
                         <configuration>
-                            <skipDockerInfo>true</skipDockerInfo>
                             <repository>levietthang1997/${project.name}</repository>
                             <tag>${project.name}-${project.version}</tag>
                         </configuration>
