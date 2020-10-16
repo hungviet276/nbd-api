@@ -42,4 +42,6 @@ public class UsersManagerVM {
 
     private String user_login;
 
+    private String check_edit_pass;
+
 }

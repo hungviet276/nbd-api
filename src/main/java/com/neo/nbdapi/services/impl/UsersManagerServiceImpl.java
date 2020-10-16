@@ -534,7 +534,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
 
     @Override
     public String editUsers(UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
-        String proc = "begin ?:= users_manage.edit_user_info(?,?,?,?,?,?,?,?,?,?,?,?,?) ;end;";
+        String proc = "begin ?:= users_manage.edit_user_info(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ;end;";
         long startTime = System.nanoTime();
         List<Map<String, String>> list = new ArrayList<>();
         Connection conn = null;
@@ -558,6 +558,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
             ps.setString(12, usersManagerVM.getCheck_download_time());
             ps.setString(13, usersManagerVM.getThread_id());
             ps.setString(14, usersManagerVM.getUser_login());
+            ps.setString(15, usersManagerVM.getCheck_edit_pass());
             ps.execute();
             String result = ps.getString(1);
             return result;
