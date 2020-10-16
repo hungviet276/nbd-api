@@ -33,17 +33,27 @@ public class UserInfo {
 
     private int gender;
 
+    private String genders;
+
     private int statusId;
+
+    private String statusIds;
 
     private int checkRole;
 
     private int dateRole;
 
+    private String dateRoles;
+
     private int cardNumber;
+
+    private String cardNumbers;
 
     private String code;
 
     private String officeCode;
+
+    private int group_id;
 
     private Date createdDate;
 

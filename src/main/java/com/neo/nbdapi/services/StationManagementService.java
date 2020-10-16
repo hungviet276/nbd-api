@@ -53,9 +53,9 @@ public class StationManagementService {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql ="";
         if(isNew) {
-        	sql = "begin ? := STATION.create_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
+        	sql = "begin ? := STATION.create_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
         }else {
-        	sql = "begin ? := STATION.update_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
+        	sql = "begin ? := STATION.update_station_series_times(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); end;";
         }
     	try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
     		log.info(objectMapper.writeValueAsString(params));
@@ -96,11 +96,21 @@ public class StationManagementService {
     		st.setString(i++,params.get("address"));
     		st.setString(i++,params.get("uuid"));
     		st.setString(i++,params.get("modeStationType"));
+    		st.setString(i++,params.get("username"));
     		st.registerOutParameter(1, Types.VARCHAR);
     		st.execute();
-    		
-    		defaultResponseDTO.setStatus(1);
-	        defaultResponseDTO.setMessage(st.getString(1));
+    		String result = st.getString(1);
+    		if(Objects.equals(result,"OK")){
+				defaultResponseDTO.setStatus(1);
+				if(isNew) {
+					defaultResponseDTO.setMessage("Thêm mới thành công");
+				}else {
+					defaultResponseDTO.setMessage("Cập nhật thành công");
+				}
+			}else {
+				defaultResponseDTO.setStatus(0);
+				defaultResponseDTO.setMessage(result);
+			}
     	}catch (Exception e) {
     		log.error(e.getMessage(),e);
 			defaultResponseDTO.setStatus(0);
@@ -111,12 +121,6 @@ public class StationManagementService {
 			}
 	        return defaultResponseDTO;
 		}
-    	defaultResponseDTO.setStatus(1);
-    	if(isNew) {
-    		defaultResponseDTO.setMessage("Thêm mới thành công");
-    	}else {
-    		defaultResponseDTO.setMessage("Cập nhật thành công");
-    	}
         return defaultResponseDTO;
     }
     

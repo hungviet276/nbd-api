@@ -63,7 +63,6 @@ public class MailConfigDAOImpl implements MailConfigDAO {
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
         ) {
-
             statement.setString(1, mailConfig.getIp());
             statement.setString(2, mailConfig.getPort());
             statement.setString(3, mailConfig.getUsername());
