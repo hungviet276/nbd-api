@@ -1,8 +1,11 @@
 package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neo.nbdapi.dao.ConfigValueTypeDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ConfigValueType;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -35,6 +38,9 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     @Autowired
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ConfigValueTypeDAO configValueTypeDAO;
 
 
     @Override
@@ -141,5 +147,20 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     .content(configValueTypes)
                     .build();
         }
+    }
+
+    @Override
+    public List<ComboBox> getValueType(Long stationId) throws SQLException {
+        return configValueTypeDAO.getValueType(stationId);
+    }
+
+    @Override
+    public List<ComboBox> getStationComboBox(String query) throws SQLException {
+        return configValueTypeDAO.getStationComboBox(query);
+    }
+
+    @Override
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType) throws SQLException {
+        return configValueTypeDAO.getStationValueTypeSpatial(idStation, idValueType);
     }
 }

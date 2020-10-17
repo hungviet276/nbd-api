@@ -19,4 +19,9 @@ public class ValueTypeServiceImpl implements ValueTypeService {
     public List<ComboBox> getValueTypesSelect(SelectVM selectVM) throws SQLException {
         return valueTypeDAO.getValueTypesSelect(selectVM.getTerm());
     }
+
+    @Override
+    public List<ComboBox> getValueTypesWithStationSelect(Long stationId) throws SQLException {
+        return valueTypeDAO.getValueTypesWithStationSelect(stationId);
+    }
 }

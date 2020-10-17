@@ -14,8 +14,9 @@ import java.util.List;
 public class StationController {
     @Autowired
     private StationService stationService;
+
     @PostMapping("/station-select")
-    public List<ComboBox> getListMailConfigPagination(@RequestBody SelectVM selectVM) throws SQLException {
+    public List<ComboBox> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
         return stationService.getStationComboBox(selectVM.getTerm());
     }
 }
