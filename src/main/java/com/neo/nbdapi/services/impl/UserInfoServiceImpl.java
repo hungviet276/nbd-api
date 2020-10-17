@@ -6,8 +6,6 @@ import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.services.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +36,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException {
-		return userInfoDAO.getNameUser(selectDTO);
+	public List<NameUserDTO> getNameUser(SelectGroupDTO selectGroupDTO) throws SQLException {
+		return userInfoDAO.getNameUser(selectGroupDTO);
 	}
 
 	@Override
