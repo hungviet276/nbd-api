@@ -12,16 +12,48 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchUsesManager implements Serializable {
-    @JsonProperty("s_code")
-    String code;
-
-    @JsonProperty("s_username")
+    @JsonProperty("s_id")
     String id;
 
-    @JsonProperty("s_fromDate")
-    Date fromDate;
+    @JsonProperty("s_name")
+    String name;
 
-    @JsonProperty("s_toDate")
-    Date toDate;
+    @JsonProperty("s_mobile")
+    String mobile;
+
+    @JsonProperty("s_email")
+    String email;
+
+    @JsonProperty("s_gender")
+    String gender;
+
+    @JsonProperty("s_checkRole")
+    String checkRole;
+
+    @JsonProperty("s_cardNumber")
+    String cardNumber;
+
+    @JsonProperty("s_officeCode")
+    String officeCode;
+
+
+    @JsonProperty("s_statusId")
+    String statusId;
+
+
+    @JsonProperty("s_createDate")
+    String createDate;
+
+    @JsonProperty("s_createdBy")
+    String createdBy;
+
+    @JsonProperty("s_fromdate")
+    String fromDate;
+
+    @JsonProperty("s_todate")
+    String toDate;
+
+    @JsonProperty("s_datedwl")
+    String datedwl;
 
 }
