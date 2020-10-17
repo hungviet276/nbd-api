@@ -1,16 +1,14 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
-import com.neo.nbdapi.rest.vm.CreateMailConfigVM;
+import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.services.MailConfigService;
+import com.neo.nbdapi.rest.vm.UsersManagerVM;
 import com.neo.nbdapi.services.UsersManagerService;
-import com.neo.nbdapi.services.impl.UsersManagerServiceImpl;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
-import oracle.jdbc.OracleTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.*;
 import java.util.*;
-import java.util.Date;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_VALUE_TYPES)
@@ -53,9 +50,38 @@ public class UsersManagerController {
         return usersManagerService.get_role(user_id,thread_id);
     }
 
-    @GetMapping("/create_nv_temp")
-    public List<Map<String, String>> create_nv_temp(@RequestParam("act") String act,@RequestParam("menuId") String menuId,@RequestParam("threadId") String threadId,@RequestParam("type") String type) throws SQLException, BusinessException {
+    @PostMapping("/create_nv_temp")
+    public String create_nv_temp(@RequestParam("act") String act, @RequestParam("menuId") String menuId, @RequestParam("threadId") String threadId, @RequestParam("type") String type) throws SQLException, BusinessException {
         return usersManagerService.create_nv_temp(act,menuId,threadId,type);
     }
 
+    @PostMapping("/create_nq_temp")
+    public String create_nq_temp(@RequestParam("nhomQuyen_id") String nhomquyen_id, @RequestParam("threadId") String threadId, @RequestParam("type") String type, @RequestParam("checkall") String checkAll) throws SQLException, BusinessException {
+        return usersManagerService.create_nq_temp(nhomquyen_id,threadId,type,checkAll);
+    }
+
+    @GetMapping("/get_list_group_users")
+    public List<ComboBox>  get_list_group_users() throws SQLException, BusinessException {
+        return usersManagerService.get_list_group_users();
+    }
+
+    @PostMapping("/create_users")
+    public String createUser(@RequestBody @Valid UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
+        return usersManagerService.createUser(usersManagerVM);
+    }
+
+    @PostMapping("/edit_users")
+    public String editUsers(@RequestBody @Valid UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
+        return usersManagerService.editUsers(usersManagerVM);
+    }
+
+    @PostMapping("/delete_users")
+    public String deleteUsers(@RequestParam("username") String username) throws SQLException, BusinessException {
+        return usersManagerService.deleteUsers(username);
+    }
+
+    @PostMapping("/delete_temp")
+    public String deleteTemp(@RequestParam("tempId") String tempId, @RequestParam("threadId") String threadId) throws SQLException, BusinessException {
+        return usersManagerService.deleteTemp(tempId,threadId);
+    }
 }
