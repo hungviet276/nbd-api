@@ -1,5 +1,6 @@
 package com.neo.nbdapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -39,8 +40,10 @@ public class Menu {
 
     private String modifiedUser;
 
+    @JsonFormat(pattern="dd/MM/yyyy HH:mm:ss")
     private Date createdDate;
 
+    @JsonFormat(pattern="dd/MM/yyyy HH:mm:ss")
     private Date modifiedDate;
 
     @JsonIgnore

@@ -1,5 +1,6 @@
 package com.neo.nbdapi.services.objsearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,8 +11,8 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchMenu {
-
 
     @JsonProperty("s_id")
     private String id;
@@ -40,9 +41,9 @@ public class SearchMenu {
     @JsonProperty("s_sys_id")
     private String sysId;
 
-    @JsonProperty("s_created_user")
-    private String createdUser;
-
-    @JsonProperty("s_modified_user")
-    private String modifiedUser;
+//    @JsonProperty("s_created_user")
+//    private String createdUser;
+//
+//    @JsonProperty("s_modified_user")
+//    private String modifiedUser;
 }
