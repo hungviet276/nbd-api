@@ -378,9 +378,10 @@ public class StationTypeController {
     public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?)";
+        String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
+            statement.setString(i++, params.get("tsConfigName"));
             statement.setString(i++, params.get("timeTypeId"));
             statement.setString(i++, params.get("uuid"));
             statement.execute();
@@ -668,5 +669,110 @@ public class StationTypeController {
             defaultResponseDTO.setMessage(result);
         }
         return defaultResponseDTO;
+    }
+
+    @GetMapping("/get-select-time-series-config")
+    public List<ComboBox> getListTimeSeriesConfigCombobox(@RequestParam(name = "parameterId") String parameterId) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select * from time_series_config WHERE 1 = 1 ");
+        if(parameterId != null){
+            sql.append(" and PARAMETER_TYPE_ID = ? ");
+        }
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            st.setString(1,parameterId);
+            ResultSet rs = st.executeQuery();
+            List<ComboBox> list = new ArrayList<>();
+            ComboBox stationType = ComboBox.builder().id(-1L).text("Lựa chọn").build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBox.builder()
+                        .id(rs.getLong("TS_CONFIG_ID"))
+                        .text(rs.getString("TS_CONFIG_ID") + " - " + rs.getString("TS_CONFIG_NAME"))
+                        .build();
+                list.add(stationType);
+            }
+            return list;
+        }
+    }
+
+    @PostMapping("/create-time-series")
+    public DefaultResponseDTO createTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(params));
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "insert into TIME_SERIES(TS_ID, TS_NAME, UUID, TS_CONFIG_ID,STATION_ID) values (TIME_SERIES_SEQ.nextval,?,?,?,?)";
+        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+            int i = 1;
+            statement.setString(i++, params.get("tsName"));
+            statement.setString(i++, params.get("uuid"));
+            statement.setString(i++, params.get("tsConfigId"));
+            statement.setString(i++, params.get("stationId"));
+            statement.execute();
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage("Thêm mới thành công");
+            return defaultResponseDTO;
+        }catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+            return defaultResponseDTO;
+        }
+    }
+
+    @PostMapping("/get-list-time-series-pagination")
+    public DefaultPaginationDTO getListTimeSeriesPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+
+            StringBuilder sql = new StringBuilder("select a.* from TIME_SERIES a, TIME_SERIES_CONFIG b where a.TS_CONFIG_ID = b.TS_CONFIG_ID(+)");
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    if (params.get("s_stationId") == null && Strings.isNotEmpty(params.get("s_uuid"))) {
+                        sql.append(" and (a.uuid = ?)");
+                        paramSearch.add(params.get("s_uuid"));
+//                        paramSearch.add(params.get("s_stationId"));
+                    }
+                    if (params.get("s_stationId") != null) {
+                        sql.append(" and a.STATION_ID = ? ");
+                        paramSearch.add(params.get("s_stationId"));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            log.debug("SQL get-list-station-parameter-pagination : {}", sql.toString());
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
+            List<Parameter> list = new ArrayList<>();
+
+            while (rs.next()) {
+                Parameter bo = Parameter.builder()
+                        .stationParamterId(rs.getInt("TS_ID"))
+                        .paramterTypeId(rs.getInt("TS_CONFIG_ID"))
+                        .parameterName(rs.getString("TS_NAME"))
+                        .stationId(rs.getInt("STATION_ID"))
+//                        .timeFrequency(rs.getInt("TIME_FREQUENCY"))
+                        .uuid(rs.getString("UUID"))
+//                        .unitName(rs.getString("UNIT_NAME"))
+                        .note("")
+                        .build();
+                list.add(bo);
+            }
+
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
+        }
     }
 }
