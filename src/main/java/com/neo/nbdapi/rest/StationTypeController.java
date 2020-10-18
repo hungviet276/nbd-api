@@ -106,7 +106,7 @@ public class StationTypeController {
                         paramSearch.add("%" + params.get("s_objectType") + "%");
                     }
                 	if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
-                        sql.append(" and g.OBJECT_TYPE_SHORTNAME like ? ");
+                        sql.append(" and lower(g.OBJECT_TYPE_SHORTNAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_objectTypeName") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_stationCode"))) {
@@ -114,7 +114,7 @@ public class StationTypeController {
                         paramSearch.add(params.get("s_stationCode"));
                     }
                     if (Strings.isNotEmpty(params.get("s_stationName"))) {
-                        sql.append(" and a.STATION_NAME like ? ");
+                        sql.append(" and lower(a.STATION_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_stationName") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_longtitude"))) {
@@ -126,20 +126,20 @@ public class StationTypeController {
                         paramSearch.add(params.get("s_latitude"));
                     }
                     if (Strings.isNotEmpty(params.get("s_provinceName"))) {
-                        sql.append(" and b.PROVINCE_NAME like ? ");
+                        sql.append(" and lower(b.PROVINCE_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_provinceName") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_districtName"))) {
-                        sql.append(" and c.DISTRICT_NAME like ? ");
+                        sql.append(" and lower(c.DISTRICT_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_districtName") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_wardName"))) {
-                        sql.append(" and d.WARD_NAME like ? ");
+                        sql.append(" and lower(d.WARD_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_wardName") + "%");
                     }
                     
                     if (Strings.isNotEmpty(params.get("s_address"))) {
-                        sql.append(" and a.address like ? ");
+                        sql.append(" and lower(a.address) like lower(?) ");
                         paramSearch.add("%" + params.get("s_address") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_status"))) {
@@ -306,7 +306,95 @@ public class StationTypeController {
                     .build();
         }
     }
-    
+
+    @PostMapping("/search-parameter-type")
+    public DefaultPaginationDTO searchParameterType(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select a.*, b.listSeries,c.unit_name from parameter_type a ,\n" +
+                "  (select c.PARAMETER_TYPE_ID , LISTAGG(TS_TYPE_NAME, '; ') \n" +
+                "                    WITHIN GROUP (ORDER BY TS_TYPE_NAME) listSeries  from (\n" +
+                "select a.PARAMETER_TYPE_ID, b.TS_TYPE_NAME from TIME_SERIES_CONFIG a, TIME_SERIES_TYPE b where a.TS_TYPE_ID = b.TS_TYPE_ID \n" +
+                ") c where 1=1 GROUP BY PARAMETER_TYPE_ID) b, unit c\n" +
+                "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and a.unit_id = c.unit_id(+)");
+        try (Connection connection = ds.getConnection();) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    if (Strings.isNotEmpty(params.get("s_parameter"))) {
+                        sql.append(" and lower(a.PARAMETER_TYPE_NAME) like lower(?) ");
+                        paramSearch.add("%" + params.get("s_parameter") + "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_parameterDesc"))) {
+                        sql.append(" and lower(a.PARAMETER_TYPE_DESCRIPTION) like lower(?) ");
+                        paramSearch.add("%" +params.get("s_parameterDesc")+ "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_unit"))) {
+                        sql.append(" and lower(c.UNIT_NAME) like lower(?) ");
+                        paramSearch.add("%" + params.get("s_unit") + "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_timeseries"))) {
+                        sql.append(" and lower(b.LISTSERIES) like lower(?) ");
+                        paramSearch.add("%" + params.get("s_timeseries") + "%");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            log.info(sql.toString());
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
+            List<StationTimeSeries> list = new ArrayList<>();
+
+            while (rs.next()) {
+                StationTimeSeries bo = StationTimeSeries.builder()
+                        .parameterTypeId(rs.getInt("PARAMETER_TYPE_ID"))
+                        .parameterTypeName(rs.getString("PARAMETER_TYPE_NAME"))
+                        .parameterTypeDescription(rs.getString("PARAMETER_TYPE_DESCRIPTION"))
+                        .unitId(Integer.parseInt(rs.getString("UNIT_ID")))
+                        .unitName(rs.getString("UNIT_NAME"))
+                        .timeSeries(rs.getString("LISTSERIES"))
+                        .build();
+                list.add(bo);
+            }
+
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
+        }
+    }
+
+    @PostMapping("/create-time-series-config")
+    public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(params));
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?)";
+        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+            int i = 1;
+            statement.setString(i++, params.get("timeTypeId"));
+            statement.setString(i++, params.get("uuid"));
+            statement.execute();
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage("Thêm mới thành công");
+            return defaultResponseDTO;
+        }catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+            return defaultResponseDTO;
+        }
+    }
+
     @PostMapping("/create-parameter-type")
     public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String,String> params) throws SQLException {
     	String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
@@ -362,7 +450,82 @@ public class StationTypeController {
             return defaultResponseDTO;
 		}
     }
-    
+
+    @PostMapping("/delete-time-series-config")
+    public DefaultResponseDTO deleteTimeSeriesConfig(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "delete from TIME_SERIES_CONFIG where TS_CONFIG_ID = ? ";
+        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+            statement.setString(1, stationParamterId);
+            statement.execute();
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage("Xóa thành công");
+            return defaultResponseDTO;
+        }catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
+            return defaultResponseDTO;
+        }
+    }
+
+
+    @PostMapping("/get-list-series-time-config-pagination")
+    public DefaultPaginationDTO getListSeriesTimeConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+
+            StringBuilder sql = new StringBuilder("select a.*,b.TS_CONFIG_ID,b.uuid from TIME_SERIES_TYPE a, TIME_SERIES_CONFIG b where a.TS_TYPE_ID = b.TS_TYPE_ID ");
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    if (Strings.isNotEmpty(params.get("s_uuid"))) {
+                        sql.append(" and b.uuid = ?");
+                        paramSearch.add(params.get("s_uuid"));
+//                        paramSearch.add(params.get("s_stationId"));
+                    }
+                    if (params.get("s_stationId") != null) {
+                        sql.append(" and b.PARAMETER_TYPE_ID = ? ");
+                        paramSearch.add(params.get("s_stationId"));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            log.debug("SQL get-list-series-time-config-pagination : {}", sql.toString());
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
+            List<Parameter> list = new ArrayList<>();
+
+            while (rs.next()) {
+                Parameter bo = Parameter.builder()
+                        .stationParamterId(rs.getInt("TS_CONFIG_ID"))
+                        .paramterTypeId(rs.getInt("TS_TYPE_ID"))
+                        .parameterName(rs.getString("TS_TYPE_NAME"))
+                        .unitName(rs.getString("TS_TYPE_DESCRIPTION"))
+                        .uuid(rs.getString("UUID"))
+                        .build();
+                list.add(bo);
+            }
+
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
+        }
+    }
+
     @PostMapping("/get-list-station-parameter-pagination")
     public DefaultPaginationDTO getListStationParameterPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         
@@ -452,6 +615,24 @@ public class StationTypeController {
     public DefaultResponseDTO deleteStationTimeSeries(@RequestParam(name="stationId") @Valid String stationId) throws SQLException, JsonProcessingException {
     	DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(stationId);
     	return defaultResponseDTO;
+    }
+
+    @PostMapping("/create-time-series-config-parameter")
+    public DefaultResponseDTO createTimeSeriesConfigParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params,true);
+        return defaultResponseDTO;
+    }
+
+    @PostMapping("/update-time-series-config-parameter")
+    public DefaultResponseDTO updateTimeSeriesConfigParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params,false);
+        return defaultResponseDTO;
+    }
+
+    @PostMapping("/delete-time-series-config-parameter")
+    public DefaultResponseDTO deleteTimeSeriesConfigParameter(@RequestParam(name="parameterId") @Valid String parameterId) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(parameterId);
+        return defaultResponseDTO;
     }
 
     @PostMapping("/control")

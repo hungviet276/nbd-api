@@ -305,7 +305,26 @@ public class CommonController {
             return list;
         }
     }
-    
+
+    @GetMapping("/get-select-list-timeseries")
+    public List<ComboBox> getListTimeseriesCombobox() throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select * from TIME_SERIES_TYPE WHERE 1 = 1 ");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            ResultSet rs = st.executeQuery();
+            List<ComboBox> list = new ArrayList<>();
+            ComboBox bo = ComboBox.builder().id(-1L).text("Lựa chọn").build();
+            list.add(bo);
+            while (rs.next()) {
+                bo = ComboBox.builder()
+                        .id(rs.getLong("TS_TYPE_ID"))
+                        .text(rs.getString("TS_TYPE_NAME"))
+                        .build();
+                list.add(bo);
+            }
+            return list;
+        }
+    }
+
     @GetMapping("/get-list-parameter")
     public List<Unit> getListParameterType() throws SQLException, BusinessException {
     	StringBuilder sql = new StringBuilder("select * from PARAMETER_TYPE WHERE 1 = 1 ");

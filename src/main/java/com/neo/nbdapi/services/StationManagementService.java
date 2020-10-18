@@ -123,7 +123,53 @@ public class StationManagementService {
 		}
         return defaultResponseDTO;
     }
-    
+
+	public DefaultResponseDTO saveOrUpdateTimeSeriesConfigParameterPLSQL(Map<String,String> params,boolean isNew) throws SQLException, JsonProcessingException {
+		DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+		String sql ="";
+		if(isNew) {
+			sql = "begin ? := STATION.create_time_series_config_parameter(?,?,?,?,?); end;";
+		}else {
+			sql = "begin ? := STATION.update_time_series_config_parameter(?,?,?,?,?,?); end;";
+		}
+		try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
+			log.info(objectMapper.writeValueAsString(params));
+			int i = 2;
+			if(!isNew) {
+				st.setString(i++,params.get("parameterId"));
+			}
+			st.setString(i++,params.get("parameter"));
+			st.setString(i++,params.get("parameterDesc"));
+			st.setString(i++,params.get("unitId"));
+			st.setString(i++,params.get("uuid"));
+			st.setString(i++,params.get("username"));
+			st.registerOutParameter(1, Types.VARCHAR);
+			st.execute();
+			String result = st.getString(1);
+			if(Objects.equals(result,"OK")){
+				defaultResponseDTO.setStatus(1);
+				if(isNew) {
+					defaultResponseDTO.setMessage("Thêm mới thành công");
+				}else {
+					defaultResponseDTO.setMessage("Cập nhật thành công");
+				}
+			}else {
+				defaultResponseDTO.setStatus(0);
+				defaultResponseDTO.setMessage(result);
+			}
+		}catch (Exception e) {
+			log.error(e.getMessage(),e);
+			defaultResponseDTO.setStatus(0);
+			if(isNew) {
+				defaultResponseDTO.setMessage("Lỗi khi thêm mới: " + e.getMessage());
+			}else {
+				defaultResponseDTO.setMessage("Lỗi khi cập nhật: " + e.getMessage());
+			}
+			return defaultResponseDTO;
+		}
+		return defaultResponseDTO;
+	}
+
     public DefaultResponseDTO deleteStationTimeSeriesPLSQL(String stationId) throws SQLException, JsonProcessingException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
     	String sql = "begin ? := STATION.delete_station_series_times(?); end;";
