@@ -102,8 +102,8 @@ public class StationTypeController {
                 try {
                 	Map<String,String> params = objectMapper.readValue(search, Map.class);
                 	if (Strings.isNotEmpty(params.get("s_objectType"))) {
-                        sql.append(" and g.OBJECT_TYPE like ? ");
-                        paramSearch.add("%" + params.get("s_objectType") + "%");
+                        sql.append(" and g.OBJECT_TYPE = ? ");
+                        paramSearch.add(params.get("s_objectType"));
                     }
                 	if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
                         sql.append(" and lower(g.OBJECT_TYPE_SHORTNAME) like lower(?) ");
@@ -142,6 +142,12 @@ public class StationTypeController {
                         sql.append(" and lower(a.address) like lower(?) ");
                         paramSearch.add("%" + params.get("s_address") + "%");
                     }
+
+                    if (Strings.isNotEmpty(params.get("s_riverName"))) {
+                        sql.append(" and lower(e.RIVER_NAME) like lower(?) ");
+                        paramSearch.add("%" + params.get("s_riverName") + "%");
+                    }
+
                     if (Strings.isNotEmpty(params.get("s_status"))) {
                         sql.append(" and a.status = ? ");
                         paramSearch.add(params.get("s_status"));
@@ -450,6 +456,24 @@ public class StationTypeController {
             defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
             return defaultResponseDTO;
 		}
+    }
+
+    @PostMapping("/delete-time-series")
+    public DefaultResponseDTO deleteTimeSeries(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "delete from TIME_SERIES where TS_ID = ? ";
+        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+            statement.setString(1, stationParamterId);
+            statement.execute();
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage("Xóa thành công");
+            return defaultResponseDTO;
+        }catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
+            return defaultResponseDTO;
+        }
     }
 
     @PostMapping("/delete-time-series-config")
