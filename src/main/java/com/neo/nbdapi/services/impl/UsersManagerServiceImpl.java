@@ -77,12 +77,14 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             sql.append(" AND mobile like ? ");
                             paramSearch.add("%" + objectSearch.getMobile() + "%");
                         }
+                        System.out.println("emaillll---------------" +objectSearch.getEmail());
                         if (Strings.isNotEmpty(objectSearch.getEmail())) {
                             sql.append(" AND email like ? ");
                             paramSearch.add("%" + objectSearch.getEmail() + "%");
                         }
+                        System.out.println("getGender---------------" +objectSearch.getGender());
                         if (Strings.isNotEmpty(objectSearch.getGender())) {
-                            sql.append(" AND genders= ? ");
+                            sql.append(" AND genders like ? ");
                             paramSearch.add("%" + objectSearch.getGender() + "%");
                         }
 //                        if (Strings.isNotEmpty(objectSearch.getCheckRole())) {
@@ -120,6 +122,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    System.out.println("sql---------------" +sql);
                 }
                 logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
                 ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
