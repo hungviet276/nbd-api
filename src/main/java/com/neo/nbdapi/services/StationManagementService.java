@@ -189,6 +189,26 @@ public class StationManagementService {
 		}
     	return defaultResponseDTO;
     }
+
+	public DefaultResponseDTO deleteTimeSeriesConfigParameterPLSQL(String parameterId) throws SQLException, JsonProcessingException {
+		DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+		String sql = "begin ? := STATION.delete_time_series_config_parameter(?); end;";
+		try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
+			st.setString(2,parameterId);
+			st.registerOutParameter(1, Types.VARCHAR);
+			st.execute();
+
+			defaultResponseDTO.setStatus(1);
+			defaultResponseDTO.setMessage("Xóa thành công");
+		}catch (Exception e) {
+			log.error(e.getMessage(),e);
+			defaultResponseDTO.setStatus(0);
+			defaultResponseDTO.setMessage("Lỗi khi xóa: " + e.getMessage());
+			return defaultResponseDTO;
+		}
+		return defaultResponseDTO;
+	}
+
     public DefaultResponseDTO createStationTimeSeries(Map<String,String> params) throws SQLException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         

@@ -656,7 +656,7 @@ public class StationTypeController {
 
     @PostMapping("/delete-time-series-config-parameter")
     public DefaultResponseDTO deleteTimeSeriesConfigParameter(@RequestParam(name="parameterId") @Valid String parameterId) throws SQLException, JsonProcessingException {
-        DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(parameterId);
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteTimeSeriesConfigParameterPLSQL(parameterId);
         return defaultResponseDTO;
     }
 
