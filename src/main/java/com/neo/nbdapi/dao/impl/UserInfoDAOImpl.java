@@ -2,13 +2,11 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.UserInfoDAO;
 import com.neo.nbdapi.dto.*;
-import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.entity.UserInfo;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -58,12 +56,12 @@ public class UserInfoDAOImpl implements UserInfoDAO {
     }
 
     @Override
-    public List<NameUserDTO> getNameUser(SelectDTO selectDTO) throws SQLException {
+    public List<NameUserDTO> getNameUser(SelectGroupDTO selectGroupDTO) throws SQLException {
         List<NameUserDTO> nameUserDTOs = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             NameUserDTO nameUserDTO = null;
             String sql = "";
-            if(selectDTO.getTerm() == null){
+            if(selectGroupDTO.getTerm() == null){
                 sql = "select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
             } else{
                 sql = "select id, name from user_info where select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)and u.name like ? and rownum < 100";
@@ -72,9 +70,9 @@ public class UserInfoDAOImpl implements UserInfoDAO {
             logger.debug("JDBC execute query : {}", sql);
 
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, selectDTO.getIdGroup());
-            if(selectDTO.getTerm() != null){
-                statement.setString(2, "%"+selectDTO.getTerm()+"%");
+            statement.setLong(1, selectGroupDTO.getIdGroup());
+            if(selectGroupDTO.getTerm() != null){
+                statement.setString(2, "%"+ selectGroupDTO.getTerm()+"%");
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {

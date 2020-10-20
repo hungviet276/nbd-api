@@ -43,5 +43,7 @@ public class StationTimeSeries {
 	private String projectName;
 	private String storage;
 	private Integer status;
+	private Integer unitId;
 	private String unitName;
+	private String timeSeries;
 }

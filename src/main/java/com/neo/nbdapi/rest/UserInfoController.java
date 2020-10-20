@@ -3,7 +3,7 @@ package com.neo.nbdapi.rest;
 import com.neo.nbdapi.dto.GroupDetail;
 import com.neo.nbdapi.dto.NameUserDTO;
 import com.neo.nbdapi.dto.UserAndMenuDTO;
-import com.neo.nbdapi.dto.SelectDTO;
+import com.neo.nbdapi.dto.SelectGroupDTO;
 import com.neo.nbdapi.services.UserInfoService;
 import com.neo.nbdapi.utils.Constants;
 import org.apache.logging.log4j.LogManager;
@@ -28,8 +28,8 @@ public class UserInfoController {
     }
 
     @GetMapping("/get-name-user")
-    public List<NameUserDTO> getUserInfo(SelectDTO selectDTO) throws SQLException {
-        return userInfoService.getNameUser(selectDTO);
+    public List<NameUserDTO> getUserInfo(SelectGroupDTO selectGroupDTO) throws SQLException {
+        return userInfoService.getNameUser(selectGroupDTO);
     }
 
     @PostMapping("/get-name-user-by-group-id")
