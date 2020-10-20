@@ -49,7 +49,6 @@ public class UsersManagerServiceImpl implements UsersManagerService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Override
     public DefaultPaginationDTO getListUsersPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
             logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
