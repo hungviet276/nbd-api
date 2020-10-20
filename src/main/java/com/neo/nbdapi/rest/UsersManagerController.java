@@ -65,6 +65,7 @@ public class UsersManagerController {
         return usersManagerService.get_list_group_users();
     }
 
+
     @PostMapping("/create_users")
     public String createUser(@RequestBody @Valid UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
         return usersManagerService.createUser(usersManagerVM);
