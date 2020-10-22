@@ -37,9 +37,4 @@ public interface UsersManagerService {
 
     String deleteUsers(String username) throws SQLException, BusinessException;
 
-
-
-
-
-
 }

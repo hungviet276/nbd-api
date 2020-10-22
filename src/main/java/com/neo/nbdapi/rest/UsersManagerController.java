@@ -19,7 +19,7 @@ import java.sql.*;
 import java.util.*;
 
 @RestController
-@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_VALUE_TYPES)
+@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_USER_MANAGER)
 public class UsersManagerController {
 
     private Logger logger = LogManager.getLogger(UsersManagerController.class);
@@ -64,6 +64,7 @@ public class UsersManagerController {
     public List<ComboBox>  get_list_group_users() throws SQLException, BusinessException {
         return usersManagerService.get_list_group_users();
     }
+
 
     @PostMapping("/create_users")
     public String createUser(@RequestBody @Valid UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
