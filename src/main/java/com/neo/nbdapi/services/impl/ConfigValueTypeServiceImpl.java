@@ -3,8 +3,7 @@ package com.neo.nbdapi.services.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.ConfigValueTypeDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
-import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ConfigValueType;
 import com.neo.nbdapi.exception.BusinessException;
@@ -54,7 +53,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select c.id, c.station_id, c.value_type_id,s.station_name, v.value_type_name, c.min, c.max, c.variable_time, c.variable_spatial, c.start_apply_date, c.end_apply_date \n" +
+            StringBuilder sql = new StringBuilder("select c.id, c.station_id, c.value_type_id,s.station_name, v.value_type_name, c.min, c.max, c.variable_time,c.code, c.variable_spatial, c.start_apply_date, c.end_apply_date \n" +
                     "from config_value_types c inner join stations s on s.station_id = c.station_id " +
                     "inner join value_types  v on v.value_type_id = c.value_type_id where 1 = 1");
             List<Object> paramSearch = new ArrayList<>();
@@ -70,6 +69,10 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                 if (objectSearch.getStationId() != null) {
                     sql.append(" AND c.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
+                }
+                if (Strings.isNotEmpty(objectSearch.getCode())) {
+                    sql.append(" AND c.code LIKE ? ");
+                    paramSearch.add("%"+objectSearch.getCode()+"%");
                 }
                 if (objectSearch.getValueTypeId() != null) {
                     sql.append(" AND c.value_type_id = ? ");
@@ -125,6 +128,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                         .variableSpatial(resultSetListData.getFloat("variable_spatial"))
                         .startDate(resultSetListData.getDate("start_apply_date"))
                         .endDate(resultSetListData.getDate("end_apply_date"))
+                        .code(resultSetListData.getString("code"))
                         .build();
                 configValueTypes.add(configValueType);
             }
@@ -160,7 +164,66 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     }
 
     @Override
-    public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType) throws SQLException {
-        return configValueTypeDAO.getStationValueTypeSpatial(idStation, idValueType);
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws SQLException {
+        return configValueTypeDAO.getStationValueTypeSpatial(idStation, idValueType, code);
+    }
+
+    @Override
+    public DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        return configValueTypeDAO.createConfigValuetype(configValueTypeDTO);
+    }
+
+    @Override
+    public List<StationValueTypeSpatialDTO> getStationValueTypeSpatials(Long idConfigValueTypeParent) throws SQLException {
+        return configValueTypeDAO.getStationValueTypeSpatials(idConfigValueTypeParent);
+    }
+
+    @Override
+    public DefaultResponseDTO editConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        //láy ra danh sách config đã tồn tại về không gian
+        List<ConfigStationsCommrelateDTO> configStationsCommrelateDTOTmps = configValueTypeDAO.getListConfigStationsCommrelateDTO(configValueTypeDTO.getId());
+        // chia ra làm 2 danh sách 1 danh sách để xóa, 1 danh sách để thêm mới
+
+        List<ConfigStationsCommrelateDTO> deletes = new ArrayList<>();
+
+        List<ConfigStationsCommrelateDTO> creates = new ArrayList<>();
+
+        Long[] idViews = configValueTypeDTO.getStationSpatial();
+
+        // thêm danh sách xóa
+
+        for (Long tmp: idViews) {
+            boolean add = false;
+            for (ConfigStationsCommrelateDTO configStationsCommrelateDTO : configStationsCommrelateDTOTmps) {
+                if(configStationsCommrelateDTO.getConfigValueTypeParent().equals(configValueTypeDTO.getId())&& tmp.equals(configStationsCommrelateDTO.getConfigValueTypeId()))
+                    add = true;
+            }
+            if(!add){
+                ConfigStationsCommrelateDTO addTmp = new ConfigStationsCommrelateDTO();
+                addTmp.setConfigValueTypeParent(configValueTypeDTO.getId());
+                addTmp.setConfigValueTypeId(tmp);
+                creates.add(addTmp);
+            }
+        }
+        // thêm danh sách thêm mới
+
+        for (ConfigStationsCommrelateDTO configStationsCommrelateDTO: configStationsCommrelateDTOTmps) {
+            boolean delete = false;
+            for (Long tmp: idViews) {
+                if(configStationsCommrelateDTO.getConfigValueTypeParent().equals(configValueTypeDTO.getId())&& tmp.equals(configStationsCommrelateDTO.getConfigValueTypeId())){
+                    delete = true;
+                }
+            }
+            if(!delete){
+                deletes.add(configStationsCommrelateDTO);
+            }
+        }
+        // thực hiện cập nhật
+        return configValueTypeDAO.editConfigValuetype(configValueTypeDTO,deletes, creates );
+    }
+
+    @Override
+    public DefaultResponseDTO deleteConfigValuetype(Long id) throws Exception {
+        return configValueTypeDAO.deleteConfigValuetype(id);
     }
 }

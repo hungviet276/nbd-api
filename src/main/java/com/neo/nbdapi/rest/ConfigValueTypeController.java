@@ -1,6 +1,8 @@
 package com.neo.nbdapi.rest;
 
+import com.neo.nbdapi.dto.ConfigValueTypeDTO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
@@ -42,12 +44,36 @@ public class ConfigValueTypeController {
     }
 
     @GetMapping("/get-station-value-type-spatial")
-    public StationValueTypeSpatialDTO getStationValueTypeSpatial(@RequestParam Long idStation, @RequestParam Long idValueType) throws  SQLException{
-        return configValueTypeService.getStationValueTypeSpatial(idStation, idValueType);
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(@RequestParam Long idStation, @RequestParam Long idValueType,@RequestParam String code) throws  SQLException{
+        return configValueTypeService.getStationValueTypeSpatial(idStation, idValueType,code);
     }
 
     @GetMapping("/get-value-type-station-select")
     public List<ComboBox> getValueTypesWithStationSelect(@RequestParam Long idStation) throws  SQLException{
         return valueTypeService.getValueTypesWithStationSelect(idStation);
+    }
+
+    @PostMapping
+    public DefaultResponseDTO  createConfigValuetype(@RequestBody ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        return configValueTypeService.createConfigValuetype(configValueTypeDTO);
+    }
+
+    @GetMapping("/get-value-type-station-value-type")
+    public ComboBox getValueTypesWithStationAndValueType(@RequestParam Long idStation, @RequestParam Long idValueType) throws  SQLException{
+        return valueTypeService.getStationValueType(idStation,idValueType);
+    }
+
+    @GetMapping("/get-list-station-value-type-spatial")
+    public List<StationValueTypeSpatialDTO> getStationValueTypeSpatialAndParent(@RequestParam Long idConfigValueType) throws  SQLException{
+        return configValueTypeService.getStationValueTypeSpatials(idConfigValueType);
+    }
+
+    @PutMapping
+    public DefaultResponseDTO  editConfigValuetype(@RequestBody ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        return configValueTypeService.editConfigValuetype(configValueTypeDTO);
+    }
+    @DeleteMapping
+    public DefaultResponseDTO deleteConfigValuetype(@RequestParam Long id) throws Exception{
+        return configValueTypeService.deleteConfigValuetype(id);
     }
 }

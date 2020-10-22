@@ -1,5 +1,6 @@
 package com.neo.nbdapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,14 +14,27 @@ import java.util.Date;
 @Builder
 public class ConfigValueTypeDTO {
     private Long id;
+
+    @JsonProperty("station_add")
     private Long stationId;
+
+    @JsonProperty("value_type_station")
     private Long valueTypeId;
-    private String stationName;
-    private String valueTypename;
+
     private Float min;
+
     private Float max;
+
     private Float variableTime;
+
     private Float variableSpatial;
-    private Date startDate;
-    private Date endDate;
+
+    private Date startDateApply;
+
+    private Date endDateApply;
+
+    private String code;
+
+    private Long[] stationSpatial;
+
 }

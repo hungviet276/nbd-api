@@ -28,4 +28,6 @@ public class StationValueTypeSpatialDTO  implements Serializable {
     private String valueTypeName;
 
     private Integer variableSpatial;
+
+    private String code;
 }
