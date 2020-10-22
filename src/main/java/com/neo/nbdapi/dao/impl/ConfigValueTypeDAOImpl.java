@@ -21,12 +21,13 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     private HikariDataSource ds;
 
     @Override
-    public List<ComboBox> getValueType(Long stationId) throws SQLException {
+    public List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
-            String sql = "select c.value_type_id, v.value_type_code , v.value_type_name, c.code from config_value_types c inner join value_types v on c.value_type_id = v.value_type_id where c.station_id = ?";
+            String sql = "select c.value_type_id, v.value_type_code , v.value_type_name, c.code from config_value_types c inner join value_types v on c.value_type_id = v.value_type_id where c.station_id = ? and c.value_type_id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setLong(1, stationId);
+            statement.setLong(2, valueTypeId);
             ResultSet resultSet = statement.executeQuery();
             ComboBox comboBox = null;
             while (resultSet.next()) {

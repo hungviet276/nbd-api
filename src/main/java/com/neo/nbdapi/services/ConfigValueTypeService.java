@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ConfigValueTypeService {
     DefaultPaginationDTO getListConfigValueType(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
-    List<ComboBox> getValueType(Long stationId) throws SQLException;
+    List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException;
     List<ComboBox> getStationComboBox(String query) throws SQLException;
     List<ComboBox> getStationComboBox(String query, Long idStation)  throws SQLException;
     StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws  SQLException;

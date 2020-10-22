@@ -50,8 +50,8 @@ public class ConfigValueTypeController {
     }
 
     @PostMapping("/get-list-value-type")
-    public List<ComboBox> getValueTypeConfig(@RequestParam Long idStation) throws SQLException {
-        return configValueTypeService.getValueType(idStation);
+    public List<ComboBox> getValueTypeConfig(@RequestParam Long idStation, @RequestParam Long valueTypeId) throws SQLException {
+        return configValueTypeService.getValueType(idStation,valueTypeId);
     }
 
     @GetMapping("/get-station-value-type-spatial")

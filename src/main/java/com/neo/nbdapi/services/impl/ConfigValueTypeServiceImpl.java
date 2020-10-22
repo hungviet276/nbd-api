@@ -154,8 +154,8 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     }
 
     @Override
-    public List<ComboBox> getValueType(Long stationId) throws SQLException {
-        return configValueTypeDAO.getValueType(stationId);
+    public List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException {
+        return configValueTypeDAO.getValueType(stationId,valueTypeId);
     }
 
     @Override
