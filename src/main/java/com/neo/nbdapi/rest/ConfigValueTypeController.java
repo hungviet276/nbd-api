@@ -7,6 +7,7 @@ import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectStationVM;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.services.ConfigValueTypeService;
 import com.neo.nbdapi.services.ValueTypeService;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -36,6 +38,15 @@ public class ConfigValueTypeController {
     @PostMapping("/get-list-station")
     public List<ComboBox> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
         return configValueTypeService.getStationComboBox(selectVM.getTerm());
+    }
+
+    @PostMapping("/get-list-station-other")
+    public List<ComboBox> getStationComboBox(@RequestBody SelectStationVM selectVM) throws SQLException {
+        if(selectVM.getStation()==null){
+            List<ComboBox> comboBoxes  = new ArrayList<>();
+           return  comboBoxes;
+        }
+        return configValueTypeService.getStationComboBox(selectVM.getTerm(), selectVM.getStation());
     }
 
     @PostMapping("/get-list-value-type")

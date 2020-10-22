@@ -13,6 +13,7 @@ import java.util.List;
 public interface ConfigValueTypeDAO {
     List<ComboBox> getValueType(Long stationId) throws SQLException;
     List<ComboBox> getStationComboBox(String query) throws SQLException;
+    List<ComboBox> getStationComboBox(String query,Long idStation) throws SQLException;
     StationValueTypeSpatialDTO getStationValueTypeSpatial( Long idStation,  Long idValueType,String code) throws  SQLException;
     DefaultResponseDTO createConfigValuetype( ConfigValueTypeDTO configValueTypeDTO) throws Exception;
     List<StationValueTypeSpatialDTO> getStationValueTypeSpatials( Long idConfigValueTypeParent) throws  SQLException;

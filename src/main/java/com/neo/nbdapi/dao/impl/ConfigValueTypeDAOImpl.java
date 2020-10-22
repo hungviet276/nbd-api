@@ -62,6 +62,33 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     }
 
     @Override
+    public List<ComboBox> getStationComboBox(String query, Long idStation) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "select distinct c.station_id as id, s.station_code as code, s.station_name as name from stations s inner join config_value_types c on s.station_id = c.station_id where 1 = 1";
+            if(query!=null && !query.equals("")){
+                sql = sql+ " and station_name like ?";
+            }
+            sql = sql+ " and c.station_id != ?";
+            sql = sql + " and rownum < 100";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            if(query!=null && !query.equals("")){
+                statement.setString(1,"%"+query+"%");
+                statement.setLong(2, idStation);
+            } else{
+                statement.setLong(1, idStation);
+            }
+            ResultSet resultSet = statement.executeQuery();
+            List<ComboBox> comboBoxes = new ArrayList<>();
+            while (resultSet.next()) {
+                ComboBox comboBox = ComboBox.builder().id(resultSet.getLong(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                comboBoxes.add(comboBox);
+            }
+            statement.close();
+            return comboBoxes;
+        }
+    }
+
+    @Override
     public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws SQLException {
         StationValueTypeSpatialDTO stationValueTypeSpatialDTO = new StationValueTypeSpatialDTO();
         try (Connection connection = ds.getConnection()) {

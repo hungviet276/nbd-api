@@ -164,6 +164,11 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     }
 
     @Override
+    public List<ComboBox> getStationComboBox(String query, Long idStation) throws SQLException {
+        return configValueTypeDAO.getStationComboBox(query,idStation);
+    }
+
+    @Override
     public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws SQLException {
         return configValueTypeDAO.getStationValueTypeSpatial(idStation, idValueType, code);
     }
