@@ -133,8 +133,15 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             stmInsertConfig.setFloat(4,configValueTypeDTO.getMax());
             stmInsertConfig.setFloat(5, configValueTypeDTO.getVariableTime());
             stmInsertConfig.setFloat(6, configValueTypeDTO.getVariableSpatial());
-            stmInsertConfig.setDate(7,new Date(configValueTypeDTO.getStartDateApply().getTime()));
-            stmInsertConfig.setDate(8,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+            if(configValueTypeDTO.getStartDateApply()!=null){
+                stmInsertConfig.setDate(7,new Date(configValueTypeDTO.getStartDateApply().getTime()));
+            } else{
+                stmInsertConfig.setDate(7,null);
+            }
+            if(configValueTypeDTO.getEndDateApply()!=null)
+                stmInsertConfig.setDate(8,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+            else
+                stmInsertConfig.setDate(8,null);
             stmInsertConfig.setString(9,configValueTypeDTO.getCode());
             stmInsertConfig.executeUpdate();
             Long idStationParent = null;
