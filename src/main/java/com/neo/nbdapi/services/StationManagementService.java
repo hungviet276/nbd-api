@@ -287,7 +287,7 @@ public class StationManagementService {
     
     private DefaultResponseDTO saveStationTypeObject(Connection connection,Map<String,String> params) throws SQLException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "INSERT INTO STATIONS_OBJECT_TYPE(STATIONS_OBJECT_TYPE_ID, STATIONS_ID, OBJECT_TYPE_ID) "
+    	String sql = "INSERT INTO STATIONS_OBJECT_TYPE(STATIONS_OBJECT_TYPE_ID, STATION_ID, OBJECT_TYPE_ID) "
         		+ "values (STATIONS_OBJECT_TYPE_SEQ.nextval, ?,?)";
         try (PreparedStatement statement = connection.prepareStatement(sql);) {
             int idx = 1;
