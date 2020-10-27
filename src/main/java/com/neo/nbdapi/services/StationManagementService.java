@@ -306,7 +306,7 @@ public class StationManagementService {
     
     private DefaultResponseDTO saveParamter(Connection connection,Map<String,String> params) throws SQLException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "INSERT INTO PARAMETER_KTTV(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, STATION_ID, TIME_FREQUENCY) "
+    	String sql = "INSERT INTO PARAMETER(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, STATION_ID, TIME_FREQUENCY) "
         		+ "values (PARAMETER_KTTV_SEQ.nextval, ?,?,?)";
         try (PreparedStatement statement = connection.prepareStatement(sql);) {
             int idx = 1;

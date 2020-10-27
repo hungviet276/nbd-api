@@ -42,6 +42,8 @@ import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.util.HtmlUtils;
+
 @Slf4j
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/station-type")
@@ -320,7 +322,7 @@ public class StationTypeController {
                 "                    WITHIN GROUP (ORDER BY TS_TYPE_NAME) listSeries  from (\n" +
                 "select a.PARAMETER_TYPE_ID, b.TS_TYPE_NAME from TIME_SERIES_CONFIG a, TIME_SERIES_TYPE b where a.TS_TYPE_ID = b.TS_TYPE_ID \n" +
                 ") c where 1=1 GROUP BY PARAMETER_TYPE_ID) b, unit c\n" +
-                "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and a.unit_id = c.unit_id(+)");
+                "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID and a.unit_id = c.unit_id");
         try (Connection connection = ds.getConnection();) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
@@ -383,6 +385,9 @@ public class StationTypeController {
     @PostMapping("/create-time-series-config")
     public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
+        for(Map.Entry entry : params.entrySet()){
+            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+        }
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
@@ -404,7 +409,10 @@ public class StationTypeController {
 
     @PostMapping("/create-parameter-type")
     public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String,String> params) throws SQLException {
-    	String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
+        for(Map.Entry entry : params.entrySet()){
+            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+        }
+        String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, params.get("parameter"));
             statement.setString(2, params.get("parameterDes"));
@@ -419,9 +427,12 @@ public class StationTypeController {
     
     @PostMapping("/create-parameter")
     public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-    	log.info(objectMapper.writeValueAsString(params));
+        for(Map.Entry entry : params.entrySet()){
+            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+        }
+        log.info(objectMapper.writeValueAsString(params));
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "insert into PARAMETER_KTTV(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY,STATION_ID) values (PARAMETER_KTTV_SEQ.nextval,?,?,?,?)";
+    	String sql = "insert into PARAMETER(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY,STATION_ID) values (PARAMETER_KTTV_SEQ.nextval,?,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
         	statement.setString(i++, params.get("parameter"));
@@ -443,7 +454,7 @@ public class StationTypeController {
     @PostMapping("/delete-parameter")
     public DefaultResponseDTO deleteParameter(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "delete from PARAMETER_KTTV where STATION_PARAMETER_ID = ? ";
+    	String sql = "delete from PARAMETER where STATION_PARAMETER_ID = ? ";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, stationParamterId);
             statement.execute();
@@ -560,7 +571,7 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.PARAMETER_TYPE_NAME, c.UNIT_NAME from PARAMETER_KTTV a, PARAMETER_TYPE b, unit c where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and b.UNIT_ID = c.UNIT_ID(+) ");
+            StringBuilder sql = new StringBuilder("select a.*,b.PARAMETER_TYPE_NAME, c.UNIT_NAME from PARAMETER a, PARAMETER_TYPE b, unit c where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and b.UNIT_ID = c.UNIT_ID(+) ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
