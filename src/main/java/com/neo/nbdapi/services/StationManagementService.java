@@ -11,16 +11,26 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,6 +39,10 @@ import javax.validation.Valid;
 @Component
 @Slf4j
 public class StationManagementService {
+	public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	private static String[] HEADERs = {"Id", "Title", "Description", "Published"};
+	private static String SHEET = "Tutorials";
+
     @Autowired
     private HikariDataSource ds;
 
@@ -372,4 +386,35 @@ public class StationManagementService {
 		}
         return defaultResponseDTO;
     }
+
+	public ByteArrayInputStream export() {
+		List<String> tutorials = new ArrayList<>();
+		tutorials.add("a");
+		tutorials.add("b");
+
+		ByteArrayInputStream in = write2Excel(tutorials);
+		return in;
+	}
+
+	public static ByteArrayInputStream write2Excel(List<String> tutorials) {
+
+		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+			Sheet sheet = workbook.createSheet(SHEET);
+
+			// Header
+			Row headerRow = sheet.createRow(0);
+			for (int col = 0; col < HEADERs.length; col++) {
+				Cell cell = headerRow.createCell(col);
+				cell.setCellValue(HEADERs[col]);
+			}
+			int rowIdx = 1;
+			Row row = sheet.createRow(rowIdx++);
+			row.createCell(0).setCellValue(tutorials.get(0));
+			row.createCell(1).setCellValue(tutorials.get(1));
+			workbook.write(out);
+			return new ByteArrayInputStream(out.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+		}
+	}
 }
