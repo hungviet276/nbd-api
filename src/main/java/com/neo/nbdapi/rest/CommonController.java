@@ -62,8 +62,8 @@ public class CommonController {
                         .riverId(rs.getInt("RIVER_ID"))
                         .riverCode(rs.getString("RIVER_CODE"))
                         .status(rs.getInt("RIVER_CODE"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -94,8 +94,8 @@ public class CommonController {
                         .wardLat(rs.getFloat("LAT"))
                         .districtId(rs.getInt("DISTRICT_ID"))
                         .provinceId(rs.getInt("PROVINCE_ID"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -124,8 +124,8 @@ public class CommonController {
                         .provinceLat(rs.getFloat("LAT"))
                         .status(rs.getInt("STATUS"))
                         .areaId(rs.getInt("AREA_ID"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -155,8 +155,8 @@ public class CommonController {
                         .status(rs.getInt("STATUS"))
                         .areaId(rs.getInt("AREA_ID"))
                         .provinceId(rs.getInt("PROVINCE_ID"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -269,7 +269,7 @@ public class CommonController {
     @GetMapping("/get-list-unit")
     public List<Unit> getListUnit() throws SQLException, BusinessException {
     	StringBuilder sql = new StringBuilder("select * from unit WHERE 1 = 1 ");
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             ResultSet rs = st.executeQuery();
             List<Unit> list = new ArrayList<>();
             while (rs.next()) {
@@ -278,8 +278,8 @@ public class CommonController {
                         .unitCode(rs.getString("UNIT_CODE"))
                         .unitName(rs.getString("UNIT_NAME"))
                         .status(rs.getInt("STATUS"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -337,8 +337,8 @@ public class CommonController {
                         .unitCode(rs.getString("UNIT_CODE"))
                         .unitName(rs.getString("UNIT_NAME"))
                         .status(rs.getInt("STATUS"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
@@ -382,8 +382,8 @@ public class CommonController {
                         .areaId(rs.getInt("AREA_ID"))
                         .areaCode(rs.getString("AREA_CODE"))
                         .areaName(rs.getString("AREA_NAME"))
-                        .createById(rs.getInt("CREATED_BY_ID"))
-                        .updatedById(rs.getInt("UPDATED_BY_ID"))
+//                        .createById(rs.getInt("CREATED_BY_ID"))
+//                        .updatedById(rs.getInt("UPDATED_BY_ID"))
                         .build();
                 list.add(bo);
             }
