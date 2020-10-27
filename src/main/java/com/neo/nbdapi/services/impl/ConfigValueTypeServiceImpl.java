@@ -53,9 +53,9 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select c.id, c.station_id, c.value_type_id,s.station_name, v.value_type_name, c.min, c.max, c.variable_time,c.code, c.variable_spatial, c.start_apply_date, c.end_apply_date \n" +
-                    "from config_value_types c inner join stations s on s.station_id = c.station_id " +
-                    "inner join value_types  v on v.value_type_id = c.value_type_id where 1 = 1");
+            StringBuilder sql = new StringBuilder("select c.id, c.station_id, c.PARAMETER_TYPE_ID,s.station_name, v.parameter_type_name, c.min, c.max, c.variable_time,c.code, c.variable_spatial, c.start_apply_date, c.end_apply_date" +
+                    " from config_value_types c inner join stations s on s.station_id = c.station_id " +
+                    " inner join parameter_type  v on v.parameter_type_id = c.PARAMETER_TYPE_ID where 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set value query to sql
@@ -75,7 +75,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     paramSearch.add("%"+objectSearch.getCode()+"%");
                 }
                 if (objectSearch.getValueTypeId() != null) {
-                    sql.append(" AND c.value_type_id = ? ");
+                    sql.append(" AND c.PARAMETER_TYPE_ID = ? ");
                     paramSearch.add(objectSearch.getId());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStationName())) {
@@ -83,7 +83,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     paramSearch.add("%" + objectSearch.getStationName()+ "%");
                 }
                 if (Strings.isNotEmpty(objectSearch.getValueTypename())) {
-                    sql.append(" AND v.value_type_name like ? ");
+                    sql.append(" AND v.parameter_type_name like ? ");
                     paramSearch.add("%" + objectSearch.getValueTypename()+ "%");
                 }
                 if (objectSearch.getMin() != null) {
@@ -119,9 +119,9 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                 ConfigValueType configValueType = ConfigValueType.builder()
                         .id(resultSetListData.getLong("id"))
                         .stationId(resultSetListData.getLong("station_id"))
-                        .valueTypeId(resultSetListData.getLong("value_type_id"))
+                        .valueTypeId(resultSetListData.getLong("parameter_type_id"))
                         .stationName(resultSetListData.getString("station_name"))
-                        .valueTypename(resultSetListData.getString("value_type_name"))
+                        .valueTypename(resultSetListData.getString("parameter_type_name"))
                         .min(resultSetListData.getFloat("min"))
                         .max(resultSetListData.getFloat("max"))
                         .variableTime(resultSetListData.getFloat("variable_time"))
