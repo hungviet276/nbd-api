@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface MenuDAO {
     List<Menu> findAll() throws SQLException;
+
     Menu findMenuById(Long menuId) throws SQLException;
 
     void createMenu(Menu menuCreate) throws SQLException;

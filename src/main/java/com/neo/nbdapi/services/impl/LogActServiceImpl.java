@@ -23,6 +23,8 @@ import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sun.rmi.runtime.Log;
@@ -154,5 +156,17 @@ public class LogActServiceImpl implements LogActService, Constants {
     public List<MenuDTO> getListMenuViewLogOfUser() throws SQLException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return menuDAO.getListMenuAccessOfUserByUsername(username);
+    }
+
+    /**
+     * service export log act
+     * @param objectSearch
+     * @return ResponseEntity<Resource>
+     */
+    @Override
+    public ResponseEntity<Resource> export(SearchLogAct objectSearch) throws SQLException {
+        List<LogActDTO> logActDAOList = logActDAO.getListLogActByObjSearch(objectSearch);
+
+        return null;
     }
 }
