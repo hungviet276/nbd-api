@@ -26,6 +26,7 @@ public class UsersManagerVM {
 
     private int gender;
 
+
     private int status_id;
 
     private int check_roke;

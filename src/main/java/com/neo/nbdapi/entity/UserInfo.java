@@ -43,6 +43,7 @@ public class UserInfo {
 
     private String dateRole;
 
+
     private String dateRoles;
 
     private int cardNumber;

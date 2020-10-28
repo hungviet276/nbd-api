@@ -148,6 +148,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             .group_id(resultSetListData.getInt("office_code"))
                             .build();
                     userInfoList.add(userInfo);
+
                 }
                 logger.debug("userInfoList", userInfoList);
                 // count result

@@ -129,6 +129,7 @@ public class ChangerPassServiceImpl implements ChangerPassService {
             ps.execute();
             String result = ps.getString(1);
             return result;
+
         } catch (Exception e) {
             logger.info("exception {} ExtendDao get list Customer_reg", e);
             return "false";

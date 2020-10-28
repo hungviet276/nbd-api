@@ -14,6 +14,7 @@ import java.util.Map;
 public interface ChangerPassService {
     String ChangerPass(ChangerPassVM changerPassVM) throws SQLException, BusinessException;
 
+
     String update_pass(String newspass) throws SQLException, BusinessException;
 
     String getOldPass(String userId) throws SQLException, BusinessException;
