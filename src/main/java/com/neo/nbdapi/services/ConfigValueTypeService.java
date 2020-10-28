@@ -1,7 +1,6 @@
 package com.neo.nbdapi.services;
 
-import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -12,8 +11,13 @@ import java.util.List;
 
 public interface ConfigValueTypeService {
     DefaultPaginationDTO getListConfigValueType(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
-    List<ComboBox> getValueType(Long stationId) throws SQLException;
+    List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException;
     List<ComboBox> getStationComboBox(String query) throws SQLException;
-    StationValueTypeSpatialDTO getStationValueTypeSpatial(@RequestParam Long idStation, @RequestParam Long idValueType) throws  SQLException;
+    List<ComboBox> getStationComboBox(String query, Long idStation)  throws SQLException;
+    StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws  SQLException;
+    DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception;
+    List<StationValueTypeSpatialDTO> getStationValueTypeSpatials(Long idConfigValueTypeParent) throws SQLException;
+    DefaultResponseDTO editConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception;
+    DefaultResponseDTO deleteConfigValuetype(Long id) throws Exception;
 
 }

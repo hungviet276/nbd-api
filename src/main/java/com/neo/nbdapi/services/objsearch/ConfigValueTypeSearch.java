@@ -44,4 +44,7 @@ public class ConfigValueTypeSearch  implements Serializable {
 
     @JsonProperty("s_end_apply_date")
     private String endDate;
+
+    @JsonProperty("s_code")
+    private String code;
 }

@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface ValueTypeDAO {
     List<ComboBox> getValueTypesSelect(String query) throws SQLException;
-    List<ComboBox> getValueTypesWithStationSelect(@RequestParam Long stationId) throws SQLException;
+    List<ComboBox> getValueTypesWithStationSelect(Long stationId) throws SQLException;
+    ComboBox getStationValueType(Long stationId, Long valueTypeId) throws SQLException;
 }

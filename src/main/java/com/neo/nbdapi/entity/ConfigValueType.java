@@ -22,4 +22,5 @@ public class ConfigValueType {
     private Float variableSpatial;
     private Date startDate;
     private Date endDate;
+    private String code;
 }

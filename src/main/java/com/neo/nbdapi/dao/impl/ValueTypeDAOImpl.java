@@ -24,9 +24,9 @@ public class ValueTypeDAOImpl implements ValueTypeDAO {
     @Override
     public List<ComboBox> getValueTypesSelect(String query) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String sql = "select VALUE_TYPE_ID as id, VALUE_TYPE_CODE as code, VALUE_TYPE_NAME as name from value_types where 1=1";
+            String sql = "select parameter_type_id as id, parameter_type_code as code, parameter_type_name as name from parameter_type where 1=1";
             if (query != null && !query.equals("")) {
-                sql = sql + " and value_type_name like ?";
+                sql = sql + " and parameter_type_name like ?";
             }
             sql = sql + " and rownum < 100";
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -48,7 +48,7 @@ public class ValueTypeDAOImpl implements ValueTypeDAO {
     @Override
     public List<ComboBox> getValueTypesWithStationSelect(Long stationId) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String sql = "select v.value_type_id, v.value_type_code, v.value_type_name from value_types v inner join station_value_types s on v.value_type_id = s.value_type_id where s.station_id = ?";
+            String sql = "select v.parameter_type_id, v.parameter_type_code, v.parameter_type_name from parameter_type v inner join parameter s on v.parameter_type_id = s.parameter_type_id where s.station_id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setLong(1, stationId);
             ResultSet resultSet = statement.executeQuery();
@@ -60,6 +60,24 @@ public class ValueTypeDAOImpl implements ValueTypeDAO {
             }
             statement.close();
             return comboBoxes;
+        }
+    }
+
+    @Override
+    public ComboBox getStationValueType(Long stationId, Long valueTypeId) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "select v.value_type_id, v.value_type_code, v.value_type_name from value_types v inner join station_value_types s on v.value_type_id = s.value_type_id where s.station_id = ? and v.value_type_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, stationId.longValue());
+            statement.setLong(2, valueTypeId.longValue());
+            ResultSet resultSet = statement.executeQuery();
+            ComboBox comboBox = null;
+            logger.info("ValueTypeDAOImpl query : {}", sql);
+            while (resultSet.next()) {
+                comboBox = ComboBox.builder().id(resultSet.getLong(1)).text(resultSet.getString(2) + "-" + resultSet.getString(3)).build();
+            }
+            statement.close();
+            return comboBox;
         }
     }
 }
