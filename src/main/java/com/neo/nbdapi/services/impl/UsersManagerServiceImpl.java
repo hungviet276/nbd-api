@@ -15,6 +15,7 @@ import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.neo.nbdapi.services.objsearch.SearchUsesManager;
 import com.sun.org.apache.xpath.internal.objects.XString;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.ToString;
 import oracle.jdbc.OracleTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,7 +59,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                 int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
                 String search = defaultRequestPagingVM.getSearch();
 
-                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name FROM user_info u join group_user_info g on u.office_code = g.id WHERE u.status_id = 1) where 1=1");
+                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name FROM user_info u join group_user_info g on u.office_code = g.id ) where 1=1");
                 List<Object> paramSearch = new ArrayList<>();
                 logger.debug("Object search: {}", search);
                 if (Strings.isNotEmpty(search)) {
@@ -76,15 +77,13 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             sql.append(" AND mobile like ? ");
                             paramSearch.add("%" + objectSearch.getMobile() + "%");
                         }
-                        System.out.println("emaillll---------------" +objectSearch.getEmail());
                         if (Strings.isNotEmpty(objectSearch.getEmail())) {
                             sql.append(" AND email like ? ");
                             paramSearch.add("%" + objectSearch.getEmail() + "%");
                         }
-                        System.out.println("getGender---------------" +objectSearch.getGender());
                         if (Strings.isNotEmpty(objectSearch.getGender())) {
-                            sql.append(" AND genders like ? ");
-                            paramSearch.add("%" + objectSearch.getGender() + "%");
+                            sql.append(" AND gender = ? ");
+                            paramSearch.add(objectSearch.getGender());
                         }
 //                        if (Strings.isNotEmpty(objectSearch.getCheckRole())) {
 //                            sql.append(" AND group_name like ? ");
@@ -107,8 +106,8 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             paramSearch.add("%" + objectSearch.getDatedwl() + "%");
                         }
                         if (Strings.isNotEmpty(objectSearch.getStatusId())) {
-                            sql.append(" AND  status like ? ");
-                            paramSearch.add("%" +objectSearch.getStatusId()+ "%");
+                            sql.append(" AND  status_id = ? ");
+                            paramSearch.add(objectSearch.getStatusId());
                         }
                         if (Strings.isNotEmpty(objectSearch.getFromDate())) {
                             sql.append(" and created_date >= TO_DATE (?, 'dd/mm/yyyy')");
@@ -118,6 +117,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             sql.append(" and created_date <= TO_DATE (?, 'dd/mm/yyyy')");
                             paramSearch.add(objectSearch.getToDate());
                         }
+                        sql.append(" order by created_date desc");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -143,7 +143,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             .createdDates(resultSetListData.getString("createdDate"))
                             .createdDate(resultSetListData.getDate("created_date"))
                             .cardNumbers(resultSetListData.getString("card_number"))
-                            .dateRole(resultSetListData.getInt("date_role"))
+                            .dateRole(resultSetListData.getString("date_role"))
                             .createdBy(resultSetListData.getString("created_by"))
                             .group_id(resultSetListData.getInt("office_code"))
                             .build();
@@ -654,7 +654,9 @@ public class UsersManagerServiceImpl implements UsersManagerService {
             ps.setString(2, username);
             ps.execute();
             String result = ps.getString(1);
+            System.out.println("result deleteUsers ---- " +result );
             return result;
+
         } catch (Exception e) {
             logger.info("exception {} ExtendDao get list Customer_reg", e);
             return "false";
