@@ -18,6 +18,7 @@ public interface Constants {
             public static final String URI_VALUE_TYPES = "/value-type";
             public static final String URI_CONFIG_VALUE_TYPES = "/config-value-type";
             public static final String URI_CONFIG_WARNING_THRESOLD = "/warning-thresold";
+            public static final String URI_CHANGER_PASS = "/changer-pass";
         }
     }
 
