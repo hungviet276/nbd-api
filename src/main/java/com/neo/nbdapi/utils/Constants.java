@@ -1,6 +1,7 @@
 package com.neo.nbdapi.utils;
 
 public interface Constants {
+
     class APPLICATION_API {
         public static final String API_PREFIX = "/api/v1";
 
@@ -53,5 +54,9 @@ public interface Constants {
         // public static String sqlFile = "sql.properties";
         public static final int REFRESH_DELAY = 2 * 1000;
         //	public static final int REFRESH_DELAY = 1000;
+    }
+
+    class LOG_ACT {
+        public static final String FILE_NAME_EXPORT_LOG_ACT = "log_act";
     }
 }

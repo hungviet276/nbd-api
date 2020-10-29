@@ -4,6 +4,7 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
@@ -19,5 +20,5 @@ public interface LogActService {
 
     List<MenuDTO> getListMenuViewLogOfUser() throws SQLException;
 
-    ResponseEntity<Resource> export(SearchLogAct searchLogAct) throws SQLException;
+    SXSSFWorkbook export(SearchLogAct searchLogAct) throws SQLException;
 }

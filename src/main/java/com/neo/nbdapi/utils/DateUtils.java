@@ -21,4 +21,9 @@ public class DateUtils {
             return "";
         }
     }
+
+    public static  String getDateAndTimeFileName() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
+        return dateFormat.format(new Date());
+    }
 }

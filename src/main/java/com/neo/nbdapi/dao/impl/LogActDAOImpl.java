@@ -60,7 +60,8 @@ public class LogActDAOImpl implements LogActDAO {
 
         try (
                 Connection connection = ds.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql.toString());
+                PreparedStatement statement = connection.prepareStatement(sql.toString(), ResultSet.TYPE_SCROLL_INSENSITIVE,
+                        ResultSet.CONCUR_READ_ONLY);
         ) {
             for(int i = 0; i < paramSearch.size(); i++) {
                 statement.setObject(i + 1, paramSearch.get(i));
@@ -68,6 +69,7 @@ public class LogActDAOImpl implements LogActDAO {
 
             ResultSet resultSet = statement.executeQuery();
             List<LogActDTO> logActList = new ArrayList<>();
+
             while (resultSet.next()) {
                 LogActDTO logActDTO = LogActDTO
                         .builder()
@@ -80,7 +82,6 @@ public class LogActDAOImpl implements LogActDAO {
                         .build();
                 logActList.add(logActDTO);
             }
-            SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
             return logActList;
         }
     }
