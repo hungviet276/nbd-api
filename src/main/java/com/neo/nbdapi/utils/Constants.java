@@ -47,9 +47,9 @@ public interface Constants {
 
         public static String SECRET_KEY_PATH = "ZDf+fWqwFNUPelJpn87uZQ==";
 
-         public static String sqlFile = ConstantParams.class.getClassLoader().getResource("sql.properties").toString();
+         public static String sqlFile = "sql.properties";
 //        public static String sqlFile = "static/sql.properties";
-        public static String LOG_CONFIG_FILE = ConstantParams.class.getClassLoader().getResource("log4j.properties").getPath();
+        public static String LOG_CONFIG_FILE = "log4j.properties";
 //        public static String LOG_CONFIG_FILE = "static/log4j.properties";
         //ConstantParams.class.getClassLoader().getResource("log4j.properties").getPath();
         // public static String sqlFile = "sql.properties";
