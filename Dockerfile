@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-slim
+FROM openjdk:8-alpine
 WORKDIR /nbd-api
 COPY ./target/*1.0.jar nbd-api.jar
 EXPOSE 8080
