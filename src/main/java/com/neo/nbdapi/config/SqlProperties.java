@@ -23,7 +23,7 @@ public class SqlProperties {
         try {
             //log4j config
             String fileLog = ConstantParams.LOG_CONFIG_FILE;
-            PropertyConfigurator.configure(fileLog);
+            PropertyConfigurator.configure(getClass().getResource(fileLog).getPath());
             System.out.println("Loading the log properties file: " + fileLog);
             String filePath = ConstantParams.sqlFile;
             System.out.println("Loading the properties file: " + filePath);
