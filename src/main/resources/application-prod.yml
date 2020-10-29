@@ -10,8 +10,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.62)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.63)(PORT=1521))(LOAD_BALANCE=true)(FAILOVER=true)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kttv_warehouse)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC))))
-    username: tb5
-    password: tb5#123@
+    username: kttv
+    password: kttv#123@
     driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       connection-timeout: 20000       #maximum number of milliseconds that a client will wait for a connection
