@@ -5,16 +5,19 @@ package com.neo.nbdapi.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Station {
+	private Long id;
 	private Long stationId;
 	private String stationCode;
 	private String stationName;
@@ -27,6 +30,8 @@ public class Station {
 	private String address;
 	private Integer status;
 	private Integer isDel;
+//	@DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
 	private Date createdAt;
 	private Date updatedAt;
 	private Long areaId;
@@ -51,4 +56,5 @@ public class Station {
 	private String objectType;
 	private String objectTypeName;
 	private Integer modeStationType;
+	private String createById;
 }
