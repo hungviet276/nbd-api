@@ -7,31 +7,31 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.LogActDTO;
 import com.neo.nbdapi.dto.MenuDTO;
-import com.neo.nbdapi.entity.LogAct;
-import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.LogActService;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
-import com.neo.nbdapi.services.objsearch.SearchMenu;
 import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import sun.rmi.runtime.Log;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author thanglv on 10/9/2020
@@ -154,5 +154,48 @@ public class LogActServiceImpl implements LogActService, Constants {
     public List<MenuDTO> getListMenuViewLogOfUser() throws SQLException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return menuDAO.getListMenuAccessOfUserByUsername(username);
+    }
+
+    /**
+     * service export log act
+     * @param objectSearch
+     * @return ResponseEntity<Resource>
+     */
+    @Override
+    public SXSSFWorkbook export(SearchLogAct objectSearch) throws SQLException {
+        List<LogActDTO> logActDAOList = logActDAO.getListLogActByObjSearch(objectSearch);
+
+        // create streaming workbook optimize memory of apache poi
+        final SXSSFWorkbook workbook = new SXSSFWorkbook();
+        final SXSSFSheet sheet = workbook.createSheet();
+        System.out.println("export running");
+
+        final AtomicInteger automicInteger = new AtomicInteger(0);
+
+        // rowCount la kieu int, tong so ban ghi
+        AtomicInteger rowCount = new AtomicInteger();
+        logActDAOList.forEach(logActDTO -> {
+            SXSSFRow row = sheet.createRow(rowCount.getAndIncrement());
+            // ghi id cua log act
+            SXSSFCell cell0 = row.createCell(0, CellType.STRING);
+            cell0.setCellValue(logActDTO.getId());
+
+            // ghi ten menu cua log act
+            SXSSFCell cell1 = row.createCell(1, CellType.STRING);
+            cell1.setCellValue(logActDTO.getMenuName());
+
+            // ghi act cua log act
+            SXSSFCell cell2 = row.createCell(2, CellType.STRING);
+            cell2.setCellValue(logActDTO.getAct());
+
+            // ghi account cua log act
+            SXSSFCell cell3 = row.createCell(3, CellType.STRING);
+            cell3.setCellValue(logActDTO.getCreatedBy());
+
+            // ghi ngay tac dong cua log act
+            SXSSFCell cell4 = row.createCell(4, CellType.STRING);
+            cell4.setCellValue(logActDTO.getCreatedAt());
+        });
+        return workbook;
     }
 }

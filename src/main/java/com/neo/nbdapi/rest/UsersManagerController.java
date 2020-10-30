@@ -35,6 +35,7 @@ public class UsersManagerController {
         return usersManagerService.getListUsersPagination(defaultRequestPagingVM);
     }
 
+
     @GetMapping("/get_header_tacvu")
     public List<Map<String, String>> getHeaderTacvu(@RequestParam("username") String userId) throws SQLException, BusinessException {
         return usersManagerService.getHeaderTacvu(userId);

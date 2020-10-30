@@ -16,6 +16,7 @@ import java.util.Map;
 public interface UsersManagerService {
     DefaultPaginationDTO getListUsersPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
 
+
     List<Map<String, String>> getHeaderTacvu(String userId) throws SQLException, BusinessException;
 
     List<Map<String, String>> getMenu_checked(String id_nhomquyen,String user_id,String thread_id) throws SQLException, BusinessException;

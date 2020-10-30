@@ -1,6 +1,7 @@
 package com.neo.nbdapi.utils;
 
 public interface Constants {
+
     class APPLICATION_API {
         public static final String API_PREFIX = "/api/v1";
 
@@ -17,6 +18,7 @@ public interface Constants {
             public static final String URI_VALUE_TYPES = "/value-type";
             public static final String URI_CONFIG_VALUE_TYPES = "/config-value-type";
             public static final String URI_CONFIG_WARNING_THRESOLD = "/warning-thresold";
+            public static final String URI_CHANGER_PASS = "/changer-pass";
         }
     }
 
@@ -45,13 +47,17 @@ public interface Constants {
 
         public static String SECRET_KEY_PATH = "ZDf+fWqwFNUPelJpn87uZQ==";
 
-         public static String sqlFile = ConstantParams.class.getClassLoader().getResource("static/sql.properties").toString();
+         public static String sqlFile = "sql.properties";
 //        public static String sqlFile = "static/sql.properties";
-        public static String LOG_CONFIG_FILE = ConstantParams.class.getClassLoader().getResource("static/log4j.properties").getPath();
+        public static String LOG_CONFIG_FILE = "log4j.properties";
 //        public static String LOG_CONFIG_FILE = "static/log4j.properties";
         //ConstantParams.class.getClassLoader().getResource("log4j.properties").getPath();
         // public static String sqlFile = "sql.properties";
         public static final int REFRESH_DELAY = 2 * 1000;
         //	public static final int REFRESH_DELAY = 1000;
+    }
+
+    class LOG_ACT {
+        public static final String FILE_NAME_EXPORT_LOG_ACT = "log_act";
     }
 }

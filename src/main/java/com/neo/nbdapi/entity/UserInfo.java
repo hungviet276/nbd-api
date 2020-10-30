@@ -41,7 +41,8 @@ public class UserInfo {
 
     private int checkRole;
 
-    private int dateRole;
+    private String dateRole;
+
 
     private String dateRoles;
 
