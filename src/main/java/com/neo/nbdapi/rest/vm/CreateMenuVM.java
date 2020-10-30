@@ -33,11 +33,13 @@ public class CreateMenuVM {
     /**
      * icon
      */
+    @Size(max = 200, message = "Icon menu không quá 200 ký tự")
     private String pictureFile;
 
     /**
      * url cua menu
      */
+    @Size(max = 200, message = "Đường dẫn menu không quá 200 ký tự")
     private String detailFile;
 
     /**
