@@ -34,5 +34,4 @@ public class WarningThresholdStation implements Serializable {
 
     private Float valueLevel5;
 
-    private String thresholdCode;
 }

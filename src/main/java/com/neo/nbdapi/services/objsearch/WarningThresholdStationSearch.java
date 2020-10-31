@@ -41,7 +41,4 @@ public class WarningThresholdStationSearch implements Serializable {
     @JsonProperty("s_value_level5")
     private Float valueLevel5;
 
-    @JsonProperty("s_threshold_code")
-    private String thresholdCode;
-
 }

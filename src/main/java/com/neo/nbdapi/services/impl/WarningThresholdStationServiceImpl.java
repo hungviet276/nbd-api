@@ -2,10 +2,16 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
+import com.neo.nbdapi.dao.WarningThresholdDAO;
+import com.neo.nbdapi.dao.WarningThresholdValueDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.WarningThreshold;
 import com.neo.nbdapi.entity.WarningThresholdStation;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.WarningThresholdVM;
+import com.neo.nbdapi.rest.vm.WarningThresholdValueVM;
 import com.neo.nbdapi.services.WarningThresholdStationService;
 import com.neo.nbdapi.services.objsearch.WarningThresholdStationSearch;
 import com.zaxxer.hikari.HikariDataSource;
@@ -15,7 +21,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,6 +42,12 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private WarningThresholdValueDAO warningThresholdValueDAO;
+
+    @Autowired
+    private WarningThresholdDAO warningThresholdDAO;
+
     @Override
     public DefaultPaginationDTO getListWarningThresholdStation(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -48,8 +59,7 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select w.id,s.station_id, w.parameter_type_id,s.station_name, p.parameter_type_name, w.value_level1, w.value_level2, w.value_level3, w.value_level4, w.value_level5, w.threshold_code from warning_threshold_value w " +
-                    "inner join stations s on w.station_id =  s.station_id inner join parameter_type p on p.parameter_type_id = w.parameter_type_id inner join warning_threshold wt on wt.code = w.threshold_code where 1 = 1 and s.isdel = 0 ");
+            StringBuilder sql = new StringBuilder("select w.id,s.station_id, w.parameter_type_id,s.station_name, p.parameter_type_name, w.value_level1, w.value_level2, w.value_level3, w.value_level4, w.value_level5 from warning_threshold_value w  inner join stations s on w.station_id =  s.station_id inner join parameter_type p on p.parameter_type_id = w.parameter_type_id where 1 = 1 and s.isdel = 0");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set value query to sql
@@ -96,11 +106,6 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
                     sql.append(" AND w.value_level5 = ? ");
                     paramSearch.add(objectSearch.getValueLevel5());
                 }
-                if (Strings.isNotEmpty(objectSearch.getThresholdCode())) {
-                    sql.append(" AND UPPER(w.threshold_code) like ? ");
-                    paramSearch.add("%"+(objectSearch.getThresholdCode().toUpperCase())+"%");
-                }
-
             }
             sql.append(" ORDER BY w.id DESC ");
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -118,7 +123,6 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
                         .valueLevel3(resultSetListData.getFloat("value_level3"))
                         .valueLevel4(resultSetListData.getFloat("value_level4"))
                         .valueLevel5(resultSetListData.getFloat("value_level5"))
-                        .thresholdCode(resultSetListData.getString("threshold_code"))
                         .build();
                 configValueTypes.add(configValueType);
             }
@@ -141,5 +145,75 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
                     .content(configValueTypes)
                     .build();
         }
+    }
+
+    @Override
+    public DefaultResponseDTO createWarningThreshold(WarningThresholdValueVM warningThresholdValueVM) throws SQLException {
+        return warningThresholdValueDAO.createWarningThreshold(warningThresholdValueVM);
+    }
+
+    @Override
+    public DefaultResponseDTO editWarningThreshold(WarningThresholdValueVM warningThresholdValueVM) throws SQLException {
+
+        List<WarningThreshold> warningThresholdCurrents = warningThresholdDAO.getWarningThresholds(warningThresholdValueVM.getId());
+        List<WarningThresholdVM> warningThresholdInputs = warningThresholdValueVM.getDataThreshold();
+        List<WarningThreshold> deletes = new ArrayList<>();
+        List<WarningThreshold> creates = new ArrayList<>();
+        List<WarningThreshold> update = new ArrayList<>();
+
+
+        //tạo ra list delete
+
+        for(WarningThreshold  warningThreshold : warningThresholdCurrents){
+            int k = 1;
+            for(WarningThresholdVM warningThresholdVM : warningThresholdInputs){
+                if(warningThreshold.getWarningThresholdCode().equals(warningThresholdVM.getWarningThresholdCode())){
+                    k=0;
+                    break;
+                }
+            }
+            if(k==1){
+                deletes.add(warningThreshold);
+                k=0;
+            }  else if(k==0){
+                continue;
+            }
+        }
+        // tạo ra list thêm mới
+
+        for(WarningThresholdVM warningThresholdVM : warningThresholdInputs){
+            int k = 1;
+            for(WarningThreshold  warningThreshold : warningThresholdCurrents){
+                if(warningThresholdVM.getWarningThresholdCode().equals(warningThreshold.getWarningThresholdCode())){
+                    k=0;
+                    break;
+                }
+            }
+            if(k==1){
+                creates.add(WarningThreshold.builder()
+                        .warningThresholdCode(warningThresholdVM.getWarningThresholdCode())
+                        .idParameter(warningThresholdVM.getIdParameter())
+                        .thresholdId(warningThresholdVM.getThresholdId())
+                        .thresholdCancelID(warningThresholdVM.getThresholdCancelID())
+                        .status(warningThresholdVM.getStatus())
+                        .build()
+                );
+            } else if(k==0){
+                continue;
+            }
+        }
+        // còn lại là listupdate
+
+        for(WarningThresholdVM warningThresholdVM : warningThresholdInputs){
+
+            update.add(WarningThreshold.builder()
+                    .warningThresholdCode(warningThresholdVM.getWarningThresholdCode())
+                    .idParameter(warningThresholdVM.getIdParameter())
+                    .thresholdId(warningThresholdVM.getThresholdId())
+                    .thresholdCancelID(warningThresholdVM.getThresholdCancelID())
+                    .status(warningThresholdVM.getStatus())
+                    .build());
+        }
+        return warningThresholdValueDAO.editWarningThreshold(warningThresholdValueVM,deletes,update,creates);
     }
 }
