@@ -23,6 +23,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,6 +56,8 @@ import org.springframework.web.util.HtmlUtils;
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/station-type")
 public class StationTypeController {
     private Logger logger = LogManager.getLogger(StationTypeController.class);
+
+    private Logger loggerAction = LogManager.getLogger("ActionCrud");
 
     @Autowired
     private HikariDataSource ds;
@@ -115,6 +119,10 @@ public class StationTypeController {
                 	if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
                         sql.append(" and lower(g.OBJECT_TYPE_SHORTNAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_objectTypeName") + "%");
+                    }
+                    if (Strings.isNotEmpty(params.get("s_stationId"))) {
+                        sql.append(" and a.station_id = ? ");
+                        paramSearch.add(params.get("s_stationId"));
                     }
                     if (Strings.isNotEmpty(params.get("s_stationCode"))) {
                         sql.append(" and a.station_code = ? ");
@@ -212,7 +220,54 @@ public class StationTypeController {
                     .build();
         }
     }
-    
+
+    @GetMapping("/get-list-station-pagination")
+    public List<Station> getStation(@RequestParam("stationId") String stationId) throws SQLException, BusinessException {
+        List<Station> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("select a.*, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a , PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
+                "where a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+        if (Strings.isNotEmpty(stationId)) {
+            sql.append(" and a.station_id = ? ");
+        }
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            st.setString(1,stationId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Station bo = Station.builder()
+                        .stationId(rs.getLong("STATION_ID"))
+                        .stationCode(rs.getString("STATION_CODE"))
+                        .elevation(rs.getFloat("ELEVATION"))
+                        .stationName(rs.getString("STATION_NAME"))
+                        .latitude(rs.getFloat("LATITUDE"))
+                        .longtitude(rs.getFloat("LONGTITUDE"))
+                        .trans_miss(rs.getInt("TRANS_MISS"))
+                        .address(rs.getString("ADDRESS"))
+                        .status(rs.getInt("STATUS"))
+                        .riverId(rs.getLong("RIVER_ID"))
+                        .riverName(rs.getString("RIVER_NAME"))
+                        .provinceId(rs.getLong("PROVINCE_ID"))
+                        .provinceName(rs.getString("PROVINCE_NAME"))
+                        .districtId(rs.getLong("DISTRICT_ID"))
+                        .districtName(rs.getString("DISTRICT_NAME"))
+                        .countryId(rs.getInt("COUNTRY_ID"))
+//                        .countryName(rs.getString("COUNTRY_NAME"))
+                        .wardId(rs.getLong("WARD_ID"))
+                        .wardName(rs.getString("WARD_NAME"))
+                        .projectId(rs.getInt("PROJECT_ID"))
+                        .modeStationType(rs.getInt("MODE_CONTROL"))
+                        .areaId(rs.getLong("AREA_ID"))
+                        .stationTypeId(rs.getLong("STATION_TYPE_ID"))
+                        .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
+                        .objectType(rs.getString("OBJECT_TYPE"))
+                        .objectTypeName(rs.getString("OBJECT_TYPE_SHORTNAME"))
+                        .build();
+                list.add(bo);
+            }
+            rs.close();
+            return list;
+        }
+    }
+
     @PostMapping("/get-list-station-time-series-pagination")
     public DefaultPaginationDTO getListStationTimeSeriesPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         
@@ -391,8 +446,10 @@ public class StationTypeController {
     public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
         for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
         }
+
+        loggerAction.info("{};{}","create-time-series-config",objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
@@ -415,7 +472,7 @@ public class StationTypeController {
     @PostMapping("/create-parameter-type")
     public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String,String> params) throws SQLException {
         for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
         }
         String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
@@ -433,7 +490,7 @@ public class StationTypeController {
     @PostMapping("/create-parameter")
     public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
         for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getKey().toString()));
+            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
         }
         log.info(objectMapper.writeValueAsString(params));
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
@@ -825,5 +882,107 @@ public class StationTypeController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, filename)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(file);
+    }
+
+    @PostMapping("/get-list-station-his-pagination")
+    public DefaultPaginationDTO getListStationHisPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+
+            StringBuilder sql = new StringBuilder("select a.*, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations_his a , PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g " +
+                    "   where a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+            List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    if (Strings.isNotEmpty(params.get("stationTypeId")) && !"-1".equals(params.get("stationTypeId"))) {
+                        sql.append(" and g.OBJECT_TYPE_ID = ? ");
+                        paramSearch.add(params.get("stationTypeId"));
+                    }
+                    if (Strings.isNotEmpty(params.get("inputFromDate"))) {
+                        sql.append(" and a.CREATED_AT > to_date(?,'dd/mm/yyyy') ");
+                        paramSearch.add(params.get("inputFromDate"));
+                    }
+                    if (Strings.isNotEmpty(params.get("inputToDate"))) {
+                        sql.append(" and a.CREATED_AT < to_date(?,'dd/mm/yyyy') + 1 ");
+                        paramSearch.add(params.get("inputToDate"));
+                    }
+
+                    if (Strings.isNotEmpty(params.get("s_objectType"))) {
+                        sql.append(" and g.OBJECT_TYPE = ? ");
+                        paramSearch.add(params.get("s_objectType"));
+                    }
+                    if (Strings.isNotEmpty(params.get("s_stationCode"))) {
+                        sql.append(" and a.station_code = ? ");
+                        paramSearch.add(params.get("s_stationCode"));
+                    }
+                    if (Strings.isNotEmpty(params.get("s_stationName"))) {
+                        sql.append(" and lower(a.STATION_NAME) like lower(?) ");
+                        paramSearch.add("%" + params.get("s_stationName") + "%");
+                    }
+
+                    if (Strings.isNotEmpty(params.get("s_createById"))) {
+                        sql.append(" and lower(a.CREATED_BY_ID) = lower(?) ");
+                        paramSearch.add(params.get("s_createById"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            log.info(sql.toString());
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
+            List<Station> list = new ArrayList<>();
+
+            while (rs.next()) {
+                Station bo = Station.builder()
+                        .id(rs.getLong("ID"))
+                        .stationId(rs.getLong("STATION_ID"))
+                        .stationCode(rs.getString("STATION_CODE"))
+                        .elevation(rs.getFloat("ELEVATION"))
+                        .stationName(rs.getString("STATION_NAME"))
+                        .latitude(rs.getFloat("LATITUDE"))
+                        .longtitude(rs.getFloat("LONGTITUDE"))
+                        .trans_miss(rs.getInt("TRANS_MISS"))
+                        .address(rs.getString("ADDRESS"))
+                        .status(rs.getInt("STATUS"))
+                        .riverId(rs.getLong("RIVER_ID"))
+                        .riverName(rs.getString("RIVER_NAME"))
+                        .provinceId(rs.getLong("PROVINCE_ID"))
+                        .provinceName(rs.getString("PROVINCE_NAME"))
+                        .districtId(rs.getLong("DISTRICT_ID"))
+                        .districtName(rs.getString("DISTRICT_NAME"))
+                        .countryId(rs.getInt("COUNTRY_ID"))
+//                        .countryName(rs.getString("COUNTRY_NAME"))
+                        .wardId(rs.getLong("WARD_ID"))
+                        .wardName(rs.getString("WARD_NAME"))
+                        .projectId(rs.getInt("PROJECT_ID"))
+                        .modeStationType(rs.getInt("MODE_CONTROL"))
+                        .areaId(rs.getLong("AREA_ID"))
+                        .stationTypeId(rs.getLong("STATION_TYPE_ID"))
+                        .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
+                        .objectType(rs.getString("OBJECT_TYPE"))
+                        .objectTypeName(rs.getString("OBJECT_TYPE_SHORTNAME"))
+                        .createdAt(rs.getDate("CREATED_AT"))
+                        .createById(rs.getString("CREATED_BY_ID"))
+                        .build();
+                list.add(bo);
+            }
+
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
+        }
     }
 }

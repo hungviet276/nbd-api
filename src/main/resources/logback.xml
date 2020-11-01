@@ -18,7 +18,7 @@
         </Console>
         <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-api-debug.log"
                      filePattern="logs/debug/nbd-api-debug-%d{yyyy-MM-dd}-%i.log">
-                <MarkerFilter marker="LOG_DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+<!--                <MarkerFilter marker="LOG_DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
             <Policies>
                 <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="2048 MB"/>
@@ -58,7 +58,7 @@
         <Root>
             <AppenderRef ref="LogToConsole"/>
         </Root>
-        <Logger name="com.neo.nbdapi" level="DEBUG" additivity="false">
+        <Logger name="com.neo" level="DEBUG" additivity="false">
             <AppenderRef ref="LogToConsole"/>
             <AppenderRef ref="AsyncLogDebugFile"/>
         </Logger>
