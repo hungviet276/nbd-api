@@ -6,6 +6,7 @@ import com.neo.nbdapi.dao.WarningThresholdDAO;
 import com.neo.nbdapi.dao.WarningThresholdValueDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThreshold;
 import com.neo.nbdapi.entity.WarningThresholdStation;
 import com.neo.nbdapi.exception.BusinessException;
@@ -215,5 +216,15 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
                     .build());
         }
         return warningThresholdValueDAO.editWarningThreshold(warningThresholdValueVM,deletes,update,creates);
+    }
+
+    @Override
+    public ComboBox getValueType(Long id) throws SQLException {
+        return warningThresholdValueDAO.getValueType(id);
+    }
+
+    @Override
+    public DefaultResponseDTO deleteWarningThresholdValue(Long id) throws SQLException {
+        return warningThresholdValueDAO.deleteWarningThresholdValue(id);
     }
 }

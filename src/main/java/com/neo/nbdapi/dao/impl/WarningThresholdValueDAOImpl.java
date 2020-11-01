@@ -2,6 +2,7 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.WarningThresholdValueDAO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThreshold;
 import com.neo.nbdapi.rest.vm.WarningThresholdVM;
 import com.neo.nbdapi.rest.vm.WarningThresholdValueVM;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -124,6 +127,50 @@ public class WarningThresholdValueDAOImpl implements WarningThresholdValueDAO {
         }
 
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
+
+    @Override
+    public ComboBox getValueType(Long id) throws SQLException {
+        ComboBox comboBox = null;
+        try (Connection connection = ds.getConnection()) {
+            String sql = "select p.parameter_type_id, p.parameter_type_code, p.parameter_type_name from warning_threshold_value w inner join parameter_type p on w.parameter_type_id = p.parameter_type_id where w.id =?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                comboBox = ComboBox.builder().id(resultSet.getLong("parameter_type_id"))
+                        .text(resultSet.getString("parameter_type_code")+"-"+ resultSet.getString("parameter_type_name")).build();
+
+            }
+            return comboBox;
+        }
+    }
+
+    @Override
+    public DefaultResponseDTO deleteWarningThresholdValue(Long id) throws SQLException {
+        Connection connection = ds.getConnection();
+        String deleteValue = "delete from warning_threshold_value where id = ?";
+        String delete = "delete from warning_threshold where warning_threshold_value_id = ?";
+        PreparedStatement stmDeleteValue = connection.prepareStatement(deleteValue);
+        PreparedStatement stmDelete = connection.prepareStatement(delete);
+        try{
+            connection.setAutoCommit(false);
+
+            stmDelete.setLong(1,id);
+            stmDelete.executeUpdate();
+            stmDeleteValue.setLong(1,id);
+            stmDeleteValue.executeUpdate();
+            connection.commit();
+        } catch (Exception e){
+            connection.rollback();
+            throw  e;
+        } finally {
+            stmDelete.close();
+            stmDeleteValue.close();
+            connection.close();
+        }
+        return  DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
 }

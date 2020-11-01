@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThreshold;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -47,6 +48,15 @@ public class WarningThresholdStationController {
     @GetMapping("/warning-thresholds")
     public List<WarningThreshold> getWarningThresholds(@RequestParam Long thresholdValueId) throws SQLException {
         return warningThresoldService.getWarningThresholds(thresholdValueId);
+    }
+
+    @GetMapping("/get-parameter-select")
+    public ComboBox getValueType(@RequestParam Long id) throws SQLException {
+        return warningThresholdStationService.getValueType(id);
+    }
+    @DeleteMapping
+    public DefaultResponseDTO deleteWarningThresholdValue(@RequestParam Long id) throws SQLException {
+        return warningThresholdStationService.deleteWarningThresholdValue(id);
     }
 
 }
