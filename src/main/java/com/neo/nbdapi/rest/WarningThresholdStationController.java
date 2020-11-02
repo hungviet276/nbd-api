@@ -58,6 +58,4 @@ public class WarningThresholdStationController {
     public DefaultResponseDTO deleteWarningThresholdValue(@RequestParam Long id) throws SQLException {
         return warningThresholdStationService.deleteWarningThresholdValue(id);
     }
-
-    
 }
