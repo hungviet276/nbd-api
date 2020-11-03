@@ -14,5 +14,4 @@ public interface WarningThresholdValueDAO {
     DefaultResponseDTO editWarningThreshold(WarningThresholdValueVM warningThresholdValueVM, List<WarningThreshold> deletes, List<WarningThreshold> updates, List<WarningThreshold> creates) throws SQLException;
     ComboBox getValueType(Long id) throws SQLException;
     DefaultResponseDTO deleteWarningThresholdValue(Long id) throws SQLException;
-
 }
