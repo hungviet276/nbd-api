@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -307,9 +308,17 @@ public class CommonController {
     }
 
     @GetMapping("/get-select-list-timeseries")
-    public List<ComboBox> getListTimeseriesCombobox() throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder("select * from TIME_SERIES_TYPE WHERE 1 = 1 ");
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+    public List<ComboBox> getListTimeseriesCombobox(@RequestParam Map<String,String> params) throws SQLException, BusinessException {
+        String sql = "";
+        StringBuilder stringBuilder = new StringBuilder("select * from TIME_SERIES_TYPE WHERE 1 = 1 ");
+        if(params != null && params.size() > 0){
+            stringBuilder.append(" and TS_TYPE_ID not in(%s,-1)");
+        }
+        sql = stringBuilder.toString();
+        if(params != null && params.size() > 0) {
+            sql = String.format(sql, (params.get("tsTypeId") != null && !"".equals(params.get("tsTypeId"))) ? params.get("tsTypeId") : "-1");
+        }
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql); ) {
             ResultSet rs = st.executeQuery();
             List<ComboBox> list = new ArrayList<>();
             ComboBox bo = ComboBox.builder().id(-1L).text("Lựa chọn").build();

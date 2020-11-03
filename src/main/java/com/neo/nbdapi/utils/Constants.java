@@ -19,6 +19,7 @@ public interface Constants {
             public static final String URI_CONFIG_VALUE_TYPES = "/config-value-type";
             public static final String URI_CONFIG_WARNING_THRESOLD = "/warning-thresold";
             public static final String URI_CHANGER_PASS = "/changer-pass";
+            public static final String URI_CONFIG_WARNING_THRESHOLD_STATION = "/warning-threshold-station";
         }
     }
 
