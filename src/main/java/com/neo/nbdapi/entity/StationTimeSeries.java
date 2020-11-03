@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.neo.nbdapi.entity;
 
 import lombok.AllArgsConstructor;
@@ -46,4 +43,10 @@ public class StationTimeSeries {
 	private Integer unitId;
 	private String unitName;
 	private String timeSeries;
+	private String objectTypeShortName;
+	private String prTimestamp;
+	private String PrValue;
+	private String PrWarning;
+	private String PrCreatedUser;
+	private String PrCreatedDate;
 }
