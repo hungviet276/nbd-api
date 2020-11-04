@@ -4,7 +4,6 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThreshold;
 import com.neo.nbdapi.rest.vm.WarningThresholdValueVM;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
 import java.util.List;
