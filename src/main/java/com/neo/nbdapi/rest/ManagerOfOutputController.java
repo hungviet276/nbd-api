@@ -32,8 +32,8 @@ public class ManagerOfOutputController {
     private HikariDataSource ds;
 
     @PostMapping("/get_list_outputs")
-    public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM,@RequestParam("sqlStatement") String sqlStatement) throws SQLException, BusinessException {
-        return manageOutputService.getListOutpust(defaultRequestPagingVM,sqlStatement);
+    public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        return manageOutputService.getListOutpust(defaultRequestPagingVM);
     }
 
     @GetMapping("/get_list_stations")
