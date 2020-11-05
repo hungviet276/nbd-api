@@ -35,6 +35,7 @@ public class Station {
 	private Date createdAt;
 	private Date updatedAt;
 	private Long areaId;
+	private String areaName;
 	private String siteName;
 	private Long districtId;
 	private Long provinceId;
