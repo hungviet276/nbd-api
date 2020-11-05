@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface ManageOutputService {
 
-    DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM,String sqlStatement) throws SQLException, BusinessException;
+    DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
 
     List<ComboBox> getListStations(String userId) throws SQLException, BusinessException;
 
