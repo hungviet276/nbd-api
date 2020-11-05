@@ -205,7 +205,7 @@
                             <goal>build</goal>
                         </goals>
                         <configuration>
-                            <repository>levietthang1997/${project.name}</repository>
+                            <repository>tb5/${project.name}</repository>
                             <tag>${project.name}-${project.version}</tag>
                         </configuration>
                     </execution>
