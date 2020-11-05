@@ -106,8 +106,8 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a , PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" + 
-            		"where a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+            StringBuilder sql = new StringBuilder("select a.*,b1.AREA_NAME, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a ,AREAS b1, PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
+            		"where a.AREA_ID = b1.AREA_ID(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -171,6 +171,7 @@ public class StationTypeController {
                     e.printStackTrace();
                 }
             }
+            sql.append(" order by a.CREATED_AT desc ");
             log.info(sql.toString());
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
@@ -200,6 +201,7 @@ public class StationTypeController {
                         .projectId(rs.getInt("PROJECT_ID"))
                         .modeStationType(rs.getInt("MODE_CONTROL"))
                         .areaId(rs.getLong("AREA_ID"))
+                        .areaName(rs.getString("AREA_NAME"))
                         .stationTypeId(rs.getLong("STATION_TYPE_ID"))
                         .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
                         .objectType(rs.getString("OBJECT_TYPE"))
@@ -224,8 +226,8 @@ public class StationTypeController {
     @GetMapping("/get-list-station-pagination")
     public List<Station> getStation(@RequestParam("stationId") String stationId) throws SQLException, BusinessException {
         List<Station> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("select a.*, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a , PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
-                "where a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+        StringBuilder sql = new StringBuilder("select a.*,b1.AREA_NAME, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a ,AREAS b1, PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
+                "where a.AREA_ID = b1.AREA_ID(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
         if (Strings.isNotEmpty(stationId)) {
             sql.append(" and a.station_id = ? ");
         }
@@ -256,6 +258,7 @@ public class StationTypeController {
                         .projectId(rs.getInt("PROJECT_ID"))
                         .modeStationType(rs.getInt("MODE_CONTROL"))
                         .areaId(rs.getLong("AREA_ID"))
+                        .areaName(rs.getString("AREA_NAME"))
                         .stationTypeId(rs.getLong("STATION_TYPE_ID"))
                         .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
                         .objectType(rs.getString("OBJECT_TYPE"))
@@ -382,7 +385,7 @@ public class StationTypeController {
                 "                    WITHIN GROUP (ORDER BY TS_TYPE_NAME) listSeries  from (\n" +
                 "select a.PARAMETER_TYPE_ID, b.TS_TYPE_NAME from TIME_SERIES_CONFIG a, TIME_SERIES_TYPE b where a.TS_TYPE_ID = b.TS_TYPE_ID \n" +
                 ") c where 1=1 GROUP BY PARAMETER_TYPE_ID) b, unit c\n" +
-                "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID and a.unit_id = c.unit_id");
+                "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and a.unit_id = c.unit_id(+)");
         try (Connection connection = ds.getConnection();) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
@@ -451,11 +454,12 @@ public class StationTypeController {
 
         loggerAction.info("{};{}","create-time-series-config",objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?)";
+        String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID,STORAGE, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("tsConfigName"));
             statement.setString(i++, params.get("timeTypeId"));
+            statement.setString(i++, params.get("storage"));
             statement.setString(i++, params.get("uuid"));
             statement.execute();
 
@@ -569,8 +573,8 @@ public class StationTypeController {
 
 
     @PostMapping("/get-list-series-time-config-pagination")
-    public DefaultPaginationDTO getListSeriesTimeConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-
+    public DefaultPaginationDTO getListSeriesTimeConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(defaultRequestPagingVM));
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
@@ -587,13 +591,14 @@ public class StationTypeController {
                         paramSearch.add(params.get("s_uuid"));
 //                        paramSearch.add(params.get("s_stationId"));
                     }
-                    if (params.get("s_stationId") != null) {
+                    if (params.get("s_stationId") != null && !"".equals(params.get("s_stationId"))) {
                         sql.append(" and b.PARAMETER_TYPE_ID = ? ");
                         paramSearch.add(params.get("s_stationId"));
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    log.error(e.getMessage());
                 }
             }
             log.debug("SQL get-list-series-time-config-pagination : {}", sql.toString());
@@ -893,8 +898,8 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations_his a , PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g " +
-                    "   where a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+            StringBuilder sql = new StringBuilder("select a.*, b1.AREA_NAME, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations_his a , AREAS b1, PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g \n" +
+                    "  where a.area_id = b1.area_id(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -933,6 +938,7 @@ public class StationTypeController {
                     e.printStackTrace();
                 }
             }
+            sql.append(" order by a.CREATED_AT desc ");
             log.info(sql.toString());
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
@@ -963,6 +969,7 @@ public class StationTypeController {
                         .projectId(rs.getInt("PROJECT_ID"))
                         .modeStationType(rs.getInt("MODE_CONTROL"))
                         .areaId(rs.getLong("AREA_ID"))
+                        .areaName(rs.getString("AREA_NAME"))
                         .stationTypeId(rs.getLong("STATION_TYPE_ID"))
                         .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
                         .objectType(rs.getString("OBJECT_TYPE"))

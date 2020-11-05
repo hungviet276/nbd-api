@@ -10,7 +10,6 @@ public interface Constants {
             public static final String URI_USER_INFO = "/user-info";
             public static final String URI_MAIL_CONFIG = "/mail-config";
             public static final String URI_GROUP_MAIL_RECEIVE = "/group-mail-receive";
-            public static final String URI_GROUP_MAIL_CONFIG = "/group-mail-config";
             public static final String URI_GROUP_MAIL_RECEIVE_DETAIL = "/group-mail-receive-detail";
             public static final String URI_MENU_MANAGE = "/menu-manage";
             public static final String URI_LOG_ACT = "/log-act";
@@ -22,6 +21,7 @@ public interface Constants {
             public static final String URI_CHANGER_PASS = "/changer-pass";
             public static final String URI_CONFIG_WARNING_THRESHOLD_STATION = "/warning-threshold-station";
             public static final String URI_CONFIG_WARNING_MANAGER_STATION = "/warning-manager-station";
+            public static final String URI_MANAGER_OUTPUTS = "/management-of-outputs";
         }
     }
 
