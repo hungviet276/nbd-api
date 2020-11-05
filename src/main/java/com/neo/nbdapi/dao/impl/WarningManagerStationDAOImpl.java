@@ -2,8 +2,11 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.WarningManagerStationDAO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +19,7 @@ import java.util.List;
 
 @Repository
 public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
+    private Logger logger = LogManager.getLogger(WarningManagerStationDAOImpl.class);
     @Autowired
     private HikariDataSource ds;
 
@@ -71,6 +75,24 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
                 comboBoxes.add(comboBox);
             }
             return comboBoxes;
+        }
+    }
+
+    @Override
+    public WarningThresholdINF getInFoWarningThreshold(Long idThreshold) throws SQLException {
+        String sql = "select level_warning, level_clean from warning_threshold where id = ?";
+        logger.info("sql get WarningThresholdINF : {}", sql);
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, idThreshold);
+            ResultSet resultSet = statement.executeQuery();
+            WarningThresholdINF warningThresholdINF = null;
+            while (resultSet.next()) {
+                warningThresholdINF = WarningThresholdINF.builder()
+                        .warningThreshold(resultSet.getInt("level_warning"))
+                        .warningThresholdCancel(resultSet.getInt("level_clean")).build();
+            }
+            return warningThresholdINF;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.SelectVM;
@@ -33,5 +34,9 @@ public class WarningManagerStationController {
     @PostMapping("/get-list-warning-config-threshold")
     public List<ComboBox> getListParameterWarningThreshold(@RequestBody SelectWarningManagerVM selectVM) throws SQLException{
         return warningMangerStationService.getListParameterWarningThreshold(selectVM);
+    }
+    @GetMapping("/get-info-warning-threshold")
+    WarningThresholdINF getInFoWarningThreshold(@RequestParam  Long idThreshold) throws SQLException{
+        return warningMangerStationService.getInFoWarningThreshold(idThreshold);
     }
 }
