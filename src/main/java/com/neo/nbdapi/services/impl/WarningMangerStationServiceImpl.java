@@ -3,7 +3,7 @@ package com.neo.nbdapi.services.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.WarningManagerStationDAO;
-import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningManagerStation;
 import com.neo.nbdapi.entity.WarningThresholdINF;
@@ -53,7 +53,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select w.id, s.station_id, s.station_name, w.code, w.name, w.icon, w.created_at  from warning_manage_stations w inner join stations s on s.STATION_ID = w.STATION_ID where s.isdel = 0 and s.status = 1 ");
+            StringBuilder sql = new StringBuilder("select w.id, s.station_id, s.station_name, w.code, w.name, w.icon, w.created_at, w.description, w.content, w.color from warning_manage_stations w inner join stations s on s.STATION_ID = w.STATION_ID where s.isdel = 0 and s.status = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set value query to sql
@@ -106,6 +106,9 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
                         .warningName(resultSetListData.getString("name"))
                         .icon(resultSetListData.getString("icon"))
                         .createDate(resultSetListData.getDate("created_at"))
+                        .description(resultSetListData.getString("description"))
+                        .content(resultSetListData.getString("content"))
+                        .color(resultSetListData.getString("color"))
                         .build();
 
                 configValueTypes.add(warningManagerStation);
@@ -144,5 +147,59 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     @Override
     public WarningThresholdINF getInFoWarningThreshold(Long idThreshold) throws SQLException {
         return warningManagerStationDAO.getInFoWarningThreshold(idThreshold);
+    }
+
+    @Override
+    public DefaultResponseDTO createWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException {
+        return warningManagerStationDAO.createWarningManagerStation(warningManagerStationDTO);
+    }
+
+    @Override
+    public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException {
+        return warningManagerStationDAO.getWarningMangerDetailInfoDTOs(WarningManageStationId);
+    }
+
+    @Override
+    public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException {
+
+        List<WarningMangerDetailInfoDTO> warningManagerDetailDTOCurrents = warningManagerStationDAO.getWarningMangerDetailInfoDTOs(warningManagerStationDTO.getId());
+
+        List<WarningManagerDetailDTO> deletes = new ArrayList<>();
+
+        List<WarningManagerDetailDTO> creates = new ArrayList<>();
+
+        List<WarningManagerDetailDTO> inputs = warningManagerStationDTO.getDataWarning();
+
+        for (WarningManagerDetailDTO out : inputs){
+            int insert = 1;
+            for (WarningMangerDetailInfoDTO in : warningManagerDetailDTOCurrents){
+                if(out.getWarningThresholdId() == in.getIdWarningThreshold()){
+                    insert = 0;
+                    break;
+                }
+            }
+            if(insert == 1){
+                creates.add(out);
+            }
+        }
+        for (WarningMangerDetailInfoDTO out : warningManagerDetailDTOCurrents){
+            int insert = 1;
+            for (WarningManagerDetailDTO in : inputs){
+                if(out.getIdWarningThreshold() == in.getWarningThresholdId()){
+                    insert = 0;
+                    break;
+                }
+            }
+            deletes.add(WarningManagerDetailDTO.builder().id(out.getId()).build());
+        }
+
+
+
+        return warningManagerStationDAO.editWarningManagerStation(warningManagerStationDTO, deletes, creates);
+    }
+
+    @Override
+    public DefaultResponseDTO deleteWarningManagerStation(Long id) throws SQLException {
+        return warningManagerStationDAO.deleteWarningManagerStation(id);
     }
 }

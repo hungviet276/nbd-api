@@ -1,17 +1,18 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.WarningManagerStationDTO;
+import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
@@ -38,5 +39,23 @@ public class WarningManagerStationController {
     @GetMapping("/get-info-warning-threshold")
     WarningThresholdINF getInFoWarningThreshold(@RequestParam  Long idThreshold) throws SQLException{
         return warningMangerStationService.getInFoWarningThreshold(idThreshold);
+    }
+
+    @PostMapping
+    DefaultResponseDTO createWarningManagerStation(@RequestBody WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
+        return warningMangerStationService.createWarningManagerStation(warningManagerStationDTO);
+    }
+    @GetMapping("/get-warning-manager-detail")
+    public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(@RequestParam  Long warningManageStationId) throws SQLException{
+        return warningMangerStationService.getWarningMangerDetailInfoDTOs(warningManageStationId);
+    }
+
+    @PutMapping
+    public DefaultResponseDTO editWarningManagerStation( @RequestBody WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
+        return warningMangerStationService.editWarningManagerStation(warningManagerStationDTO);
+    }
+    @DeleteMapping
+    public DefaultResponseDTO deleteWarningManagerStation(@RequestParam Long id) throws SQLException{
+        return warningMangerStationService.deleteWarningManagerStation(id);
     }
 }
