@@ -28,4 +28,10 @@ public class WarningManagerStation  implements Serializable {
     private String icon;
 
     private Date createDate;
+
+    private String description;
+
+    private String content;
+
+    private String color;
 }
