@@ -12,6 +12,7 @@ import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.UsersManagerVM;
 import com.neo.nbdapi.services.ManageOutputService;
 import com.neo.nbdapi.services.UsersManagerService;
+import com.neo.nbdapi.services.objsearch.SearchOutputsManger;
 import com.neo.nbdapi.services.objsearch.SearchUsesManager;
 import com.zaxxer.hikari.HikariDataSource;
 import oracle.jdbc.OracleTypes;
@@ -50,7 +51,8 @@ public class ManageOutputServiceImpl implements ManageOutputService {
 
 
     @Override
-    public DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM,String sqlStatement) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        System.out.println("getListOutpust---------------");
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         List<StationTimeSeries> stationTimeSeriesList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
@@ -58,8 +60,75 @@ public class ManageOutputServiceImpl implements ManageOutputService {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder(sqlStatement);
+            StringBuilder sql = new StringBuilder("");
+
             List<Object> paramSearch = new ArrayList<>();
+            if (Strings.isNotEmpty(search)) {
+                try {
+                    SearchOutputsManger objectSearch = objectMapper.readValue(search, SearchOutputsManger.class);
+                    System.out.println("objectSearch.getTableproductName()---------------" +objectSearch.getTableproductName());
+                    if (Strings.isNotEmpty(objectSearch.getTableproductName())) {
+                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append(" join " + objectSearch.getTableproductName() + " pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
+                        sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1");
+
+                        if (Strings.isNotEmpty(objectSearch.getStation_type_name())) {
+                            sql.append(" AND object_type_shortname like ? ");
+                            paramSearch.add("%" + objectSearch.getStation_type_name() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getStations_no())) {
+                            sql.append(" AND station_no LIKE ? ");
+                            paramSearch.add("%" + objectSearch.getStations_no() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getStations_name())) {
+                            sql.append(" AND station_name like ? ");
+                            paramSearch.add("%" + objectSearch.getStations_name() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getParameter_type_name())) {
+                            sql.append(" AND parametertype_name like ? ");
+                            paramSearch.add("%" + objectSearch.getParameter_type_name() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getReponse())) {
+                            sql.append(" AND value = ? ");
+                            paramSearch.add("%" + objectSearch.getReponse() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getArea())) {
+                            sql.append(" AND site_name like ? ");
+                            paramSearch.add("%" + objectSearch.getArea() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getUser_create())) {
+                            sql.append(" AND create_user like ? ");
+                            paramSearch.add("%" + objectSearch.getUser_create() + "%");
+                        }
+//                        if (Strings.isNotEmpty(objectSearch.getCreatedBy())) {
+//                            sql.append(" AND  create_user like ? ");
+//                            paramSearch.add("%" + objectSearch.getCreatedBy() + "%");
+//                        }
+//                    if (Strings.isNotEmpty(objectSearch.getTimereponse())) {
+//                        sql.append(" AND  timestamp like ? ");
+//                        paramSearch.add("%" + objectSearch.getTimereponse() + "%");
+//                    }
+                        if (Strings.isNotEmpty(objectSearch.getFromDate())) {
+                            sql.append(" and timestamp >= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
+                            paramSearch.add(objectSearch.getFromDate());
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getToDate())) {
+                            sql.append(" and timestamp <= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
+                            paramSearch.add(objectSearch.getToDate());
+                        }
+                        sql.append(" order by timestamp desc");
+                    }else{
+                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append(" join temperature pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
+                        sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where rownum < 1");
+                    }
+                    System.out.println("objectSearch.getToDate())---------------" +objectSearch.getToDate());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("sql---------------" +sql);
+            }
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
@@ -69,10 +138,10 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                         .stationNo(resultSetListData.getString("station_no"))
                         .stationName(resultSetListData.getString("station_name"))
                         .parameterTypeName(resultSetListData.getString("parametertype_name"))
-                        .PrValue(resultSetListData.getString("value"))
-                        .prTimestamp(resultSetListData.getString("timestamp"))
+                        .PrValue(resultSetListData.getInt("value"))
+                        .prTimestamp(resultSetListData.getString("timestampChar"))
                         .siteName(resultSetListData.getString("site_name"))
-                        .PrWarning(resultSetListData.getString("warning"))
+                        .PrWarning(resultSetListData.getInt("warning"))
                         .PrCreatedUser(resultSetListData.getString("create_user"))
                         .build();
                 stationTimeSeriesList.add(stationTimeSeries);
@@ -154,7 +223,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
 
     @Override
     public String getSqlStatement(String stationId, String parameterTypeId, String fromDate, String toDate) throws SQLException, BusinessException {
-        String proc = "begin ?:= mamager_outputs.get_outputs_lst(?,?,?,?) ;end;";
+        String proc = "begin ?:= MANAGER_OUTPUTS.get_outputs_lst(?,?,?,?) ;end;";
         long startTime = System.nanoTime();
         List<Map<String, String>> list = new ArrayList<>();
         Connection conn = null;

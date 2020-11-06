@@ -45,8 +45,8 @@ public class StationTimeSeries {
 	private String timeSeries;
 	private String objectTypeShortName;
 	private String prTimestamp;
-	private String PrValue;
-	private String PrWarning;
+	private Integer PrValue;
+	private Integer PrWarning;
 	private String PrCreatedUser;
 	private String PrCreatedDate;
 }
