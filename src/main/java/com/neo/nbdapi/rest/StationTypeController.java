@@ -49,7 +49,6 @@ import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.util.HtmlUtils;
 
 @Slf4j
 @RestController
@@ -448,9 +447,6 @@ public class StationTypeController {
     @PostMapping("/create-time-series-config")
     public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
-        for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
-        }
 
         loggerAction.info("{};{}","create-time-series-config",objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
@@ -475,9 +471,6 @@ public class StationTypeController {
 
     @PostMapping("/create-parameter-type")
     public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String,String> params) throws SQLException {
-        for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
-        }
         String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
         try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, params.get("parameter"));
@@ -493,9 +486,6 @@ public class StationTypeController {
     
     @PostMapping("/create-parameter")
     public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-        for(Map.Entry entry : params.entrySet()){
-            entry.setValue(HtmlUtils.htmlEscape(entry.getValue().toString()));
-        }
         log.info(objectMapper.writeValueAsString(params));
     	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
     	String sql = "insert into PARAMETER(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY,STATION_ID) values (PARAMETER_KTTV_SEQ.nextval,?,?,?,?)";
@@ -991,5 +981,37 @@ public class StationTypeController {
                     .content(list)
                     .build();
         }
+    }
+
+    @GetMapping("/get-list-select-station")
+    public List<ComboBox> getListSelectStation() throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME from stations where ISDEL = 0");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = st.executeQuery();
+            List<ComboBox> list = new ArrayList<>();
+            ComboBox stationType = ComboBox.builder()
+                    .id(-1L)
+                    .text("Lựa chọn")
+                    .build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBox.builder()
+                        .id(rs.getLong("STATION_ID"))
+                        .text(rs.getString("STATION_NAME"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+            return list;
+        }
+    }
+
+    @PostMapping("/create-manual-parameter")
+    public DefaultResponseDTO createManualParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(params));
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params,true);
+        return defaultResponseDTO;
     }
 }

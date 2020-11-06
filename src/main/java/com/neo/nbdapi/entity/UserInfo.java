@@ -62,5 +62,7 @@ public class UserInfo {
 
     private String createdBy;
 
+    private String text;
+
 
 }

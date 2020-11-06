@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ComboBox {
+    private String idStr;
     private Long id;
     private String text;
 }

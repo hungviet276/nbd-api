@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -75,13 +74,16 @@ public class WarningThresholdValueDAOImpl implements WarningThresholdValueDAO {
         String sqlCreateWarningThreshold = "insert into warning_threshold(id, code, warning_threshold_value_id, level_warning, LEVEL_CLEAN, status) values (WARNING_THRESHOLD_SEQ.nextval, ?, ?, ?, ?, ?)";
         //chú câu truy vấn bên trên là truyền vào chứ không có để lấy
         Connection connection = ds.getConnection();
-
+        PreparedStatement stmUpdateThresholdValue = null;
+        PreparedStatement stmDeleteWarningThreshold = null;
+        PreparedStatement stmUpdateWarningThreshold = null;
+        PreparedStatement stmCreateWarningThreshold = null;
         try{
             connection.setAutoCommit(false);
-            PreparedStatement stmUpdateThresholdValue = connection.prepareStatement(sqlUpdateThresholdValue);
-            PreparedStatement stmDeleteWarningThreshold = connection.prepareStatement(sqlDeleteWarningThreshold);
-            PreparedStatement stmUpdateWarningThreshold = connection.prepareStatement(sqlUpdateWarningThreshold);
-            PreparedStatement stmCreateWarningThreshold = connection.prepareStatement(sqlCreateWarningThreshold);
+             stmUpdateThresholdValue = connection.prepareStatement(sqlUpdateThresholdValue);
+             stmDeleteWarningThreshold = connection.prepareStatement(sqlDeleteWarningThreshold);
+             stmUpdateWarningThreshold = connection.prepareStatement(sqlUpdateWarningThreshold);
+             stmCreateWarningThreshold = connection.prepareStatement(sqlCreateWarningThreshold);
 
             stmUpdateThresholdValue.setFloat(1, warningThresholdValueVM.getThreshold1());
             stmUpdateThresholdValue.setFloat(2, warningThresholdValueVM.getThreshold2());
@@ -124,6 +126,22 @@ public class WarningThresholdValueDAOImpl implements WarningThresholdValueDAO {
         } catch (Exception e){
             connection.rollback();
             throw e;
+        } finally {
+            if(stmUpdateThresholdValue!=null){
+                stmUpdateThresholdValue.close();
+            }
+            if(stmDeleteWarningThreshold!=null){
+                stmDeleteWarningThreshold.close();
+            }
+            if(stmUpdateWarningThreshold!=null){
+                stmUpdateWarningThreshold.close();
+            }
+            if(stmCreateWarningThreshold!=null){
+                stmCreateWarningThreshold.close();
+            }
+            if(connection != null){
+                connection.close();
+            }
         }
 
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();

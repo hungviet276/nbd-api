@@ -1,6 +1,7 @@
 package com.neo.nbdapi.utils;
 
 public interface Constants {
+
     class APPLICATION_API {
         public static final String API_PREFIX = "/api/v1";
 
@@ -16,10 +17,13 @@ public interface Constants {
             public static final String URI_STATION = "/station";
             public static final String URI_VALUE_TYPES = "/value-type";
             public static final String URI_CONFIG_VALUE_TYPES = "/config-value-type";
-            public static final String URI_CONFIG_WARNING_THRESOLD = "/warning-thresold";
+            public static final String URI_CONFIG_WARNING_THRESHOLD = "/warning-thresold";
             public static final String URI_CHANGER_PASS = "/changer-pass";
             public static final String URI_CONFIG_WARNING_THRESHOLD_STATION = "/warning-threshold-station";
+            public static final String URI_CONFIG_WARNING_MANAGER_STATION = "/warning-manager-station";
             public static final String URI_MANAGER_OUTPUTS = "/management-of-outputs";
+            public static final String URI_GROUP_MAIL_CONFIG = "/group_mail_config";
+            public static final String URI_CDH_HISTORY = "/cdh-history";
         }
     }
 

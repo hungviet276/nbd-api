@@ -4,13 +4,11 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.UsersManagerVM;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
-public interface ManageOutputService {
+public interface ManageCDHService {
 
     DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
 
@@ -18,5 +16,4 @@ public interface ManageOutputService {
 
     List<ComboBox> getListParameterByStations(String stationId) throws SQLException, BusinessException;
 
-    String getSqlStatement(String stationId,String parameterTypeId,String fromDate,String toDate) throws SQLException, BusinessException;
 }

@@ -6,9 +6,11 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.UserGroupDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.entity.UserGroupDetail;
 import com.neo.nbdapi.entity.UserInfo;
+import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.objsearch.UserGroupSearch;
 import com.neo.nbdapi.utils.Constants;
@@ -21,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import org.apache.logging.log4j.Logger;
 
 import javax.validation.Valid;
 import java.sql.*;
@@ -42,23 +45,28 @@ public class UserGroupController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-stations")
-    public List<Station> getStations() {
-        List<Station> stations = new ArrayList<>();
-        try (Connection connection = ds.getConnection()) {
-            StringBuilder sql = new StringBuilder("select station_id, station_code, station_name from stations where status=1 order by station_code, station_name");
-            PreparedStatement ps = connection.prepareStatement(sql.toString());
-            ResultSet rs = ps.executeQuery();
+    public List<ComboBox> getStations() throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where status=1 order by station_code, station_name");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            List<Object> paramSearch = new ArrayList<>();
+//            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = st.executeQuery();
+            List<ComboBox> list = new ArrayList<>();
+            ComboBox stationType = ComboBox.builder()
+                    .id(-1L)
+                    .text("--Lựa chọn--")
+                    .build();
+            list.add(stationType);
             while (rs.next()) {
-                Station station = Station.builder().stationId(rs.getLong("station_id"))
-                        .stationCode(rs.getString("station_code"))
-                        .stationName(rs.getString("station_name"))
+                stationType = ComboBox.builder()
+                        .id(rs.getLong("station_id"))
+                        .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
                         .build();
-                stations.add(station);
+                list.add(stationType);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            rs.close();
+            return list;
         }
-        return stations;
     }
 
     @GetMapping("/get-user-group-by-id")
@@ -261,23 +269,28 @@ public class UserGroupController {
     }
 
     @GetMapping("/get-user")
-    public List<UserInfo> getUserGroup() {
-        List<UserInfo> userInfos = new ArrayList<>();
-        try (Connection connection = ds.getConnection()) {
-            StringBuilder sql = new StringBuilder("select id, name from user_info where status_id=1 order by id, name");
-            PreparedStatement ps = connection.prepareStatement(sql.toString());
-            ResultSet rs = ps.executeQuery();
+    public List<UserInfo> getUserGroup() throws SQLException, BusinessException{
+        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 and rownum < 100 order by id, name");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            List<Object> paramSearch = new ArrayList<>();
+//            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = st.executeQuery();
+            List<UserInfo> list = new ArrayList<>();
+            UserInfo userInfo = UserInfo.builder()
+                    .id("")
+                    .text("--Không chọn--")
+                    .build();;
+            list.add(userInfo);
             while (rs.next()) {
-                UserInfo userInfo = UserInfo.builder()
+                userInfo = UserInfo.builder()
                         .id(rs.getString("id"))
-                        .name(rs.getString("name"))
+                        .text(rs.getString("id") + " - " + rs.getString("name"))
                         .build();
-                userInfos.add(userInfo);
+                list.add(userInfo);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            rs.close();
+            return list;
         }
-        return userInfos;
     }
 
     @PostMapping("/get-data")
