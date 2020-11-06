@@ -23,6 +23,7 @@ public interface Constants {
             public static final String URI_CONFIG_WARNING_MANAGER_STATION = "/warning-manager-station";
             public static final String URI_MANAGER_OUTPUTS = "/management-of-outputs";
             public static final String URI_GROUP_MAIL_CONFIG = "/group_mail_config";
+            public static final String URI_CDH_HISTORY = "/cdh-history";
         }
     }
 
