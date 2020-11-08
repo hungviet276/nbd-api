@@ -200,7 +200,8 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
 
     @Override
     public DefaultResponseDTO editConfigValuetype(ConfigValueTypeDTO configValueTypeDTO, List<ConfigStationsCommrelateDTO> deletesSpatials, List<ConfigStationsCommrelateDTO> createSpatials) throws Exception {
-        try (Connection connection = ds.getConnection()) {
+        Connection connection = ds.getConnection();
+        try  {
             connection.setAutoCommit(false);
             String sqlUpdateConfig = "update config_value_types set MIN = ? , MAX = ? , VARIABLE_TIME = ? , VARIABLE_SPATIAL = ?, START_APPLY_DATE = ?, END_APPLY_DATE = ?, CODE = ? where ID = ?";
             String sqlDeleteSpatial = "delete from config_stations_commrelate where id  = ?";
@@ -241,6 +242,8 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             stmDeleteSpatial.close();
             stmUpdateConfig.close();
             connection.commit();
+        } finally {
+            connection.close();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }

@@ -33,9 +33,6 @@ public class EditMenuVM {
 
     private String detailFile;
 
-    @NotEmpty(message = "Menu level không được trống")
-    private String menuLevel;
-
     private String parentId;
 
     @NotEmpty(message = "publish không được trống")
