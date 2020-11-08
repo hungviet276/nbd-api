@@ -18,7 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder
 public class Station {
 	private Long id;
-	private Long stationId;
+	private String stationId;
 	private String stationCode;
 	private String stationName;
 	private String stationLongName;
