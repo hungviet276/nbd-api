@@ -24,7 +24,7 @@ public class WarningThresholdValueVM {
 
     @JsonProperty("station_add")
     @NotEmpty(message = "Trạm không được để trống")
-    private Long stationId;
+    private String stationId;
 
     @NotEmpty(message = "Ngưỡng cảnh báo một không được để trống")
     private Float threshold1;
