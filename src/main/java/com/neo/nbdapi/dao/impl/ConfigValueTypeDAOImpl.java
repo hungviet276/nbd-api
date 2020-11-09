@@ -127,7 +127,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             PreparedStatement stmGetCurrentId = connection.prepareStatement(sqlGetCurrentId);
             PreparedStatement stmInsertSpatial = connection.prepareStatement(sqlInsertSpatial);
             // thêm cấu hình trạm mới
-            stmInsertConfig.setLong(1,configValueTypeDTO.getStationId());
+            stmInsertConfig.setString(1,configValueTypeDTO.getStationId());
             stmInsertConfig.setLong(2,configValueTypeDTO.getValueTypeId());
             stmInsertConfig.setFloat(3,configValueTypeDTO.getMin());
             stmInsertConfig.setFloat(4,configValueTypeDTO.getMax());
