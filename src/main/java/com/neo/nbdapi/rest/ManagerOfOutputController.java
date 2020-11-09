@@ -1,5 +1,7 @@
 package com.neo.nbdapi.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
@@ -9,6 +11,7 @@ import com.neo.nbdapi.services.ManageOutputService;
 import com.neo.nbdapi.services.UsersManagerService;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_MANAGER_OUTPUTS)
 public class ManagerOfOutputController {
@@ -31,8 +35,12 @@ public class ManagerOfOutputController {
     @Autowired
     private HikariDataSource ds;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @PostMapping("/get_list_outputs")
-    public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(defaultRequestPagingVM));
         return manageOutputService.getListOutpust(defaultRequestPagingVM);
     }
 

@@ -21,7 +21,7 @@ public class ValueTypeServiceImpl implements ValueTypeService {
     }
 
     @Override
-    public List<ComboBox> getValueTypesWithStationSelect(Long stationId) throws SQLException {
+    public List<ComboBox> getValueTypesWithStationSelect(String stationId) throws SQLException {
         return valueTypeDAO.getValueTypesWithStationSelect(stationId);
     }
 
