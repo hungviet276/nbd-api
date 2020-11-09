@@ -71,7 +71,7 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
                     sql.append(" AND w.id = ? ");
                     paramSearch.add(objectSearch.getId());
                 }
-                if (objectSearch.getStationId() != null) {
+                if (Strings.isNotEmpty(objectSearch.getStationId())) {
                     sql.append(" AND s.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
                 }
@@ -115,7 +115,7 @@ public class WarningThresholdStationServiceImpl implements WarningThresholdStati
             while (resultSetListData.next()) {
                 WarningThresholdStation configValueType = WarningThresholdStation.builder()
                         .id(resultSetListData.getLong("id"))
-                        .stationId(resultSetListData.getLong("station_id"))
+                        .stationId(resultSetListData.getString("station_id"))
                         .parameterId(resultSetListData.getLong("parameter_type_id"))
                         .stationName(resultSetListData.getString("station_name"))
                         .parameterName(resultSetListData.getString("parameter_type_name"))

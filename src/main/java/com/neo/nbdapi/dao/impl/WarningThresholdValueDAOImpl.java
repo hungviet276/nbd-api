@@ -40,7 +40,7 @@ public class WarningThresholdValueDAOImpl implements WarningThresholdValueDAO {
             stmInsertThresholdValue.setFloat(4,warningThresholdValueVM.getThreshold3());
             stmInsertThresholdValue.setFloat(5,warningThresholdValueVM.getThreshold4());
             stmInsertThresholdValue.setFloat(6,warningThresholdValueVM.getThreshold5());
-            stmInsertThresholdValue.setLong(7,warningThresholdValueVM.getStationId());
+            stmInsertThresholdValue.setString(7,warningThresholdValueVM.getStationId());
             stmInsertThresholdValue.executeUpdate();
 
             // insert các bản ghi warning threshold

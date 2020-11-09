@@ -4,6 +4,7 @@ import com.neo.nbdapi.dao.StationDAO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.StationMapDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class StationDAOImpl implements StationDAO {
     private HikariDataSource ds;
 
     @Override
-    public List<ComboBox> getStationComboBox(String query) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(String query) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1";
             if(query!=null && !query.equals("")){
@@ -32,9 +33,9 @@ public class StationDAOImpl implements StationDAO {
                 statement.setString(1,"%"+query+"%");
             }
             ResultSet resultSet = statement.executeQuery();
-            List<ComboBox> comboBoxes = new ArrayList<>();
+            List<ComboBoxStr> comboBoxes = new ArrayList<>();
             while (resultSet.next()) {
-                ComboBox comboBox = ComboBox.builder().id(resultSet.getLong(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
                 comboBoxes.add(comboBox);
             }
             statement.close();

@@ -16,7 +16,7 @@ public class WarningThresholdStation implements Serializable {
 
     private Long id;
 
-    private Long stationId;
+    private String stationId;
 
     private Long parameterId;
 

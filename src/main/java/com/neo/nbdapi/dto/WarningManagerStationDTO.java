@@ -36,7 +36,7 @@ public class WarningManagerStationDTO implements Serializable {
     private String icon;
 
     @JsonProperty("stationWarning")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("createBy")
     private String createBy;
