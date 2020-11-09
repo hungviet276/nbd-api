@@ -60,7 +60,7 @@ public class ConfigValueTypeController {
     }
 
     @GetMapping("/get-value-type-station-select")
-    public List<ComboBox> getValueTypesWithStationSelect(@RequestParam Long idStation) throws  SQLException{
+    public List<ComboBox> getValueTypesWithStationSelect(@RequestParam String idStation) throws  SQLException{
         return valueTypeService.getValueTypesWithStationSelect(idStation);
     }
 
