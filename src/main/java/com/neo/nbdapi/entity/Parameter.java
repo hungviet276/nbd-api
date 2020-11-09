@@ -16,9 +16,13 @@ public class Parameter {
 	private Integer stationParamterId;
 	private Integer paramterTypeId;
 	private String parameterName;
-	private Integer stationId;
+	private String stationId;
 	private Integer timeFrequency;
 	private String uuid;
 	private String unitName;
 	private String note;
+	private String tsConfigName;
+	private Integer tsId;
+	private Integer tsConfigId;
+	private String tsName;
 }

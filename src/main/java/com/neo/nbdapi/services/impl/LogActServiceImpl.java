@@ -93,11 +93,11 @@ public class LogActServiceImpl implements LogActService, Constants {
                         sql.append(" AND created_by LIKE ? ");
                         paramSearch.add("%" + objectSearch.getCreatedBy() + "%");
                     }
-                    if (Strings.isNotEmpty(objectSearch.getFromDate())) {
+                    if (Strings.isNotEmpty(objectSearch.getFromDate()) && DateUtils.isValid(objectSearch.getFromDate(), DateUtils.DEFAULT_DATE_FORMAT)) {
                         sql.append(" AND created_at >= TO_DATE(?, 'dd/mm/yyyy') ");
                         paramSearch.add(objectSearch.getFromDate());
                     }
-                    if (Strings.isNotEmpty(objectSearch.getToDate())) {
+                    if (Strings.isNotEmpty(objectSearch.getToDate()) && DateUtils.isValid(objectSearch.getToDate(), DateUtils.DEFAULT_DATE_FORMAT)) {
                         sql.append(" AND created_at <= TO_DATE(?, 'dd/mm/yyyy') ");
                         paramSearch.add(objectSearch.getToDate());
                     }

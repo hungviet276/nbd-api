@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.neo.nbdapi.entity.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -37,10 +38,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.entity.ComboBox;
-import com.neo.nbdapi.entity.Parameter;
-import com.neo.nbdapi.entity.Station;
-import com.neo.nbdapi.entity.StationTimeSeries;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.StationManagementService;
@@ -63,7 +60,7 @@ public class StationTypeController {
 
     @Autowired
     private PaginationDAO paginationDAO;
-    
+
     @Autowired
     private StationManagementService stationManagementService;
 
@@ -73,8 +70,8 @@ public class StationTypeController {
 
     @GetMapping("/get-list-object-type")
     public List<ComboBox> getListObjectType() throws SQLException, BusinessException {
-    	StringBuilder sql = new StringBuilder("select * from OBJECT_TYPE WHERE 1 = 1 ");
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+        StringBuilder sql = new StringBuilder("select * from OBJECT_TYPE WHERE 1 = 1 ");
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
@@ -98,7 +95,7 @@ public class StationTypeController {
 
     @PostMapping("/get-list-station-pagination")
     public DefaultPaginationDTO getListStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        
+
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
@@ -106,16 +103,16 @@ public class StationTypeController {
             String search = defaultRequestPagingVM.getSearch();
 
             StringBuilder sql = new StringBuilder("select a.*,b1.AREA_NAME, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a ,AREAS b1, PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
-            		"where a.AREA_ID = b1.AREA_ID(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
+                    "where a.AREA_ID = b1.AREA_ID(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                	Map<String,String> params = objectMapper.readValue(search, Map.class);
-                	if (Strings.isNotEmpty(params.get("s_objectType"))) {
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
+                    if (Strings.isNotEmpty(params.get("s_objectType"))) {
                         sql.append(" and g.OBJECT_TYPE = ? ");
                         paramSearch.add(params.get("s_objectType"));
                     }
-                	if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
+                    if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
                         sql.append(" and lower(g.OBJECT_TYPE_SHORTNAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_objectTypeName") + "%");
                     }
@@ -151,7 +148,7 @@ public class StationTypeController {
                         sql.append(" and lower(d.WARD_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_wardName") + "%");
                     }
-                    
+
                     if (Strings.isNotEmpty(params.get("s_address"))) {
                         sql.append(" and lower(a.address) like lower(?) ");
                         paramSearch.add("%" + params.get("s_address") + "%");
@@ -178,7 +175,7 @@ public class StationTypeController {
 
             while (rs.next()) {
                 Station bo = Station.builder()
-                        .stationId(rs.getLong("STATION_ID"))
+                        .stationId(rs.getString("STATION_ID"))
                         .stationCode(rs.getString("STATION_CODE"))
                         .elevation(rs.getFloat("ELEVATION"))
                         .stationName(rs.getString("STATION_NAME"))
@@ -230,12 +227,12 @@ public class StationTypeController {
         if (Strings.isNotEmpty(stationId)) {
             sql.append(" and a.station_id = ? ");
         }
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString())) {
-            st.setString(1,stationId);
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            st.setString(1, stationId);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 Station bo = Station.builder()
-                        .stationId(rs.getLong("STATION_ID"))
+                        .stationId(rs.getString("STATION_ID"))
                         .stationCode(rs.getString("STATION_CODE"))
                         .elevation(rs.getFloat("ELEVATION"))
                         .stationName(rs.getString("STATION_NAME"))
@@ -272,20 +269,20 @@ public class StationTypeController {
 
     @PostMapping("/get-list-station-time-series-pagination")
     public DefaultPaginationDTO getListStationTimeSeriesPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        
+
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.status, e.UNIT_NAME from station_time_series a,stations b, stations_object_type c, PARAMETER_TYPE d, unit e\r\n" + 
-            		" where 1=1 and a.station_id = b.station_id(+) and b.station_id = c.station_id(+) and a.PARAMETERTYPE_ID = d.PARAMETER_TYPE_ID(+) and d.UNIT_ID = e.UNIT_ID ");
+            StringBuilder sql = new StringBuilder("select a.*,b.status, e.UNIT_NAME from station_time_series a,stations b, stations_object_type c, PARAMETER_TYPE d, unit e\r\n" +
+                    " where 1=1 and a.station_id = b.station_id(+) and b.station_id = c.station_id(+) and a.PARAMETERTYPE_ID = d.PARAMETER_TYPE_ID(+) and d.UNIT_ID = e.UNIT_ID ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                	Map<String,String> params = objectMapper.readValue(search, Map.class);
-                	if (Strings.isNotEmpty(params.get("s_tsName"))) {
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
+                    if (Strings.isNotEmpty(params.get("s_tsName"))) {
                         sql.append(" and a.TS_NAME = ? ");
                         paramSearch.add(params.get("s_tsName"));
                     }
@@ -317,7 +314,7 @@ public class StationTypeController {
                         sql.append(" and a.WARD_NAME = ? ");
                         paramSearch.add("%" + params.get("s_wardName") + "%");
                     }
-                    
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -392,14 +389,14 @@ public class StationTypeController {
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
                     if (Strings.isNotEmpty(params.get("s_parameter"))) {
                         sql.append(" and lower(a.PARAMETER_TYPE_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_parameter") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_parameterDesc"))) {
                         sql.append(" and lower(a.PARAMETER_TYPE_DESCRIPTION) like lower(?) ");
-                        paramSearch.add("%" +params.get("s_parameterDesc")+ "%");
+                        paramSearch.add("%" + params.get("s_parameterDesc") + "%");
                     }
                     if (Strings.isNotEmpty(params.get("s_unit"))) {
                         sql.append(" and lower(c.UNIT_NAME) like lower(?) ");
@@ -445,13 +442,13 @@ public class StationTypeController {
     }
 
     @PostMapping("/create-time-series-config")
-    public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO createTimeSeriesConfig(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
 
-        loggerAction.info("{};{}","create-time-series-config",objectMapper.writeValueAsString(params));
+        loggerAction.info("{};{}", "create-time-series-config", objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "insert into TIME_SERIES_CONFIG(TS_CONFIG_ID,TS_CONFIG_NAME,TS_TYPE_ID,STORAGE, UUID) values (TIME_SERIES_CONFIG_SEQ.nextval,?,?,?,?)";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("tsConfigName"));
             statement.setString(i++, params.get("timeTypeId"));
@@ -462,17 +459,17 @@ public class StationTypeController {
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
+        } catch (Exception e) {
             defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+            defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
         }
     }
 
     @PostMapping("/create-parameter-type")
-    public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String,String> params) throws SQLException {
+    public DefaultResponseDTO createParameterType(@RequestBody @Valid Map<String, String> params) throws SQLException {
         String sql = "insert into PARAMETER_TYPE(PARAMETER_TYPE_ID, PARAMETER_TYPE_NAME, PARAMETER_TYPE_DESCRIPTION, UNIT_ID) values (PARAMETER_TYPE_SEQ.nextval,?,?,?)";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, params.get("parameter"));
             statement.setString(2, params.get("parameterDes"));
             statement.setString(3, params.get("unit"));
@@ -483,80 +480,80 @@ public class StationTypeController {
             return defaultResponseDTO;
         }
     }
-    
+
     @PostMapping("/create-parameter")
-    public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO createParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
-    	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "insert into PARAMETER(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY,STATION_ID) values (PARAMETER_KTTV_SEQ.nextval,?,?,?,?)";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "insert into PARAMETER(STATION_PARAMETER_ID, PARAMETER_TYPE_ID, UUID, TIME_FREQUENCY,STATION_ID) values (PARAMETER_KTTV_SEQ.nextval,?,?,?,?)";
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
-        	statement.setString(i++, params.get("parameter"));
+            statement.setString(i++, params.get("parameter"));
             statement.setString(i++, params.get("uuid"));
             statement.setString(i++, params.get("frequency"));
             statement.setString(i++, params.get("stationId"));
             statement.execute();
-            
+
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
-        	defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+        } catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
-		}
+        }
     }
-    
+
     @PostMapping("/delete-parameter")
-    public DefaultResponseDTO deleteParameter(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
-    	DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-    	String sql = "delete from PARAMETER where STATION_PARAMETER_ID = ? ";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+    public DefaultResponseDTO deleteParameter(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "delete from PARAMETER where STATION_PARAMETER_ID = ? ";
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, stationParamterId);
             statement.execute();
-            
+
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
-        	defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
+        } catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
-		}
+        }
     }
 
     @PostMapping("/delete-time-series")
-    public DefaultResponseDTO deleteTimeSeries(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO deleteTimeSeries(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "delete from TIME_SERIES where TS_ID = ? ";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, stationParamterId);
             statement.execute();
 
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
+        } catch (Exception e) {
             defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
+            defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
         }
     }
 
     @PostMapping("/delete-time-series-config")
-    public DefaultResponseDTO deleteTimeSeriesConfig(@RequestParam(name="stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO deleteTimeSeriesConfig(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "delete from TIME_SERIES_CONFIG where TS_CONFIG_ID = ? ";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, stationParamterId);
             statement.execute();
 
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
+        } catch (Exception e) {
             defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Xóa thất bại: "+ e.getMessage());
+            defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
         }
     }
@@ -575,7 +572,7 @@ public class StationTypeController {
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
                     if (Strings.isNotEmpty(params.get("s_uuid"))) {
                         sql.append(" and b.uuid = ?");
                         paramSearch.add(params.get("s_uuid"));
@@ -621,7 +618,7 @@ public class StationTypeController {
 
     @PostMapping("/get-list-station-parameter-pagination")
     public DefaultPaginationDTO getListStationParameterPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        
+
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
@@ -632,17 +629,17 @@ public class StationTypeController {
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                	Map<String,String> params = objectMapper.readValue(search, Map.class);
-                	if (params.get("s_stationId") == null && Strings.isNotEmpty(params.get("s_uuid"))) {
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
+                    if (params.get("s_stationId") == null && Strings.isNotEmpty(params.get("s_uuid"))) {
                         sql.append(" and (uuid = ?)");
                         paramSearch.add(params.get("s_uuid"));
 //                        paramSearch.add(params.get("s_stationId"));
                     }
-                	if (params.get("s_stationId") != null) {
+                    if (params.get("s_stationId") != null) {
                         sql.append(" and STATION_ID = ? ");
                         paramSearch.add(params.get("s_stationId"));
                     }
-                    
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -652,11 +649,11 @@ public class StationTypeController {
             List<Parameter> list = new ArrayList<>();
 
             while (rs.next()) {
-            	Parameter bo = Parameter.builder()
+                Parameter bo = Parameter.builder()
                         .stationParamterId(rs.getInt("STATION_PARAMETER_ID"))
                         .paramterTypeId(rs.getInt("PARAMETER_TYPE_ID"))
                         .parameterName(rs.getString("PARAMETER_TYPE_NAME"))
-                        .stationId(rs.getInt("STATION_ID"))
+                        .stationId(rs.getString("STATION_ID"))
                         .timeFrequency(rs.getInt("TIME_FREQUENCY"))
                         .uuid(rs.getString("UUID"))
                         .unitName(rs.getString("UNIT_NAME"))
@@ -677,11 +674,11 @@ public class StationTypeController {
                     .build();
         }
     }
-    
+
     @PostMapping("/create-object-type")
-    public DefaultResponseDTO createStationType(@RequestBody @Valid Map<String,String> params) throws SQLException {
-    	String sql = "INSERT INTO OBJECT_TYPE(OBJECT_TYPE_ID, OBJECT_TYPE, OBJECT_TYPE_SHORTNAME) values (OBJECT_TYPE_SEQ.nextval, ?,?)";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+    public DefaultResponseDTO createStationType(@RequestBody @Valid Map<String, String> params) throws SQLException {
+        String sql = "INSERT INTO OBJECT_TYPE(OBJECT_TYPE_ID, OBJECT_TYPE, OBJECT_TYPE_SHORTNAME) values (OBJECT_TYPE_SEQ.nextval, ?,?)";
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             statement.setString(1, params.get(""));
             statement.setString(2, params.get(""));
             statement.execute();
@@ -693,48 +690,48 @@ public class StationTypeController {
     }
 
     @PostMapping("/create-station-time-series")
-    public DefaultResponseDTO createStationTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-    	DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateStationTimeSeriesPLSQL(params,true);
-    	return defaultResponseDTO;
+    public DefaultResponseDTO createStationTimeSeries(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateStationTimeSeriesPLSQL(params, true);
+        return defaultResponseDTO;
     }
-    
+
     @PostMapping("/update-station-time-series")
-    public DefaultResponseDTO updateStationTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-    	DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateStationTimeSeriesPLSQL(params,false);
-    	return defaultResponseDTO;
+    public DefaultResponseDTO updateStationTimeSeries(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateStationTimeSeriesPLSQL(params, false);
+        return defaultResponseDTO;
     }
-    
+
     @PostMapping("/delete-station-time-series")
-    public DefaultResponseDTO deleteStationTimeSeries(@RequestParam(name="stationId") @Valid String stationId) throws SQLException, JsonProcessingException {
-    	DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(stationId);
-    	return defaultResponseDTO;
+    public DefaultResponseDTO deleteStationTimeSeries(@RequestParam(name = "stationId") @Valid String stationId) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteStationTimeSeriesPLSQL(stationId);
+        return defaultResponseDTO;
     }
 
     @PostMapping("/create-time-series-config-parameter")
-    public DefaultResponseDTO createTimeSeriesConfigParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params,true);
+    public DefaultResponseDTO createTimeSeriesConfigParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params, true);
         return defaultResponseDTO;
     }
 
     @PostMapping("/update-time-series-config-parameter")
-    public DefaultResponseDTO updateTimeSeriesConfigParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
-        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params,false);
+    public DefaultResponseDTO updateTimeSeriesConfigParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateTimeSeriesConfigParameterPLSQL(params, false);
         return defaultResponseDTO;
     }
 
     @PostMapping("/delete-time-series-config-parameter")
-    public DefaultResponseDTO deleteTimeSeriesConfigParameter(@RequestParam(name="parameterId") @Valid String parameterId) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO deleteTimeSeriesConfigParameter(@RequestParam(name = "parameterId") @Valid String parameterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = stationManagementService.deleteTimeSeriesConfigParameterPLSQL(parameterId);
         return defaultResponseDTO;
     }
 
     @PostMapping("/control")
-    public DefaultResponseDTO controlStation(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO controlStation(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String result = "";
-        try(Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
-            BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
-            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
+        try (Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
+             BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
+             BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
 
             os.write(params.get("command"));
             os.newLine(); // kết thúc dòng
@@ -766,11 +763,11 @@ public class StationTypeController {
     @GetMapping("/get-select-time-series-config")
     public List<ComboBox> getListTimeSeriesConfigCombobox(@RequestParam(name = "parameterId") String parameterId) throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder("select * from time_series_config WHERE 1 = 1 ");
-        if(parameterId != null){
+        if (parameterId != null) {
             sql.append(" and PARAMETER_TYPE_ID = ? ");
         }
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
-            st.setString(1,parameterId);
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            st.setString(1, parameterId);
             ResultSet rs = st.executeQuery();
             List<ComboBox> list = new ArrayList<>();
             ComboBox stationType = ComboBox.builder().id(-1L).text("Lựa chọn").build();
@@ -787,11 +784,11 @@ public class StationTypeController {
     }
 
     @PostMapping("/create-time-series")
-    public DefaultResponseDTO createTimeSeries(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO createTimeSeries(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "insert into TIME_SERIES(TS_ID, TS_NAME, UUID, TS_CONFIG_ID,STATION_ID) values (TIME_SERIES_SEQ.nextval,?,?,?,?)";
-        try (Connection connection = ds.getConnection();PreparedStatement statement = connection.prepareStatement(sql);) {
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("tsName"));
             statement.setString(i++, params.get("uuid"));
@@ -802,9 +799,9 @@ public class StationTypeController {
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
-        }catch (Exception e) {
+        } catch (Exception e) {
             defaultResponseDTO.setStatus(0);
-            defaultResponseDTO.setMessage("Thêm mới thất bại: "+ e.getMessage());
+            defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
         }
     }
@@ -818,11 +815,11 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.* from TIME_SERIES a, TIME_SERIES_CONFIG b where a.TS_CONFIG_ID = b.TS_CONFIG_ID(+)");
+            StringBuilder sql = new StringBuilder("select a.*, b.TS_CONFIG_NAME,b.PARAMETER_TYPE_ID, c.PARAMETER_TYPE_NAME from TIME_SERIES a, TIME_SERIES_CONFIG b, PARAMETER_TYPE c where a.TS_CONFIG_ID = b.TS_CONFIG_ID(+) and b.PARAMETER_TYPE_ID = c.PARAMETER_TYPE_ID(+)");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
                     if (params.get("s_stationId") == null && Strings.isNotEmpty(params.get("s_uuid"))) {
                         sql.append(" and (a.uuid = ?)");
                         paramSearch.add(params.get("s_uuid"));
@@ -843,14 +840,15 @@ public class StationTypeController {
 
             while (rs.next()) {
                 Parameter bo = Parameter.builder()
-                        .stationParamterId(rs.getInt("TS_ID"))
-                        .paramterTypeId(rs.getInt("TS_CONFIG_ID"))
-                        .parameterName(rs.getString("TS_NAME"))
-                        .stationId(rs.getInt("STATION_ID"))
-//                        .timeFrequency(rs.getInt("TIME_FREQUENCY"))
+//                        .stationParamterId(rs.getInt("TS_ID"))
+                        .paramterTypeId(rs.getInt("PARAMETER_TYPE_ID"))
+                        .parameterName(rs.getString("PARAMETER_TYPE_NAME"))
+                        .stationId(rs.getString("STATION_ID"))
+                        .tsConfigName(rs.getString("TS_CONFIG_NAME"))
                         .uuid(rs.getString("UUID"))
-//                        .unitName(rs.getString("UNIT_NAME"))
-                        .note("")
+                        .tsId(rs.getInt("TS_ID"))
+                        .tsConfigId(rs.getInt("TS_CONFIG_ID"))
+                        .tsName(rs.getString("TS_NAME"))
                         .build();
                 list.add(bo);
             }
@@ -869,7 +867,7 @@ public class StationTypeController {
     }
 
     @PostMapping("/export")
-    public ResponseEntity<Resource> export(@RequestBody Map<String,String> params) {
+    public ResponseEntity<Resource> export(@RequestBody Map<String, String> params) {
         String filename = "tutorials.xlsx";
         InputStreamResource file = new InputStreamResource(stationManagementService.export());
 
@@ -893,7 +891,7 @@ public class StationTypeController {
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
-                    Map<String,String> params = objectMapper.readValue(search, Map.class);
+                    Map<String, String> params = objectMapper.readValue(search, Map.class);
                     if (Strings.isNotEmpty(params.get("stationTypeId")) && !"-1".equals(params.get("stationTypeId"))) {
                         sql.append(" and g.OBJECT_TYPE_ID = ? ");
                         paramSearch.add(params.get("stationTypeId"));
@@ -937,7 +935,7 @@ public class StationTypeController {
             while (rs.next()) {
                 Station bo = Station.builder()
                         .id(rs.getLong("ID"))
-                        .stationId(rs.getLong("STATION_ID"))
+                        .stationId(rs.getString("STATION_ID"))
                         .stationCode(rs.getString("STATION_CODE"))
                         .elevation(rs.getFloat("ELEVATION"))
                         .stationName(rs.getString("STATION_NAME"))
@@ -984,21 +982,21 @@ public class StationTypeController {
     }
 
     @GetMapping("/get-list-select-station")
-    public List<ComboBox> getListSelectStation() throws SQLException, BusinessException {
+    public List<ComboBoxStr> getListSelectStation() throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME from stations where ISDEL = 0");
-        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
-            List<ComboBox> list = new ArrayList<>();
-            ComboBox stationType = ComboBox.builder()
-                    .id(-1L)
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
                     .text("Lựa chọn")
                     .build();
             list.add(stationType);
             while (rs.next()) {
-                stationType = ComboBox.builder()
-                        .id(rs.getLong("STATION_ID"))
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("STATION_ID"))
                         .text(rs.getString("STATION_NAME"))
                         .build();
                 list.add(stationType);
@@ -1009,9 +1007,9 @@ public class StationTypeController {
     }
 
     @PostMapping("/create-manual-parameter")
-    public DefaultResponseDTO createManualParameter(@RequestBody @Valid Map<String,String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO createManualParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
-        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params,true);
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params, true);
         return defaultResponseDTO;
     }
 }
