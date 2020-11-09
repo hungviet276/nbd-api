@@ -9,6 +9,7 @@ import com.neo.nbdapi.entity.WarningManagerStation;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
 import com.neo.nbdapi.services.objsearch.WarningManagerStationSearch;
@@ -135,7 +136,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     }
 
     @Override
-    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerVM selectVM) throws SQLException {
+    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException {
         return warningManagerStationDAO.getListParameterWarningConfig(selectVM);
     }
 
