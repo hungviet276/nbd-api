@@ -14,11 +14,13 @@ public class DefaultRequestPagingVM implements Serializable {
     private String draw;
 
     @NotEmpty(message = "start không được trống")
-    @Pattern(regexp = "\\d", message = "start phải là số")
+    @Pattern(regexp = "^[0-9]\\d*$", message = "start phải là số")
     @Size(min = 1, max = 9999999, message = "start trong khoảng 1 đến 9999999")
     private String start;
 
     @NotEmpty(message = "length không được trống")
+    @Pattern(regexp = "^[0-9]\\d*$", message = "length phải là số")
+    @Size(min = 1, max = 9999999, message = "length trong khoảng -1 đến 9999999")
     private String length;
 
     private String search;
