@@ -12,7 +12,7 @@ import java.util.Date;
 
 public class ConfigValueType {
     private Long id;
-    private Long stationId;
+    private String stationId;
     private Long valueTypeId;
     private String stationName;
     private String valueTypename;

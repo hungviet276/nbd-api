@@ -3,6 +3,7 @@ package com.neo.nbdapi.services.impl;
 import com.neo.nbdapi.dao.StationDAO;
 import com.neo.nbdapi.dto.StationMapDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.services.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class StationServiceImpl implements StationService {
     private StationDAO stationDAO;
 
     @Override
-    public List<ComboBox> getStationComboBox(String query) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(String query) throws SQLException {
         return stationDAO.getStationComboBox(query);
     }
 

@@ -16,7 +16,7 @@ public class WarningManagerStationSearch implements Serializable {
     private Long id;
 
     @JsonProperty("s_id_station")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("s_name_station")
     private String stationName;

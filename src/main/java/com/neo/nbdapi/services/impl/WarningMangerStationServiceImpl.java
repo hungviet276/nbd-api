@@ -64,7 +64,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
                     sql.append(" AND w.id = ? ");
                     paramSearch.add(objectSearch.getId());
                 }
-                if (objectSearch.getStationId() != null) {
+                if (Strings.isNotEmpty(objectSearch.getStationId())) {
                     sql.append(" AND s.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
                 }
@@ -100,7 +100,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
             while (resultSetListData.next()) {
                 WarningManagerStation warningManagerStation = WarningManagerStation.builder().
                         id(resultSetListData.getLong("id"))
-                        .stationId(resultSetListData.getLong("station_id"))
+                        .stationId(resultSetListData.getString("station_id"))
                         .stationName(resultSetListData.getString("station_name"))
                         .warningCode(resultSetListData.getString("code"))
                         .warningName(resultSetListData.getString("name"))
