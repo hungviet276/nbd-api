@@ -122,7 +122,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmCreateWarningManageStation.setString(4, warningManagerStationDTO.getContent());
             stmCreateWarningManageStation.setString(5, warningManagerStationDTO.getColor());
             stmCreateWarningManageStation.setString(6, warningManagerStationDTO.getIcon());
-            stmCreateWarningManageStation.setLong(7, warningManagerStationDTO.getStationId());
+            stmCreateWarningManageStation.setString(7, warningManagerStationDTO.getStationId());
             stmCreateWarningManageStation.setString(8, warningManagerStationDTO.getCreateBy());
             stmCreateWarningManageStation.executeUpdate();
 
