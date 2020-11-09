@@ -39,9 +39,9 @@ public class DateUtils {
         }
         try {
 
-            int year = Integer.parseInt(value.substring(0, 4));
-            int month = Integer.parseInt(value.substring(5, 7));
-            int day = Integer.parseInt(value.substring(9, 11));
+            int day = Integer.parseInt(value.substring(0, 2));
+            int month = Integer.parseInt(value.substring(3, 5));
+            int year = Integer.parseInt(value.substring(6, 10));
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormatString);
             Date date = simpleDateFormat.parse(value);
