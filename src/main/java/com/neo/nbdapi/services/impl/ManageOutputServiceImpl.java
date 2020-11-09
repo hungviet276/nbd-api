@@ -184,7 +184,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
             list.add(stationType);
             while (rs.next()) {
                 stationType = ComboBox.builder()
-                        .id(rs.getLong("station_id"))
+                        .idStr(rs.getString("station_id"))
                         .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
                         .build();
                 list.add(stationType);
