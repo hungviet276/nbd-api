@@ -65,4 +65,7 @@ public interface Constants {
     class LOG_ACT {
         public static final String FILE_NAME_EXPORT_LOG_ACT = "log_act";
     }
+    class LOG_CDH {
+        public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
+    }
 }

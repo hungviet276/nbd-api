@@ -6,10 +6,7 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.UserGroupDTO;
-import com.neo.nbdapi.entity.ComboBox;
-import com.neo.nbdapi.entity.Station;
-import com.neo.nbdapi.entity.UserGroupDetail;
-import com.neo.nbdapi.entity.UserInfo;
+import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.objsearch.UserGroupSearch;
@@ -45,21 +42,21 @@ public class UserGroupController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-stations")
-    public List<ComboBox> getStations() throws SQLException, BusinessException {
+    public List<ComboBoxStr> getStations() throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where status=1 order by station_code, station_name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
-            List<ComboBox> list = new ArrayList<>();
-            ComboBox stationType = ComboBox.builder()
-                    .id(-1L)
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
                     .text("--Lựa chọn--")
                     .build();
             list.add(stationType);
             while (rs.next()) {
-                stationType = ComboBox.builder()
-                        .id(rs.getLong("station_id"))
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("station_id"))
                         .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
                         .build();
                 list.add(stationType);

@@ -2,10 +2,12 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.ManageCDHService;
 import com.neo.nbdapi.services.ManageOutputService;
+import com.neo.nbdapi.services.objsearch.SearchCDHHistory;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
 import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
@@ -42,7 +44,7 @@ public class CdhHistoryController {
     }
 
     @GetMapping("/get_list_stations")
-    public List<ComboBox>  get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
+    public List<ComboBoxStr>  get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
         return manageCDHService.getListStations(userId);
     }
 
@@ -51,25 +53,25 @@ public class CdhHistoryController {
         return manageCDHService.getListParameterByStations(stationId);
     }
 
-//    @PostMapping("/export")
-//    public void exportLogCDH(@RequestBody @Valid SearchLogAct searchLogAct, HttpServletResponse response) throws SQLException, IOException {
-//        SXSSFWorkbook workbook = manageCDHService.export(searchLogAct);
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        String fileName = Constants.LOG_ACT.FILE_NAME_EXPORT_LOG_ACT + "_" + DateUtils.getDateAndTimeFileName() + ".xlsx";
-//        try {
-//            workbook.write(byteArrayOutputStream);
-//            byte[] outArray = byteArrayOutputStream.toByteArray();
-//            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//            response.setContentLength(outArray.length);
-//            response.setHeader("Expires", "0");
-//            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-//            OutputStream outputStream = response.getOutputStream();
-//            outputStream.write(outArray);
-//            outputStream.flush();
-//        } finally {
-//            byteArrayOutputStream.close();
-//            workbook.dispose();
-//            workbook.close();
-//        }
-//    }
+    @PostMapping("/export")
+    public void exportLogCDH(@RequestBody @Valid SearchCDHHistory searchCDHHistory, HttpServletResponse response) throws SQLException, IOException {
+        SXSSFWorkbook workbook = manageCDHService.export(searchCDHHistory);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        String fileName = Constants.LOG_CDH.FILE_NAME_EXPORT_LOG_CDH + "_" + DateUtils.getDateAndTimeFileName() + ".xlsx";
+        try {
+            workbook.write(byteArrayOutputStream);
+            byte[] outArray = byteArrayOutputStream.toByteArray();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setContentLength(outArray.length);
+            response.setHeader("Expires", "0");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            OutputStream outputStream = response.getOutputStream();
+            outputStream.write(outArray);
+            outputStream.flush();
+        } finally {
+            byteArrayOutputStream.close();
+            workbook.dispose();
+            workbook.close();
+        }
+    }
 }
