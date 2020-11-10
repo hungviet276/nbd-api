@@ -69,7 +69,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                     SearchOutputsManger objectSearch = objectMapper.readValue(search, SearchOutputsManger.class);
                     System.out.println("objectSearch.getTableproductName()---------------" +objectSearch.getTableproductName());
                     if (Strings.isNotEmpty(objectSearch.getTableproductName())) {
-                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI') timestampChar,pr.status,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
                         sql.append(" join " + objectSearch.getTableproductName() + " pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
                         sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1");
 
@@ -119,7 +119,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                         }
                         sql.append(" order by timestamp desc");
                     }else{
-                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH:MI') timestampChar,pr.timestamp,pr.status,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
                         sql.append(" join temperature pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
                         sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where rownum < 1");
                     }
@@ -135,15 +135,19 @@ public class ManageOutputServiceImpl implements ManageOutputService {
 
             while (resultSetListData.next()) {
                 StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                        .stationId(resultSetListData.getString("STATION_ID"))
                         .objectTypeShortName(resultSetListData.getString("object_type_shortname"))
                         .stationNo(resultSetListData.getString("station_no"))
                         .stationName(resultSetListData.getString("station_name"))
+                        .parameterTypeId(resultSetListData.getInt("PARAMETERTYPE_ID"))
                         .parameterTypeName(resultSetListData.getString("parametertype_name"))
                         .PrValue(resultSetListData.getInt("value"))
                         .prTimestamp(resultSetListData.getString("timestampChar"))
                         .siteName(resultSetListData.getString("site_name"))
                         .PrWarning(resultSetListData.getInt("warning"))
                         .PrCreatedUser(resultSetListData.getString("create_user"))
+                        .status(resultSetListData.getInt("STATUS"))
+                        .productId(resultSetListData.getLong("PRODUCT_ID"))
                         .build();
                 stationTimeSeriesList.add(stationTimeSeries);
 

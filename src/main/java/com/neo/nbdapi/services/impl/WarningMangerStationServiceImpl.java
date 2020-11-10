@@ -9,6 +9,7 @@ import com.neo.nbdapi.entity.WarningManagerStation;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
 import com.neo.nbdapi.services.objsearch.WarningManagerStationSearch;
@@ -64,7 +65,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
                     sql.append(" AND w.id = ? ");
                     paramSearch.add(objectSearch.getId());
                 }
-                if (objectSearch.getStationId() != null) {
+                if (Strings.isNotEmpty(objectSearch.getStationId())) {
                     sql.append(" AND s.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
                 }
@@ -100,7 +101,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
             while (resultSetListData.next()) {
                 WarningManagerStation warningManagerStation = WarningManagerStation.builder().
                         id(resultSetListData.getLong("id"))
-                        .stationId(resultSetListData.getLong("station_id"))
+                        .stationId(resultSetListData.getString("station_id"))
                         .stationName(resultSetListData.getString("station_name"))
                         .warningCode(resultSetListData.getString("code"))
                         .warningName(resultSetListData.getString("name"))
@@ -135,7 +136,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     }
 
     @Override
-    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerVM selectVM) throws SQLException {
+    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException {
         return warningManagerStationDAO.getListParameterWarningConfig(selectVM);
     }
 

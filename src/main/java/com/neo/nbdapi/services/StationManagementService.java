@@ -423,24 +423,24 @@ public class StationManagementService {
 		DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
 		String sql ="";
 		if(isNew) {
-			sql = "begin ? := STATION.create_manual_parameter(?,?,?,?,?,?,?,?,?,?); end;";
+			sql = "begin ? := STATION.create_manual_parameter(?,?,?,?,?,?); end;";
 		}else {
-			sql = "begin ? := STATION.update_manual_parameter(?,?,?,?,?,?,?,?,?,?,?); end;";
+			sql = "begin ? := STATION.update_manual_parameter(?,?,?,?,?,?,?); end;";
 		}
 		try(Connection con = ds.getConnection();CallableStatement st = con.prepareCall(sql);) {
 			log.info(objectMapper.writeValueAsString(params));
 			int i = 2;
 			if(!isNew) {
-				st.setString(i++,params.get("id"));
+				st.setString(i++,params.get("productId"));
 			}
 			st.setString(i++,params.get("stationCodeN"));
-			st.setString(i++,params.get("pSalinity"));
-			st.setString(i++,params.get("pWT"));
-			st.setString(i++,params.get("pConductivity"));
+//			st.setString(i++,params.get("pSalinity"));
+//			st.setString(i++,params.get("pWT"));
+//			st.setString(i++,params.get("pConductivity"));
 			st.setString(i++,params.get("timestampN"));
-			st.setString(i++,params.get("salinity"));
-			st.setString(i++,params.get("waterTemperature"));
-			st.setString(i++,params.get("conductivity"));
+			st.setString(i++,params.get("value"));
+//			st.setString(i++,params.get("waterTemperature"));
+			st.setString(i++,params.get("type_parameter"));
 			st.setString(i++,params.get("statusN"));
 			st.setString(i++,params.get("username"));
 			st.registerOutParameter(1, Types.VARCHAR);

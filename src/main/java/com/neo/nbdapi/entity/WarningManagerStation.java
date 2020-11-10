@@ -17,7 +17,7 @@ public class WarningManagerStation  implements Serializable {
 
     private Long id;
 
-    private Long stationId;
+    private String stationId;
 
     private String stationName;
 

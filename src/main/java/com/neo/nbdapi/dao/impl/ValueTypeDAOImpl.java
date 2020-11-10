@@ -46,11 +46,11 @@ public class ValueTypeDAOImpl implements ValueTypeDAO {
     }
 
     @Override
-    public List<ComboBox> getValueTypesWithStationSelect(Long stationId) throws SQLException {
+    public List<ComboBox> getValueTypesWithStationSelect(String stationId) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String sql = "select v.parameter_type_id, v.parameter_type_code, v.parameter_type_name from parameter_type v inner join parameter s on v.parameter_type_id = s.parameter_type_id where s.station_id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, stationId);
+            statement.setString(1, stationId);
             ResultSet resultSet = statement.executeQuery();
             List<ComboBox> comboBoxes = new ArrayList<>();
             logger.info("ValueTypeDAOImpl query : {}", sql);

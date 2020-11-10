@@ -16,7 +16,7 @@ public class ConfigValueTypeDTO {
     private Long id;
 
     @JsonProperty("station_add")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("value_type_station")
     private Long valueTypeId;

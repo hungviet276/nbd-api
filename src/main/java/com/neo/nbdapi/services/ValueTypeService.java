@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface ValueTypeService {
     List<ComboBox> getValueTypesSelect(@RequestBody SelectVM selectVM) throws SQLException;
-    List<ComboBox> getValueTypesWithStationSelect(@RequestParam Long stationId) throws SQLException;
+    List<ComboBox> getValueTypesWithStationSelect(@RequestParam String stationId) throws SQLException;
     public ComboBox getStationValueType(Long stationId, Long valueTypeId) throws SQLException;
 }

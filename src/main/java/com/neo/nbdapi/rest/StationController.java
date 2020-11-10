@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.StationMapDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.services.StationService;
 import com.neo.nbdapi.utils.Constants;
@@ -21,7 +22,7 @@ public class StationController {
     private StationService stationService;
 
     @PostMapping("/station-select")
-    public List<ComboBox> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
         return stationService.getStationComboBox(selectVM.getTerm());
     }
 

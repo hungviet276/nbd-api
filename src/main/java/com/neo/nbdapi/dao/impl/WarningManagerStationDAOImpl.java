@@ -7,6 +7,7 @@ import com.neo.nbdapi.dto.WarningManagerStationDTO;
 import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThresholdINF;
+import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +29,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     private HikariDataSource ds;
 
     @Override
-    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerVM selectVM) throws SQLException {
+    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             String sql = "select DISTINCT pt.parameter_type_id, pt.parameter_type_code, pt.parameter_type_name from warning_threshold_value wv inner join parameter_type pt on pt.parameter_type_id = wv.parameter_type_id where wv.station_id = ?";
@@ -39,7 +40,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             if(selectVM.getId()==null){
                 return comboBoxes;
             }
-            statement.setLong(1, selectVM.getId());
+            statement.setString(1, selectVM.getId());
             if(selectVM.getTerm()!=null){
                 statement.setString(2, "%"+selectVM.getTerm()+"%");
                 statement.setString(3, "%"+selectVM.getTerm()+"%");
@@ -122,7 +123,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmCreateWarningManageStation.setString(4, warningManagerStationDTO.getContent());
             stmCreateWarningManageStation.setString(5, warningManagerStationDTO.getColor());
             stmCreateWarningManageStation.setString(6, warningManagerStationDTO.getIcon());
-            stmCreateWarningManageStation.setLong(7, warningManagerStationDTO.getStationId());
+            stmCreateWarningManageStation.setString(7, warningManagerStationDTO.getStationId());
             stmCreateWarningManageStation.setString(8, warningManagerStationDTO.getCreateBy());
             stmCreateWarningManageStation.executeUpdate();
 

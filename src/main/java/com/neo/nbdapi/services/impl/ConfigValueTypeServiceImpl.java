@@ -118,7 +118,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
             while (resultSetListData.next()) {
                 ConfigValueType configValueType = ConfigValueType.builder()
                         .id(resultSetListData.getLong("id"))
-                        .stationId(resultSetListData.getLong("station_id"))
+                        .stationId(resultSetListData.getString("station_id"))
                         .valueTypeId(resultSetListData.getLong("parameter_type_id"))
                         .stationName(resultSetListData.getString("station_name"))
                         .valueTypename(resultSetListData.getString("parameter_type_name"))

@@ -14,7 +14,7 @@ public class WarningThresholdStationSearch implements Serializable {
     private Long id;
 
     @JsonProperty("s_id_station")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("s_parameter_type_id")
     private Long parameterId;

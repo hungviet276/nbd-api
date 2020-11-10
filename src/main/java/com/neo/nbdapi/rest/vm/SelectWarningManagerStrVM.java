@@ -5,16 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SelectWarningManagerVM implements Serializable {
+public class SelectWarningManagerStrVM implements Serializable {
+
     private String term;
+
     private String _type;
-    @NotNull(message = "id không được để trống")
-    private Long id;
+
+    @NotEmpty(message = "Thiếu id trạm")
+    private String id;
 }
