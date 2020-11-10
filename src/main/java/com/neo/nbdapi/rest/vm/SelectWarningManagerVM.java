@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Data
@@ -14,5 +15,6 @@ import java.io.Serializable;
 public class SelectWarningManagerVM implements Serializable {
     private String term;
     private String _type;
+    @NotNull(message = "id không được để trống")
     private Long id;
 }
