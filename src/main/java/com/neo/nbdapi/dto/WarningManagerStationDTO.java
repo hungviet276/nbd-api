@@ -23,7 +23,7 @@ public class WarningManagerStationDTO implements Serializable {
     @NotEmpty(message = "Không được để trống mã cảnh báo")
     @JsonProperty("codeWarning")
     @Size(min = 1, max = 50, message = "Độ dài code trong khoảng 1 đến 50")
-    @Pattern(regexp = "^[A-Z,1-9]+$", message = "Mã cảnh báo phải thuộc bảng chữ cái tiếng anh hoặc là số, phải được viết hoa không có ký tự đặc biệt")
+    @Pattern(regexp = "^[A-Z,0-9]+$", message = "Mã cảnh báo phải thuộc bảng chữ cái tiếng anh hoặc là số, phải được viết hoa không có ký tự đặc biệt")
     private String code;
 
     @NotEmpty(message = "Không được để trống tên cảnh báo")
