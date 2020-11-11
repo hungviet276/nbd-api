@@ -131,8 +131,16 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             stmInsertConfig.setLong(2,configValueTypeDTO.getValueTypeId());
             stmInsertConfig.setFloat(3,configValueTypeDTO.getMin());
             stmInsertConfig.setFloat(4,configValueTypeDTO.getMax());
-            stmInsertConfig.setFloat(5, configValueTypeDTO.getVariableTime());
-            stmInsertConfig.setFloat(6, configValueTypeDTO.getVariableSpatial());
+            if( configValueTypeDTO.getVariableTime() == null){
+                stmInsertConfig.setNull(5, Types.FLOAT);
+            } else{
+                stmInsertConfig.setFloat(5, configValueTypeDTO.getVariableTime());
+            }
+            if(configValueTypeDTO.getVariableSpatial() == null){
+                stmInsertConfig.setNull(6, Types.FLOAT);
+            } else{
+                stmInsertConfig.setFloat(6, configValueTypeDTO.getVariableSpatial());
+            }
             if(configValueTypeDTO.getStartDateApply()!=null){
                 stmInsertConfig.setDate(7,new Date(configValueTypeDTO.getStartDateApply().getTime()));
             } else{
@@ -212,8 +220,16 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             // sửa các thông tin của cấu hình
             stmUpdateConfig.setFloat(1,configValueTypeDTO.getMin());
             stmUpdateConfig.setFloat(2,configValueTypeDTO.getMax());
-            stmUpdateConfig.setFloat(3, configValueTypeDTO.getVariableTime());
-            stmUpdateConfig.setFloat(4, configValueTypeDTO.getVariableSpatial());
+            if( configValueTypeDTO.getVariableTime() == null){
+                stmUpdateConfig.setNull(3, Types.FLOAT);
+            } else{
+                stmUpdateConfig.setFloat(3, configValueTypeDTO.getVariableTime());
+            }
+            if(configValueTypeDTO.getVariableSpatial() == null){
+                stmUpdateConfig.setNull(4, Types.FLOAT);
+            } else{
+                stmUpdateConfig.setFloat(4, configValueTypeDTO.getVariableSpatial());
+            }
             stmUpdateConfig.setDate(5,new Date(configValueTypeDTO.getStartDateApply().getTime()));
             stmUpdateConfig.setDate(6,new Date(configValueTypeDTO.getEndDateApply().getTime()));
             stmUpdateConfig.setString(7,configValueTypeDTO.getCode());
