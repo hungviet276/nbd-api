@@ -56,7 +56,7 @@ public class WarningManagerStationController {
         return warningMangerStationService.editWarningManagerStation(warningManagerStationDTO);
     }
     @DeleteMapping
-    public DefaultResponseDTO deleteWarningManagerStation(@RequestParam Long id) throws SQLException{
-        return warningMangerStationService.deleteWarningManagerStation(id);
+    public DefaultResponseDTO deleteWarningManagerStation(@RequestBody List<Long> ids) throws SQLException{
+        return warningMangerStationService.deleteWarningManagerStation(ids);
     }
 }

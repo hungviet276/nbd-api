@@ -243,7 +243,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     }
 
     @Override
-    public DefaultResponseDTO deleteWarningManagerStation(Long id) throws SQLException {
+    public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException {
         String sqlDeleteManager = "delete from warning_manage_stations where id =?";
         String sqlDeleteDetail = "delete from warning_manage_detail where warning_manage_station_id = ?";
 
@@ -253,12 +253,14 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             PreparedStatement stmDetateManager = connection.prepareStatement(sqlDeleteManager);
             PreparedStatement stmDeleteDetail = connection.prepareStatement(sqlDeleteDetail);
 
-            stmDeleteDetail.setLong(1,id);
-            stmDeleteDetail.executeUpdate();
-
-            stmDetateManager.setLong(1, id);
-            stmDetateManager.executeUpdate();
-
+            for (Long tmp: id) {
+                stmDeleteDetail.setLong(1,tmp);
+                stmDeleteDetail.addBatch();
+                stmDetateManager.setLong(1, tmp);
+                stmDetateManager.addBatch();
+            }
+            stmDeleteDetail.executeBatch();
+            stmDetateManager.executeBatch();
             connection.commit();
 
         } catch (Exception e){
