@@ -200,7 +200,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     }
 
     @Override
-    public DefaultResponseDTO deleteWarningManagerStation(Long id) throws SQLException {
+    public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException {
         return warningManagerStationDAO.deleteWarningManagerStation(id);
     }
 }
