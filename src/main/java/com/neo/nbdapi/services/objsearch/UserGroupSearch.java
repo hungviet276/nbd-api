@@ -22,4 +22,7 @@ public class UserGroupSearch implements Serializable {
 
     @JsonProperty("s_Trangthai")
     private String status;
+
+    @JsonProperty("s_level")
+    private String level;
 }

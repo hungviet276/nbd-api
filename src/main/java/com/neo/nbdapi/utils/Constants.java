@@ -24,6 +24,7 @@ public interface Constants {
             public static final String URI_MANAGER_OUTPUTS = "/management-of-outputs";
             public static final String URI_GROUP_MAIL_CONFIG = "/group-mail-config";
             public static final String URI_CDH_HISTORY = "/cdh-history";
+            public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
         }
     }
 
