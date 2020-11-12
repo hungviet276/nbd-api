@@ -5,9 +5,11 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.WarningManagerStationDTO;
 import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
@@ -58,5 +60,10 @@ public class WarningManagerStationController {
     @DeleteMapping
     public DefaultResponseDTO deleteWarningManagerStation(@RequestBody List<Long> ids) throws SQLException{
         return warningMangerStationService.deleteWarningManagerStation(ids);
+    }
+
+    @PostMapping("/warning-manager-select")
+    public List<ComboBoxStr> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
+        return warningMangerStationService.getWarningComboBox(selectVM);
     }
 }

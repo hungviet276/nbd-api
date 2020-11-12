@@ -6,7 +6,9 @@ import com.neo.nbdapi.dto.WarningManagerDetailDTO;
 import com.neo.nbdapi.dto.WarningManagerStationDTO;
 import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
+import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.zaxxer.hikari.HikariDataSource;
@@ -276,5 +278,28 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         }
 
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
+
+    @Override
+    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "select id,code, name from warning_manage_stations where 1 = 1";
+            if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
+                sql = sql+ " code like ? or name like ?";
+            }
+            sql = sql + " and rownum < 100";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
+                statement.setString(1,"%"+selectVM.getTerm()+"%");
+            }
+            ResultSet resultSet = statement.executeQuery();
+            List<ComboBoxStr> comboBoxes = new ArrayList<>();
+            while (resultSet.next()) {
+                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                comboBoxes.add(comboBox);
+            }
+            statement.close();
+            return comboBoxes;
+        }
     }
 }

@@ -5,10 +5,12 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.WarningManagerStationDAO;
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningManagerStation;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
@@ -202,5 +204,10 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     @Override
     public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException {
         return warningManagerStationDAO.deleteWarningManagerStation(id);
+    }
+
+    @Override
+    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException {
+        return warningManagerStationDAO.getWarningComboBox(selectVM);
     }
 }

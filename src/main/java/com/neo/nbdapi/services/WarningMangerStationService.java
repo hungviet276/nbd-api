@@ -2,9 +2,11 @@ package com.neo.nbdapi.services;
 
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 
@@ -20,4 +22,5 @@ public interface WarningMangerStationService {
     public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
     public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
     public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
+    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException ;
 }
