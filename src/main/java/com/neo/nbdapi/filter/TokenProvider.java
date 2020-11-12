@@ -2,10 +2,15 @@ package com.neo.nbdapi.filter;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neo.nbdapi.dao.UserInfoDAO;
+import com.neo.nbdapi.entity.UserInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.casbin.jcasbin.main.Enforcer;
@@ -40,6 +45,12 @@ public class TokenProvider {
     @Autowired
     private Enforcer enforcer;
 
+    @Autowired
+    UserInfoDAO userInfoDAO;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
     @PostConstruct
     public void init() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
@@ -52,7 +63,7 @@ public class TokenProvider {
      * @param authentication
      * @return
      */
-    public String createToken(Authentication authentication) {
+    public String createToken(Authentication authentication) throws SQLException, JsonProcessingException {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -60,10 +71,11 @@ public class TokenProvider {
         long now = (new Date()).getTime();
         Date validity;
         validity = new Date(now + this.tokenValidityInMilliseconds);
-
+        UserInfo userInfo = userInfoDAO.findUserInfo(authentication.getName());
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
+                .claim("userBO",objectMapper.writeValueAsString(userInfo))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
@@ -89,9 +101,8 @@ public class TokenProvider {
 
         // log test
         logger.debug("username: {}", claims.getSubject());
-        System.out.println(claims.getSubject());
 
-        if (claims.getSubject() == null /*|| !enforcer.enforce(claims.getSubject(), path, method)*/) { // thang sua o day
+        if (claims.getSubject() != null && !enforcer.enforce(claims.getSubject(), path, method)) { // thang sua o day
             return new UsernamePasswordAuthenticationToken(null, token, authorities);
         }
 

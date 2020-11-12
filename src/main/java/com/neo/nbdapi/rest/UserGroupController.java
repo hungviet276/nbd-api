@@ -6,10 +6,7 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.UserGroupDTO;
-import com.neo.nbdapi.entity.ComboBox;
-import com.neo.nbdapi.entity.Station;
-import com.neo.nbdapi.entity.UserGroupDetail;
-import com.neo.nbdapi.entity.UserInfo;
+import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.objsearch.UserGroupSearch;
@@ -45,21 +42,21 @@ public class UserGroupController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-stations")
-    public List<ComboBox> getStations() throws SQLException, BusinessException {
+    public List<ComboBoxStr> getStations() throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where status=1 order by station_code, station_name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
-            List<ComboBox> list = new ArrayList<>();
-            ComboBox stationType = ComboBox.builder()
-                    .id(-1L)
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
                     .text("--Lựa chọn--")
                     .build();
             list.add(stationType);
             while (rs.next()) {
-                stationType = ComboBox.builder()
-                        .id(rs.getLong("station_id"))
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("station_id"))
                         .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
                         .build();
                 list.add(stationType);
@@ -96,7 +93,7 @@ public class UserGroupController {
                         .groupLevel(rs.getInt("group_level"))
                         .description(rs.getString("description"))
                         .groupParent(rs.getLong("group_parent"))
-                        .stationId(rs.getLong("station_id"))
+                        .stationId(rs.getString("station_id"))
                         .groupLevel(rs.getInt("group_level"))
                         .status(rs.getInt("status"))
                         .users(users)
@@ -116,7 +113,7 @@ public class UserGroupController {
         try (Connection connection = ds.getConnection()) {
             StringBuilder sql = new StringBuilder("select id, name, group_level from group_user_info where status=1 and station_id=? order by name");
             PreparedStatement ps = connection.prepareStatement(sql.toString());
-            ps.setLong(1, Long.parseLong(stationId));
+            ps.setString(1, stationId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 UserGroupDTO uGroup = UserGroupDTO.builder().id(rs.getLong("id"))
@@ -140,8 +137,8 @@ public class UserGroupController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             User userLogin = (User) auth.getPrincipal();
             connection.setAutoCommit(false);
-            StringBuilder sql = new StringBuilder("begin ?:= group_user_info_seq.nextval; insert into group_user_info(id,name,description,create_by,create_at,group_parent,group_level,station_id,status) " +
-                    "values (group_user_info_seq.currval,?,?,?,sysdate,?,?,?,?); end;");
+            StringBuilder sql = new StringBuilder("begin ?:= group_user_info_seq.nextval; insert into group_user_info(id,name,description,create_by,create_at,group_parent,group_level,station_id,status,is_delete) " +
+                    "values (group_user_info_seq.currval,?,?,?,sysdate,?,?,?,?,0); end;");
             ps = connection.prepareCall(sql.toString());
             ps.registerOutParameter(1, Types.INTEGER);
             ps.setString(2, userGroup.getName());
@@ -149,7 +146,7 @@ public class UserGroupController {
             ps.setString(4, userLogin.getUsername());
             ps.setLong(5, userGroup.getGroupParent());
             ps.setInt(6, userGroup.getGroupLevel());
-            ps.setLong(7, userGroup.getStationId());
+            ps.setString(7, userGroup.getStationId());
             ps.setInt(8, userGroup.getStatus());
 
             ps.executeUpdate();
@@ -201,7 +198,7 @@ public class UserGroupController {
             ps.setString(3, userLogin.getUsername());
             ps.setLong(4, userGroup.getGroupParent());
             ps.setInt(5, userGroup.getGroupLevel());
-            ps.setLong(6, userGroup.getStationId());
+            ps.setString(6, userGroup.getStationId());
             ps.setInt(7, userGroup.getStatus());
             ps.setLong(8, userGroup.getId());
             ps.setLong(9, userGroup.getId());
@@ -245,10 +242,11 @@ public class UserGroupController {
         CallableStatement ps = null;
         try {
             connection.setAutoCommit(false);
-            StringBuilder sql = new StringBuilder("begin delete from group_detail where group_id=?; delete from group_user_info where id=?; end;");
+//            StringBuilder sql = new StringBuilder("begin delete from group_detail where group_id=?; delete from group_user_info where id=?; end;");
+            StringBuilder sql = new StringBuilder("begin update group_user_info set is_delete = 1 where id in (select id from (select id,group_parent,name from group_user_info  CONNECT BY PRIOR id=group_parent   start with id in (select id from group_user_info where group_parent= ?)  ORDER SIBLINGS BY id,group_parent,name)); end;");
             ps = connection.prepareCall(sql.toString());
             ps.setLong(1, userGroup.getId());
-            ps.setLong(2, userGroup.getId());
+//            ps.setLong(2, userGroup.getId());
 
             ps.executeUpdate();
             ps.close();
@@ -300,9 +298,9 @@ public class UserGroupController {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             StringBuilder sql = new StringBuilder("select a.id, a.name, a.description,a.create_by, a.create_at, a.modify_by, " +
-                    "a.modify_at, a.group_parent, c.name parent, a.group_level,a.station_id,a.status,b.station_name " +
+                    "a.modify_at, a.group_parent, c.name parent, a.group_level,a.station_id,a.status,case when a.status = 1 then 'Hoạt động' else 'Không hoạt động' end statusStr,b.station_name " +
                     "from group_user_info a inner join stations b on a.station_id = b.station_id " +
-                    "left join group_user_info c on a.group_parent=c.id where 1 = 1");
+                    "left join group_user_info c on a.group_parent=c.id where a.is_delete = 0");
             String search = defaultRequestPagingVM.getSearch();
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
@@ -312,7 +310,7 @@ public class UserGroupController {
                         sql.append(" AND a.name like ? ");
                         paramSearch.add("%" + objectSearch.getGroupName() + "%");
                     }
-                    if (Strings.isNotEmpty(objectSearch.getStationName())) {
+                    if (Strings.isNotEmpty(objectSearch.getGroupParentName())) {
                         sql.append(" AND c.name like ? ");
                         paramSearch.add("%" + objectSearch.getGroupParentName() + "%");
                     }
@@ -324,10 +322,17 @@ public class UserGroupController {
                         sql.append(" AND b.station_name like ? ");
                         paramSearch.add("%" + objectSearch.getStationName() + "%");
                     }
+                    System.out.println("objectSearch.getLevel() === "+objectSearch.getLevel());
+                    if (Strings.isNotEmpty(objectSearch.getLevel())) {
+                        sql.append(" AND a.group_level = ? ");
+                        paramSearch.add(objectSearch.getLevel());
+                    }
+                    sql.append(" order by parent,a.group_level ");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            System.out.println(sql);
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
@@ -342,9 +347,10 @@ public class UserGroupController {
                         .groupParent(resultSetListData.getInt("group_parent"))
                         .groupParentName(resultSetListData.getString("parent"))
                         .groupLevel(resultSetListData.getInt("group_level"))
-                        .stationId(resultSetListData.getLong("station_id"))
+                        .stationId(resultSetListData.getString("station_id"))
                         .status(resultSetListData.getInt("status"))
                         .stationsName(resultSetListData.getString("station_name"))
+                        .statusStr(resultSetListData.getString("statusStr"))
                         .build();
                 userGroupDTOS.add(userGroupDTO);
             }

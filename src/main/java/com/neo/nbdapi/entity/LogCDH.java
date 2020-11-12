@@ -28,4 +28,5 @@ public class LogCDH {
 	private String stationName;
 	private String createdUser;
 	private String endPustTimeStr;
+
 }

@@ -12,19 +12,24 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SearchCDHHistory implements Serializable {
+public class SearchSendMailHistory implements Serializable {
+    @JsonProperty("s_stationId")
+    String stationId;
+
     @JsonProperty("s_stationNo")
     String station_no;
 
     @JsonProperty("s_stationName")
     String station_name;
 
+    @JsonProperty("s_warningId")
+    String warningId;
 
-    @JsonProperty("s_parameterName")
-    String parameterName;
+    @JsonProperty("s_warning_code")
+    String warningCode;
 
-    @JsonProperty("s_createModify")
-    String createModify;
+    @JsonProperty("s_warning_name")
+    String warningName;
 
     @JsonProperty("s_status")
     String status;
@@ -37,15 +42,4 @@ public class SearchCDHHistory implements Serializable {
 
     @JsonProperty("s_todate")
     String toDate;
-
-    @JsonProperty("s_station_id")
-    String station_id;
-
-    @JsonProperty("s_valueType_id")
-    String valueType_id;
-
-    @JsonProperty("s_userCreate")
-    String userCreate;
-
-
 }

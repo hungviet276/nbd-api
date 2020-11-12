@@ -6,9 +6,9 @@ import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.ManageCDHService;
-import com.neo.nbdapi.services.ManageOutputService;
+import com.neo.nbdapi.services.SendMailHistoryService;
 import com.neo.nbdapi.services.objsearch.SearchCDHHistory;
-import com.neo.nbdapi.services.objsearch.SearchLogAct;
+import com.neo.nbdapi.services.objsearch.SearchSendMailHistory;
 import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
@@ -27,37 +27,37 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_CDH_HISTORY)
-public class CdhHistoryController {
+@RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_SEND_MAIL_HISTORY)
+public class SendMailController {
 
-    private Logger logger = LogManager.getLogger(CdhHistoryController.class);
+    private Logger logger = LogManager.getLogger(SendMailController.class);
 
     @Autowired
-    private ManageCDHService manageCDHService;
+    private SendMailHistoryService sendMailHistoryService;
 
     @Autowired
     private HikariDataSource ds;
 
     @PostMapping("/get_list_outputs")
     public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        return manageCDHService.getListOutpust(defaultRequestPagingVM);
+        return sendMailHistoryService.getListOutpust(defaultRequestPagingVM);
     }
 
     @GetMapping("/get_list_stations")
     public List<ComboBoxStr>  get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
-        return manageCDHService.getListStations(userId);
+        return sendMailHistoryService.getListStations(userId);
     }
 
     @GetMapping("/getList_parameter_byStationId")
     public List<ComboBox>  getListParameterByStations(@RequestParam("stationId") String stationId) throws SQLException, BusinessException {
-        return manageCDHService.getListParameterByStations(stationId);
+        return sendMailHistoryService.getLstWarningManagerByStationId(stationId);
     }
 
     @PostMapping("/export")
-    public void exportLogCDH(@RequestBody @Valid SearchCDHHistory searchCDHHistory, HttpServletResponse response) throws SQLException, IOException {
-        SXSSFWorkbook workbook = manageCDHService.export(searchCDHHistory);
+    public void exportLogCDH(@RequestBody @Valid SearchSendMailHistory searchSendMailHistory, HttpServletResponse response) throws SQLException, IOException {
+        SXSSFWorkbook workbook = sendMailHistoryService.export(searchSendMailHistory);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        String fileName = Constants.LOG_CDH.FILE_NAME_EXPORT_LOG_CDH + "_" + DateUtils.getDateAndTimeFileName() + ".xlsx";
+        String fileName = "LOG_SEND_MAIL_" + "_" + DateUtils.getDateAndTimeFileName() + ".xlsx";
         try {
             workbook.write(byteArrayOutputStream);
             byte[] outArray = byteArrayOutputStream.toByteArray();

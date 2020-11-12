@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class StationTimeSeries {
 	private Integer tsId;
 	private String tsName;
-	private Integer stationId;
+	private String stationId;
 	private Integer tsTypeId;
 	private Integer parameterTypeId;
 	private String parameterTypeName;
@@ -49,4 +49,5 @@ public class StationTimeSeries {
 	private Integer PrWarning;
 	private String PrCreatedUser;
 	private String PrCreatedDate;
+	private Long productId;
 }

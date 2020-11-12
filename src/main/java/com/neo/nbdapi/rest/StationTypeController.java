@@ -328,7 +328,7 @@ public class StationTypeController {
                 StationTimeSeries bo = StationTimeSeries.builder()
                         .tsId(rs.getInt("TS_ID"))
                         .tsName(rs.getString("TS_NAME"))
-                        .stationId(rs.getInt("STATION_ID"))
+                        .stationId(rs.getString("STATION_ID"))
                         .tsTypeId(rs.getInt("TS_TYPE_ID"))
                         .parameterTypeId(rs.getInt("PARAMETERTYPE_ID"))
                         .parameterTypeName(rs.getString("PARAMETERTYPE_NAME"))
@@ -522,6 +522,7 @@ public class StationTypeController {
         }
     }
 
+    //phan nay can check lai, neu da co du lieu thu thap thi khong dk xoa ts_id do di
     @PostMapping("/delete-time-series")
     public DefaultResponseDTO deleteTimeSeries(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
@@ -815,7 +816,7 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*, b.TS_CONFIG_NAME,b.PARAMETER_TYPE_ID, c.PARAMETER_TYPE_NAME from TIME_SERIES a, TIME_SERIES_CONFIG b, PARAMETER_TYPE c where a.TS_CONFIG_ID = b.TS_CONFIG_ID(+) and b.PARAMETER_TYPE_ID = c.PARAMETER_TYPE_ID(+)");
+            StringBuilder sql = new StringBuilder("select a.*, b.TS_CONFIG_NAME,b.PARAMETER_TYPE_ID, c.PARAMETER_TYPE_NAME, d.UNIT_NAME from TIME_SERIES a, TIME_SERIES_CONFIG b, PARAMETER_TYPE c, unit d where a.TS_CONFIG_ID = b.TS_CONFIG_ID(+) and b.PARAMETER_TYPE_ID = c.PARAMETER_TYPE_ID(+) and c.UNIT_ID = d.UNIT_ID(+)");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -840,7 +841,7 @@ public class StationTypeController {
 
             while (rs.next()) {
                 Parameter bo = Parameter.builder()
-//                        .stationParamterId(rs.getInt("TS_ID"))
+                        .unitName(rs.getString("UNIT_NAME"))
                         .paramterTypeId(rs.getInt("PARAMETER_TYPE_ID"))
                         .parameterName(rs.getString("PARAMETER_TYPE_NAME"))
                         .stationId(rs.getString("STATION_ID"))
@@ -1010,6 +1011,13 @@ public class StationTypeController {
     public DefaultResponseDTO createManualParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));
         DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params, true);
+        return defaultResponseDTO;
+    }
+
+    @PostMapping("/update-manual-parameter")
+    public DefaultResponseDTO updateManualParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+        log.info(objectMapper.writeValueAsString(params));
+        DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params, false);
         return defaultResponseDTO;
     }
 }

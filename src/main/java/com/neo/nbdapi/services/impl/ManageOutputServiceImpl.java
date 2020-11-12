@@ -5,6 +5,7 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.StationTimeSeries;
 import com.neo.nbdapi.entity.UserInfo;
 import com.neo.nbdapi.exception.BusinessException;
@@ -68,7 +69,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                     SearchOutputsManger objectSearch = objectMapper.readValue(search, SearchOutputsManger.class);
                     System.out.println("objectSearch.getTableproductName()---------------" +objectSearch.getTableproductName());
                     if (Strings.isNotEmpty(objectSearch.getTableproductName())) {
-                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI') timestampChar,pr.status,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
                         sql.append(" join " + objectSearch.getTableproductName() + " pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
                         sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1");
 
@@ -118,7 +119,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                         }
                         sql.append(" order by timestamp desc");
                     }else{
-                        sql.append("select * from (select st.*,ot.object_type_shortname,to_char(pr.timestamp,'DD/MM/YYYY HH:MI:SS') timestampChar,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH:MI') timestampChar,pr.timestamp,pr.status,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
                         sql.append(" join temperature pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
                         sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where rownum < 1");
                     }
@@ -134,15 +135,19 @@ public class ManageOutputServiceImpl implements ManageOutputService {
 
             while (resultSetListData.next()) {
                 StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                        .stationId(resultSetListData.getString("STATION_ID"))
                         .objectTypeShortName(resultSetListData.getString("object_type_shortname"))
                         .stationNo(resultSetListData.getString("station_no"))
                         .stationName(resultSetListData.getString("station_name"))
+                        .parameterTypeId(resultSetListData.getInt("PARAMETERTYPE_ID"))
                         .parameterTypeName(resultSetListData.getString("parametertype_name"))
                         .PrValue(resultSetListData.getInt("value"))
                         .prTimestamp(resultSetListData.getString("timestampChar"))
                         .siteName(resultSetListData.getString("site_name"))
                         .PrWarning(resultSetListData.getInt("warning"))
                         .PrCreatedUser(resultSetListData.getString("create_user"))
+                        .status(resultSetListData.getInt("STATUS"))
+                        .productId(resultSetListData.getLong("PRODUCT_ID"))
                         .build();
                 stationTimeSeriesList.add(stationTimeSeries);
 
@@ -170,21 +175,21 @@ public class ManageOutputServiceImpl implements ManageOutputService {
     }
 
     @Override
-    public List<ComboBox> getListStations(String userId) throws SQLException, BusinessException {
+    public List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where status = 1 and rownum < 100 ");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
-            List<ComboBox> list = new ArrayList<>();
-            ComboBox stationType = ComboBox.builder()
-                    .id(-1L)
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
                     .text("Lựa chọn")
                     .build();
             list.add(stationType);
             while (rs.next()) {
-                stationType = ComboBox.builder()
-                        .id(rs.getLong("station_id"))
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("station_id"))
                         .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
                         .build();
                 list.add(stationType);

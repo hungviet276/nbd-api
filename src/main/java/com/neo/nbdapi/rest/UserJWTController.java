@@ -1,6 +1,7 @@
 package com.neo.nbdapi.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.filter.JWTFilter;
 import com.neo.nbdapi.filter.TokenProvider;
@@ -55,7 +56,7 @@ public class UserJWTController {
      * @throws SQLException
      */
     @PostMapping
-    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException {
+    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException, JsonProcessingException {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);

@@ -7,6 +7,7 @@ import com.neo.nbdapi.dto.WarningManagerStationDTO;
 import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThresholdINF;
+import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -14,10 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     private HikariDataSource ds;
 
     @Override
-    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerVM selectVM) throws SQLException {
+    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             String sql = "select DISTINCT pt.parameter_type_id, pt.parameter_type_code, pt.parameter_type_name from warning_threshold_value wv inner join parameter_type pt on pt.parameter_type_id = wv.parameter_type_id where wv.station_id = ?";
@@ -39,7 +37,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             if(selectVM.getId()==null){
                 return comboBoxes;
             }
-            statement.setLong(1, selectVM.getId());
+            statement.setString(1, selectVM.getId());
             if(selectVM.getTerm()!=null){
                 statement.setString(2, "%"+selectVM.getTerm()+"%");
                 statement.setString(3, "%"+selectVM.getTerm()+"%");
@@ -59,7 +57,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     public List<ComboBox> getListParameterWarningThreshold(SelectWarningManagerVM selectVM) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
-            String sql = "select wt.id, wt.code from warning_threshold wt inner join warning_threshold_value wv on wt.warning_threshold_value_id = wv.id where wt.status = 1 and wv.parameter_type_id = ?";
+            String sql = "select wt.id, wt.code from warning_threshold wt inner join warning_threshold_value wv on wt.warning_threshold_value_id = wv.id where wv.parameter_type_id = ?";
             if(selectVM.getTerm()!=null){
                 sql+="  and wt.code like ? ";
             }
@@ -143,6 +141,9 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmCreateWarningManagerDetail.close();
         } catch (Exception e){
             logger.info("WarningManagerStationDAOImpl Exception : {}",e.getMessage());
+            if(e instanceof SQLIntegrityConstraintViolationException){
+                return DefaultResponseDTO.builder().status(0).message("Mã cảnh báo đã tồn tại").build();
+            }
              return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
         } finally {
             connection.close();
@@ -233,8 +234,11 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
              stmCreate.close();
 
         } catch (Exception e){
+            logger.info("WarningManagerStationDAOImpl Exception : {}",e.getMessage());
+            if(e instanceof SQLIntegrityConstraintViolationException){
+                return DefaultResponseDTO.builder().status(0).message("Mã cảnh báo đã tồn tại").build();
+            }
             logger.info("WarningManagerStationDAOImpl exception : {}",e.getMessage());
-            throw  e;
         } finally {
             connection.close();
         }
@@ -242,7 +246,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     }
 
     @Override
-    public DefaultResponseDTO deleteWarningManagerStation(Long id) throws SQLException {
+    public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException {
         String sqlDeleteManager = "delete from warning_manage_stations where id =?";
         String sqlDeleteDetail = "delete from warning_manage_detail where warning_manage_station_id = ?";
 
@@ -252,12 +256,14 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             PreparedStatement stmDetateManager = connection.prepareStatement(sqlDeleteManager);
             PreparedStatement stmDeleteDetail = connection.prepareStatement(sqlDeleteDetail);
 
-            stmDeleteDetail.setLong(1,id);
-            stmDeleteDetail.executeUpdate();
-
-            stmDetateManager.setLong(1, id);
-            stmDetateManager.executeUpdate();
-
+            for (Long tmp: id) {
+                stmDeleteDetail.setLong(1,tmp);
+                stmDeleteDetail.addBatch();
+                stmDetateManager.setLong(1, tmp);
+                stmDetateManager.addBatch();
+            }
+            stmDeleteDetail.executeBatch();
+            stmDetateManager.executeBatch();
             connection.commit();
 
         } catch (Exception e){
