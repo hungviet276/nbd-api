@@ -19,10 +19,11 @@ public class UserGroupDTO {
     private long groupParent;
     private String groupParentName;
     private int groupLevel;
-    private long stationId;
+    private String stationId;
     private String stationsName;
     private String description;
     private int status;
+    private String statusStr;
     private String createBy;
     private Date createAt;
     private String modifyBy;
