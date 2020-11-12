@@ -2,6 +2,7 @@ package com.neo.nbdapi.services;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.UsersManagerVM;
@@ -14,7 +15,7 @@ public interface ManageOutputService {
 
     DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
 
-    List<ComboBox> getListStations(String userId) throws SQLException, BusinessException;
+    List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException;
 
     List<ComboBox> getListParameterByStations(String stationId) throws SQLException, BusinessException;
 

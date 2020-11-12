@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Data
@@ -15,6 +17,7 @@ public class WarningManagerDetailDTO  implements Serializable {
 
     private  Long id;
 
+    @NotNull(message = "Mã cảnh báo không được để trống")
     private Long warningThresholdId;
 
     private String createBy;

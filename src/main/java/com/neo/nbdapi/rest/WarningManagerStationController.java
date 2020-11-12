@@ -8,6 +8,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
 import com.neo.nbdapi.utils.Constants;
@@ -29,20 +30,20 @@ public class WarningManagerStationController {
         return warningMangerStationService.getListWarningThresholdStation(defaultRequestPagingVM);
     }
     @PostMapping("/get-list-param-warning-config")
-    public List<ComboBox> getListParameterWarningConfig(@RequestBody SelectWarningManagerVM selectVM) throws SQLException{
+    public List<ComboBox> getListParameterWarningConfig(@RequestBody @Valid SelectWarningManagerStrVM selectVM) throws SQLException{
         return warningMangerStationService.getListParameterWarningConfig(selectVM);
     }
     @PostMapping("/get-list-warning-config-threshold")
-    public List<ComboBox> getListParameterWarningThreshold(@RequestBody SelectWarningManagerVM selectVM) throws SQLException{
+    public List<ComboBox> getListParameterWarningThreshold(@RequestBody @Valid SelectWarningManagerVM selectVM) throws SQLException{
         return warningMangerStationService.getListParameterWarningThreshold(selectVM);
     }
     @GetMapping("/get-info-warning-threshold")
-    WarningThresholdINF getInFoWarningThreshold(@RequestParam  Long idThreshold) throws SQLException{
+    WarningThresholdINF getInFoWarningThreshold(@RequestParam Long idThreshold) throws SQLException{
         return warningMangerStationService.getInFoWarningThreshold(idThreshold);
     }
 
     @PostMapping
-    DefaultResponseDTO createWarningManagerStation(@RequestBody WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
+    DefaultResponseDTO createWarningManagerStation(@RequestBody @Valid WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
         return warningMangerStationService.createWarningManagerStation(warningManagerStationDTO);
     }
     @GetMapping("/get-warning-manager-detail")
@@ -51,11 +52,11 @@ public class WarningManagerStationController {
     }
 
     @PutMapping
-    public DefaultResponseDTO editWarningManagerStation( @RequestBody WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
+    public DefaultResponseDTO editWarningManagerStation( @RequestBody @Valid WarningManagerStationDTO warningManagerStationDTO) throws SQLException{
         return warningMangerStationService.editWarningManagerStation(warningManagerStationDTO);
     }
     @DeleteMapping
-    public DefaultResponseDTO deleteWarningManagerStation(@RequestParam Long id) throws SQLException{
-        return warningMangerStationService.deleteWarningManagerStation(id);
+    public DefaultResponseDTO deleteWarningManagerStation(@RequestBody List<Long> ids) throws SQLException{
+        return warningMangerStationService.deleteWarningManagerStation(ids);
     }
 }

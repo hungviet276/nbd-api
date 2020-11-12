@@ -22,8 +22,9 @@ public interface Constants {
             public static final String URI_CONFIG_WARNING_THRESHOLD_STATION = "/warning-threshold-station";
             public static final String URI_CONFIG_WARNING_MANAGER_STATION = "/warning-manager-station";
             public static final String URI_MANAGER_OUTPUTS = "/management-of-outputs";
-            public static final String URI_GROUP_MAIL_CONFIG = "/group_mail_config";
+            public static final String URI_GROUP_MAIL_CONFIG = "/group-mail-config";
             public static final String URI_CDH_HISTORY = "/cdh-history";
+            public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
         }
     }
 
@@ -64,5 +65,8 @@ public interface Constants {
 
     class LOG_ACT {
         public static final String FILE_NAME_EXPORT_LOG_ACT = "log_act";
+    }
+    class LOG_CDH {
+        public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
     }
 }
