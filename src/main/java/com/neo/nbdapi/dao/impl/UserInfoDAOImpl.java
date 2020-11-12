@@ -49,6 +49,9 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .password(resultSet.getString(2))
                         .build();
             }
+            if(statement != null){
+                statement.close();
+            }
             if (userInfo == null)
                 throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
             return userInfo;
@@ -83,6 +86,9 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .build();
                 nameUserDTOs.add(nameUserDTO);
             }
+            if(statement != null){
+                statement.close();
+            }
         }
         return nameUserDTOs;
     }
@@ -106,7 +112,38 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .build();
                 nameUserDTOs.add(nameUserDTO);
             }
+            if(statement != null){
+                statement.close();
+            }
         }
         return nameUserDTOs;
+    }
+
+    @Override
+    public UserInfo findUserInfo(String username) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            UserInfo userInfo = null;
+            String sql = "SELECT id, NAME, POSITION FROM user_info WHERE id = ?";
+            // log sql
+            logger.debug("JDBC execute query : {}", sql);
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userInfo = UserInfo
+                        .builder()
+                        .id(resultSet.getString(1))
+                        .name(resultSet.getString(2))
+                        .position(resultSet.getString(3))
+                        .build();
+            }
+            if(statement != null){
+                statement.close();
+            }
+            if (userInfo == null)
+                throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
+            return userInfo;
+        }
     }
 }

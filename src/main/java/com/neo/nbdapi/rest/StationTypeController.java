@@ -522,6 +522,7 @@ public class StationTypeController {
         }
     }
 
+    //phan nay can check lai, neu da co du lieu thu thap thi khong dk xoa ts_id do di
     @PostMapping("/delete-time-series")
     public DefaultResponseDTO deleteTimeSeries(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
