@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UrlApi {
-    private int id;
-
-    private String url;
-
-    private String method;
-
-    private int menuId;
+public class CasbinRule {
+    private String pType;
+    private String v0;
+    private String v1;
+    private String v2;
+    private String v3;
+    private String v4;
+    private String v5;
 }

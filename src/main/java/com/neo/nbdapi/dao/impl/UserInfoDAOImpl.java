@@ -60,30 +60,19 @@ public class UserInfoDAOImpl implements UserInfoDAO {
         List<NameUserDTO> nameUserDTOs = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             NameUserDTO nameUserDTO = null;
-            String sql = "select u.id, u.name, u.email from user_info u where 1 = 1";
-
-            if(selectGroupDTO.getTerm() != null){
-                sql += " and (u.name like ? or u.name like ? or u.email like ?)";
-            } else if(selectGroupDTO.getIdGroup()!= null){
-                sql +=" and u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
+            String sql = "";
+            if(selectGroupDTO.getTerm() == null){
+                sql = "select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
+            } else{
+                sql = "select id, name from user_info where select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)and u.name like ? and rownum < 100";
             }
-            sql+= " and rownum < 100";
             // log sql
             logger.debug("JDBC execute query : {}", sql);
 
             PreparedStatement statement = connection.prepareStatement(sql);
-
-            if(selectGroupDTO.getTerm() != null && selectGroupDTO.getIdGroup()== null){
-                statement.setString(1, "%"+ selectGroupDTO.getTerm()+"%");
+            statement.setLong(1, selectGroupDTO.getIdGroup());
+            if(selectGroupDTO.getTerm() != null){
                 statement.setString(2, "%"+ selectGroupDTO.getTerm()+"%");
-                statement.setString(3, "%"+ selectGroupDTO.getTerm()+"%");
-            } else if(selectGroupDTO.getTerm() != null && selectGroupDTO.getIdGroup()!= null){
-                statement.setString(1, "%"+ selectGroupDTO.getTerm()+"%");
-                statement.setString(2, "%"+ selectGroupDTO.getTerm()+"%");
-                statement.setString(3, "%"+ selectGroupDTO.getTerm()+"%");
-                statement.setLong(4, selectGroupDTO.getIdGroup());
-            } else if (selectGroupDTO.getTerm() == null && selectGroupDTO.getIdGroup()!= null) {
-                statement.setLong(1, selectGroupDTO.getIdGroup());
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -91,7 +80,6 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .builder()
                         .id(resultSet.getString("id"))
                         .name(resultSet.getString("name"))
-                        .email(resultSet.getString("email"))
                         .build();
                 nameUserDTOs.add(nameUserDTO);
             }

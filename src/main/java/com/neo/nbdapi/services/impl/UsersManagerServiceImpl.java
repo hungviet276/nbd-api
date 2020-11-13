@@ -87,7 +87,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                         }
 //                        if (Strings.isNotEmpty(objectSearch.getCheckRole())) {
 //                            sql.append(" AND group_name like ? ");
-//                            paramSearch.add("%" + objectSearch.getCheckRole() + "%");
+//                            paramSearch.addCasbin("%" + objectSearch.getCheckRole() + "%");
 //                        }
                         if (Strings.isNotEmpty(objectSearch.getCardNumber())) {
                             sql.append(" AND card_number like ? ");
