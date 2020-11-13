@@ -26,9 +26,10 @@ public class StationController {
         return stationService.getStationComboBox(selectVM.getTerm());
     }
 
-    @GetMapping(value = "/get-all-station", produces = {"text/csv;charset=UTF-8"})
+    @GetMapping(value = "/get-all-station-csv", produces = {"application/vnd.ms-excel:UTF-8"})
     public String geAllStation(HttpServletResponse httpServletResponse) throws SQLException {
-        MediaType mediaType = new MediaType("text", "csv", StandardCharsets.UTF_8);
+        httpServletResponse.setContentType("application/vnd.ms-excel:UTF-8"); // or you can use text/csv
+        httpServletResponse.setHeader("Content-Disposition", "attachment; filename=all_station.csv");
          return writeToStringCsv(stationService.getAllStation());
     }
 
@@ -37,6 +38,7 @@ public class StationController {
         // append header to csv data
         output.append("latitude,longtitude,stationId,stationCode,stationName,elevation,image,transMiss,address,areaName,isActive,stationTypeName").append("\n");
         stationMapDTOList.forEach(stationMapDTO -> {
+            System.out.println(stationMapDTO);
             output.append(stationMapDTO.getLatitude())
                     .append(",")
                     .append(stationMapDTO.getLongtitude())

@@ -54,7 +54,7 @@ public class StationDAOImpl implements StationDAO {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 StationMapDTO stationMapDTO = StationMapDTO.builder()
-                        .stationId(resultSet.getLong("station_id"))
+                        .stationId(resultSet.getString("station_id"))
                         .stationCode(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .image(resultSet.getString("image"))
