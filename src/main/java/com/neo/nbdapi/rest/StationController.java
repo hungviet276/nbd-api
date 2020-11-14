@@ -26,9 +26,8 @@ public class StationController {
         return stationService.getStationComboBox(selectVM.getTerm());
     }
 
-    @GetMapping(value = "/get-all-station-csv", produces = {"application/vnd.ms-excel:UTF-8"})
+    @GetMapping(value = "/get-all-station-csv", produces = {"text/csv"})
     public String geAllStation(HttpServletResponse httpServletResponse) throws SQLException {
-        httpServletResponse.setContentType("application/vnd.ms-excel:UTF-8"); // or you can use text/csv
         httpServletResponse.setHeader("Content-Disposition", "attachment; filename=all_station.csv");
          return writeToStringCsv(stationService.getAllStation());
     }
