@@ -26,6 +26,7 @@ public interface Constants {
             public static final String URI_CDH_HISTORY = "/cdh-history";
             public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
             public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
+            public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
         }
     }
 

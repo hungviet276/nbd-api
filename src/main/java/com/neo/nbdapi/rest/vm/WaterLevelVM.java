@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -13,12 +13,21 @@ import java.io.Serializable;
 @Builder
 public class WaterLevelVM implements Serializable {
 
-    private String idStation;
+    private Long id;
 
-    private Long idWaterLevel;
+    private Long tsId;
 
-    private Integer valueWaterLevel;
+    private Integer value;
+
+    private Integer status;
+
+    private Integer manual;
+
+    private Integer warning;
+
+    private String timestamp;
+
+    private String stationId;
 
     private String user;
-
 }

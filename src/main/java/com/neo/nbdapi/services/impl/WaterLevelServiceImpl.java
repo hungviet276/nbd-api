@@ -2,10 +2,16 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
+import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.VariableTime;
+import com.neo.nbdapi.entity.VariablesSpatial;
 import com.neo.nbdapi.entity.WaterLevel;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
+import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.services.WaterLevelService;
 import com.neo.nbdapi.services.objsearch.WaterLevelSearch;
 import com.zaxxer.hikari.HikariDataSource;
@@ -35,6 +41,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     @Autowired
     private PaginationDAO paginationDAO;
+
+    @Autowired
+    private WaterLevelDAO waterLevelDAO;
 
     @Override
     public DefaultPaginationDTO getListWaterLevel(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
@@ -131,5 +140,59 @@ public class WaterLevelServiceImpl implements WaterLevelService {
                     .content(waterLevels)
                     .build();
         }
+    }
+
+    @Override
+    public DefaultResponseDTO updateWaterLevel(WaterLevelVM waterLevelVM) throws SQLException {
+        List<Object> datas = waterLevelDAO.queryInformation(waterLevelVM);
+        if(datas == null){
+            return  DefaultResponseDTO.builder().status(-1).message("Lỗi lấy ra các thông số được cài đặt").build();
+        }
+        VariableTime variableTime = null;
+        List<VariablesSpatial> variablesSpatials = null;
+        Float nearest = null;
+
+        variableTime = (VariableTime) datas.get(0);
+
+        variablesSpatials = (List<VariablesSpatial>) datas.get(1);
+
+        nearest = (Float) datas.get(2);
+        Boolean continude = false;
+        if(waterLevelVM.getValue() < variableTime.getMin()){
+            waterLevelVM.setWarning(2);
+            continude = true;
+        }
+
+        if(waterLevelVM.getValue() > variableTime.getMax() && !continude){
+            waterLevelVM.setWarning(3);
+            continude = true;
+            //update và return
+        }
+
+        if(nearest!=null){
+            if(Math.abs(waterLevelVM.getValue() - nearest) > variableTime.getVariableTime() && !continude){
+                waterLevelVM.setWarning(4);
+                continude = true;
+            }
+        }
+
+        if(!continude){
+            for(VariablesSpatial variablesSpatial : variablesSpatials){
+                if(waterLevelVM.getValue() -variablesSpatial.getMin() > variablesSpatial.getVariableSpatial()){
+                    waterLevelVM.setWarning(5);
+                    break;
+                } else if(waterLevelVM.getValue() -variablesSpatial.getMax() > variablesSpatial.getVariableSpatial()){
+                    waterLevelVM.setWarning(5);
+                    break;
+                }
+            }
+        }
+        return waterLevelDAO.updateWaterLevel(waterLevelVM);
+    }
+
+    @Override
+    public List<WaterLevel> getListWaterLevelByTime(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, BusinessException {
+        //List<WaterLevel> list = waterLevelDAO.getListWaterLevelByTime(defaultRequestPagingVM);
+        return null;
     }
 }

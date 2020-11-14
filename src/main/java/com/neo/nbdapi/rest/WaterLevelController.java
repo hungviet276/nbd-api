@@ -4,6 +4,7 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
 import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.services.WaterLevelService;
 import com.neo.nbdapi.utils.Constants;
@@ -24,7 +25,12 @@ public class WaterLevelController {
     }
 
     @PostMapping("/update-water-level")
-    public DefaultResponseDTO updateWaterLevel(@RequestParam WaterLevelVM waterLevelVM){
+    public DefaultResponseDTO updateWaterLevel(@RequestBody WaterLevelVM waterLevelVM) throws SQLException {
+        return waterLevelService.updateWaterLevel(waterLevelVM);
+    }
+
+    @PostMapping("/exec-water-level")
+    public DefaultResponseDTO excuteWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
         return null;
     }
 
