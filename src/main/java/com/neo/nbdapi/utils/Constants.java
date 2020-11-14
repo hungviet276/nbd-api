@@ -25,6 +25,9 @@ public interface Constants {
             public static final String URI_GROUP_MAIL_CONFIG = "/group-mail-config";
             public static final String URI_CDH_HISTORY = "/cdh-history";
             public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
+
+            // module report
+            public static final String URI_REPORT = "/report";
         }
     }
 

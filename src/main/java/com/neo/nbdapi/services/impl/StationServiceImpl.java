@@ -5,6 +5,7 @@ import com.neo.nbdapi.dto.StationMapDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.services.StationService;
+import com.neo.nbdapi.utils.CsvUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
-    public List<StationMapDTO> getAllStation() throws SQLException {
-        return stationDAO.getAllStationMap();
+    public String getAllStationCsv() throws SQLException {
+        String header = "stationId,stationCode,stationName,image,longitude,latitude,transMiss,address,areaName,isActive,stationTypeName";
+        return CsvUtils.writeToCsvText(stationDAO.getAllStation(), header);
     }
 }
