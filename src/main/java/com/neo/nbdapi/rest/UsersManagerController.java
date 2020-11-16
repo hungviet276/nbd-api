@@ -1,6 +1,7 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultDeleteVM;
@@ -85,5 +86,9 @@ public class UsersManagerController {
     @PostMapping("/delete_temp")
     public String deleteTemp(@RequestParam("tempId") String tempId, @RequestParam("threadId") String threadId) throws SQLException, BusinessException {
         return usersManagerService.deleteTemp(tempId,threadId);
+    }
+    @DeleteMapping
+    public DefaultResponseDTO deleteUsersMutil(@RequestParam Long id) throws SQLException{
+        return usersManagerService.deleteUsersMutil(id);
     }
 }
