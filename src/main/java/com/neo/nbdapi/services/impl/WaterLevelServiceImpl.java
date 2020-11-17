@@ -24,9 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -254,11 +252,28 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             }
             print.flush();
             print.close();
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            Process process = processBuilder.start();
+
+            processBuilder.command("bash", "-c", "ls /home/tb5/harmony_constant");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String s = "Đây là log của đức Anh";
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                s = s +line;
+            }
+            logger.info("==============================================================>");
+            logger.info("==============================================================>");
+            logger.info(s);
+            logger.info("<==============================================================");
+            logger.info("<==============================================================");
 
         }
         catch (FileNotFoundException | ParseException e ) {
             e.printStackTrace();
             return DefaultResponseDTO.builder().status(0).message("Không thành công : " + e.getMessage()).build();
+        } catch (IOException e) {
+            logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
