@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.entity.ParameterChartMapping;
 import com.neo.nbdapi.entity.ParameterChartMappingAndData;
+import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.GetParameterChartMappingAndDataVM;
 import com.neo.nbdapi.services.ReportService;
 import com.neo.nbdapi.utils.Constants;
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.sql.SQLException;
 
 /**
  * @author thanglv on 11/14/2020
@@ -24,7 +28,7 @@ public class ReportController {
     private ReportService reportService;
 
     @PostMapping("/get-parameter-chart-mapping-and-data")
-    public ParameterChartMappingAndData getgetParameterChartMappingAndData(@RequestBody GetParameterChartMappingAndDataVM request) {
-        return reportService.getgetParameterChartMappingAndData(request);
+    public ParameterChartMappingAndData getgetParameterChartMappingAndData(@RequestBody @Valid GetParameterChartMappingAndDataVM request) throws SQLException, BusinessException {
+        return reportService.getParameterChartMappingAndData(request);
     }
 }

@@ -2,6 +2,7 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.ParameterChartMappingDAO;
 import com.neo.nbdapi.entity.ParameterChartMapping;
+import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -37,7 +38,7 @@ public class ParameterChartMappingDAOImpl implements ParameterChartMappingDAO {
                         .id(resultSet.getLong("id"))
                         .parameterTypeId(resultSet.getLong("parameter_type_id"))
                         .templateDir(resultSet.getString("template_dir"))
-                        .createdDate(resultSet.getDate("created_date"))
+                        .createdDate(DateUtils.getStringFromDateFormat(resultSet.getDate("created_date"), "dd/MM/yyyy HH:mm"))
                         .createdBy(resultSet.getString("created_by"))
                         .build();
             }

@@ -72,4 +72,11 @@ public interface Constants {
     class LOG_CDH {
         public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
     }
+
+    class STATION {
+        public static final int ACTIVE = 1;
+        public static final int IS_DEL_FALSE = 0;
+        public static final int IS_DEL_TRUE = 1;
+        public static final int IN_ACTIVE = 0;
+    }
 }

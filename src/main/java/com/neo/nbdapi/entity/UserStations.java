@@ -9,28 +9,22 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @author thanglv on 11/14/2020
+ * @author thanglv on 11/16/2020
  * @project NBD
  */
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
-public class ParameterChartMapping implements Serializable {
-
-    // id cua bang
+public class UserStations implements Serializable {
     private Long id;
 
-    // id cua yeu to
-    private Long parameterTypeId;
+    private String stationId;
 
-    // duong dan html bieu do
-    private String templateDir;
+    private String userId;
 
-    // ngay tao
-    private String createdDate;
+    private Date createdDate;
 
-    // nguoi tao
     private String createdBy;
 }

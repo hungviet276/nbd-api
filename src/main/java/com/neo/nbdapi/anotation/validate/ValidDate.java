@@ -1,4 +1,4 @@
-package com.neo.nbdapi.config;
+package com.neo.nbdapi.anotation.validate;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
