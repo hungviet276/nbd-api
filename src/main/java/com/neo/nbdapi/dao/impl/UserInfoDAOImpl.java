@@ -1,9 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.UserInfoDAO;
-import com.neo.nbdapi.dto.GroupDetail;
-import com.neo.nbdapi.dto.NameUserDTO;
-import com.neo.nbdapi.dto.SelectGroupDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.UserInfo;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +27,6 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
     /**
      * get user info by username
-     *
      * @param username
      * @return
      * @throws SQLException
@@ -52,6 +49,9 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .password(resultSet.getString(2))
                         .build();
             }
+            if(statement != null){
+                statement.close();
+            }
             if (userInfo == null)
                 throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
             return userInfo;
@@ -63,19 +63,30 @@ public class UserInfoDAOImpl implements UserInfoDAO {
         List<NameUserDTO> nameUserDTOs = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             NameUserDTO nameUserDTO = null;
-            String sql = "";
-            if (selectGroupDTO.getTerm() == null) {
-                sql = "select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
-            } else {
-                sql = "select id, name from user_info where select u.id, u.name from user_info u where u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)and u.name like ? and rownum < 100";
+            String sql = "select u.id, u.name, u.email from user_info u where 1 = 1";
+
+            if(selectGroupDTO.getTerm() != null){
+                sql += " and (u.name like ? or u.name like ? or u.email like ?)";
+            } else if(selectGroupDTO.getIdGroup()!= null){
+                sql +=" and u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
             }
+            sql+= " and rownum < 100";
             // log sql
             logger.debug("JDBC execute query : {}", sql);
 
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, selectGroupDTO.getIdGroup());
-            if (selectGroupDTO.getTerm() != null) {
-                statement.setString(2, "%" + selectGroupDTO.getTerm() + "%");
+
+            if(selectGroupDTO.getTerm() != null && selectGroupDTO.getIdGroup()== null){
+                statement.setString(1, "%"+ selectGroupDTO.getTerm()+"%");
+                statement.setString(2, "%"+ selectGroupDTO.getTerm()+"%");
+                statement.setString(3, "%"+ selectGroupDTO.getTerm()+"%");
+            } else if(selectGroupDTO.getTerm() != null && selectGroupDTO.getIdGroup()!= null){
+                statement.setString(1, "%"+ selectGroupDTO.getTerm()+"%");
+                statement.setString(2, "%"+ selectGroupDTO.getTerm()+"%");
+                statement.setString(3, "%"+ selectGroupDTO.getTerm()+"%");
+                statement.setLong(4, selectGroupDTO.getIdGroup());
+            } else if (selectGroupDTO.getTerm() == null && selectGroupDTO.getIdGroup()!= null) {
+                statement.setLong(1, selectGroupDTO.getIdGroup());
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -83,8 +94,12 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .builder()
                         .id(resultSet.getString("id"))
                         .name(resultSet.getString("name"))
+                        .email(resultSet.getString("email"))
                         .build();
                 nameUserDTOs.add(nameUserDTO);
+            }
+            if(statement != null){
+                statement.close();
             }
         }
         return nameUserDTOs;
@@ -109,8 +124,39 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                         .build();
                 nameUserDTOs.add(nameUserDTO);
             }
+            if(statement != null){
+                statement.close();
+            }
         }
         return nameUserDTOs;
+    }
+
+    @Override
+    public UserInfo findUserInfo(String username) throws SQLException {
+        try (Connection connection = ds.getConnection()) {
+            UserInfo userInfo = null;
+            String sql = "SELECT id, NAME, POSITION FROM user_info WHERE id = ?";
+            // log sql
+            logger.debug("JDBC execute query : {}", sql);
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userInfo = UserInfo
+                        .builder()
+                        .id(resultSet.getString(1))
+                        .name(resultSet.getString(2))
+                        .position(resultSet.getString(3))
+                        .build();
+            }
+            if(statement != null){
+                statement.close();
+            }
+            if (userInfo == null)
+                throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
+            return userInfo;
+        }
     }
 
     @Override

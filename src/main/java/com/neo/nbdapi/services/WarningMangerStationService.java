@@ -19,5 +19,5 @@ public interface WarningMangerStationService {
     public DefaultResponseDTO createWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
     public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
     public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
-    public DefaultResponseDTO deleteWarningManagerStation(Long id) throws SQLException;
+    public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
 }

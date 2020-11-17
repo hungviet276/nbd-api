@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.neo.nbdapi.entity.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -23,13 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
-import com.neo.nbdapi.entity.Area;
-import com.neo.nbdapi.entity.ComboBox;
-import com.neo.nbdapi.entity.District;
-import com.neo.nbdapi.entity.Province;
-import com.neo.nbdapi.entity.River;
-import com.neo.nbdapi.entity.Unit;
-import com.neo.nbdapi.entity.Ward;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
@@ -420,6 +414,27 @@ public class CommonController {
                         .text(rs.getString("AREA_CODE") + " - " + rs.getString("AREA_NAME"))
                         .build();
                 list.add(bo);
+            }
+            return list;
+        }
+    }
+
+    @GetMapping("/get-select-list-staff")
+    public List<ComboBoxStr> getListStaffCombobox() throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select * from user_info WHERE STATUS_ID = 1 ");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = st.executeQuery();
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr comboBox = ComboBoxStr.builder().id("-1").text("Lựa chọn").build();
+            list.add(comboBox);
+            while (rs.next()) {
+                comboBox = ComboBoxStr.builder()
+                        .id(rs.getString("id"))
+                        .text(rs.getString("ID") + " - " + rs.getString("NAME"))
+                        .build();
+                list.add(comboBox);
             }
             return list;
         }
