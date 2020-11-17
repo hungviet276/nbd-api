@@ -71,4 +71,11 @@ public interface Constants {
     class LOG_CDH {
         public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
     }
+
+    class  WATER_LEVEL{
+        //id của yếu tố mực nước
+        public static final String PARAMETER_TYPE_ID = "80";
+        // thư mục cấu hình đẩy file dữ liệu chay
+       public static final String FOLDER_EXPORT = "D:\\testout.ip";
+    }
 }
