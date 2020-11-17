@@ -281,16 +281,18 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     }
 
     @Override
-    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException {
+    public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String sql = "select id,code, name from warning_manage_stations where 1 = 1";
+            String sql = "select id,code, name from warning_manage_stations where 1 = 1 and station_id = ? ";
             if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
                 sql = sql+ " code like ? or name like ?";
             }
             sql = sql + " and rownum < 100";
             PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, selectVM.getId());
             if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
-                statement.setString(1,"%"+selectVM.getTerm()+"%");
+                statement.setString(2,"%"+selectVM.getTerm()+"%");
+                statement.setString(3,"%"+selectVM.getTerm()+"%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();

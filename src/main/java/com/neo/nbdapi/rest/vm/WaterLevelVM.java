@@ -17,7 +17,7 @@ public class WaterLevelVM implements Serializable {
 
     private Long tsId;
 
-    private Integer value;
+    private Float value;
 
     private Integer status;
 

@@ -23,5 +23,5 @@ public interface WarningManagerStationDAO {
     List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
     DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO, List<WarningManagerDetailDTO> deletes, List<WarningManagerDetailDTO> creates) throws SQLException;
     DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
-    List<ComboBoxStr> getWarningComboBox( SelectVM selectVM) throws SQLException;
+    List<ComboBoxStr> getWarningComboBox( SelectWarningManagerStrVM selectVM) throws SQLException;
 }

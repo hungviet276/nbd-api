@@ -17,8 +17,9 @@ public class MailGroupConFigVM implements Serializable {
     private String code;
     private String name;
     private String description;
-    private String status;
-    private List<Integer> userInSites;
-    private List<Integer> warningConfig;
-    private List<UserOutSiteVM> UserOutSites;
+    private Integer status;
+    private String user;
+    private List<String> userInSites;
+    private List<String> warningConfig;
+    private List<String> userOutSite;
 }

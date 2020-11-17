@@ -22,5 +22,5 @@ public interface WarningMangerStationService {
     public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
     public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
     public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
-    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException ;
+    public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException ;
 }

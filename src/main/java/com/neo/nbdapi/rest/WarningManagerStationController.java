@@ -63,7 +63,7 @@ public class WarningManagerStationController {
     }
 
     @PostMapping("/warning-manager-select")
-    public List<ComboBoxStr> getStationComboBox(@RequestBody SelectVM selectVM) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(@RequestBody @Valid SelectWarningManagerStrVM selectVM) throws SQLException {
         return warningMangerStationService.getWarningComboBox(selectVM);
     }
 }

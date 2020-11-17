@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_CONFIG_WATER_LEVEL)
@@ -29,9 +31,9 @@ public class WaterLevelController {
         return waterLevelService.updateWaterLevel(waterLevelVM);
     }
 
-    @PostMapping("/exec-water-level")
-    public DefaultResponseDTO excuteWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
-        return null;
+    @PostMapping("/execute-water-level")
+    public DefaultResponseDTO executeWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, FileNotFoundException, ParseException {
+        return waterLevelService.executeWaterLevel(waterLevelExecutedVM);
     }
 
 }

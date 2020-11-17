@@ -40,4 +40,7 @@ public class WaterLevelSearch  implements Serializable {
 
     @JsonProperty("end_date")
     private String endDate;
+
+    @JsonProperty("s_hours")
+    private Integer hours;
 }

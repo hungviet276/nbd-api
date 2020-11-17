@@ -14,4 +14,6 @@ public class WaterLevelExecutedVM {
     private String startDate;
 
     private String endDate;
+
+    private Integer hours;
 }

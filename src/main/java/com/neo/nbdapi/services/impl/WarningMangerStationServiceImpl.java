@@ -207,7 +207,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     }
 
     @Override
-    public List<ComboBoxStr> getWarningComboBox(SelectVM selectVM) throws SQLException {
+    public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException {
         return warningManagerStationDAO.getWarningComboBox(selectVM);
     }
 }

@@ -9,14 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VariableTime {
+public class WaterLevelExecute {
 
-    private Float min;
+    private Float value;
 
-    private Float max;
-
-    private Float variableTime;
-
-    private Float variableSpatial;
-
+    private String timestamp;
 }

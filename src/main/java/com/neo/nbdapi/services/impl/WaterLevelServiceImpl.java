@@ -8,12 +8,14 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.VariableTime;
 import com.neo.nbdapi.entity.VariablesSpatial;
 import com.neo.nbdapi.entity.WaterLevel;
+import com.neo.nbdapi.entity.WaterLevelExecute;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
 import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.services.WaterLevelService;
 import com.neo.nbdapi.services.objsearch.WaterLevelSearch;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,10 +23,18 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,6 +55,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     @Autowired
     private WaterLevelDAO waterLevelDAO;
 
+    private static Long timeTmp;
+
     @Override
     public DefaultPaginationDTO getListWaterLevel(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -62,6 +74,17 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             // set value query to sql
             if (Strings.isNotEmpty(search)) {
                 WaterLevelSearch objectSearch = objectMapper.readValue(search, WaterLevelSearch.class);
+                if(objectSearch.getHours() != null){
+                    if(objectSearch.getHours() ==1){
+                        sql.append(" and TO_CHAR(TIMESTAMP,'MI')='00' ");
+                    } else if(objectSearch.getHours() ==3){
+                        sql.append(" and TO_CHAR(TIMESTAMP,'MI')='00' ");
+                        sql.append(" and MOD(to_number(TO_CHAR(TIMESTAMP,'HH')),3) = 0 ");
+                    } else if(objectSearch.getHours() ==24){
+                        sql.append(" and TO_CHAR(TIMESTAMP,'MI')='00' ");
+                        sql.append(" and TO_CHAR(TIMESTAMP,'HH24')='00' ");
+                    }
+                }
                 if (Strings.isNotEmpty(objectSearch.getStationId())) {
                     sql.append(" AND s.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
@@ -158,19 +181,19 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         nearest = (Float) datas.get(2);
         Boolean continude = false;
-        if(waterLevelVM.getValue() < variableTime.getMin()){
+        if(waterLevelVM.getValue() < variableTime.getMin() && variableTime.getMin()!=0 && variableTime.getMax()!=0){
             waterLevelVM.setWarning(2);
             continude = true;
         }
 
-        if(waterLevelVM.getValue() > variableTime.getMax() && !continude){
+        if(waterLevelVM.getValue() > variableTime.getMax() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
             waterLevelVM.setWarning(3);
             continude = true;
             //update và return
         }
 
         if(nearest!=null){
-            if(Math.abs(waterLevelVM.getValue() - nearest) > variableTime.getVariableTime() && !continude){
+            if(Math.abs(waterLevelVM.getValue() - nearest) > variableTime.getVariableTime() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
                 waterLevelVM.setWarning(4);
                 continude = true;
             }
@@ -178,21 +201,116 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         if(!continude){
             for(VariablesSpatial variablesSpatial : variablesSpatials){
-                if(waterLevelVM.getValue() -variablesSpatial.getMin() > variablesSpatial.getVariableSpatial()){
+                if(variablesSpatial.getMin() - waterLevelVM.getValue() > variableTime.getVariableSpatial()){
                     waterLevelVM.setWarning(5);
                     break;
-                } else if(waterLevelVM.getValue() -variablesSpatial.getMax() > variablesSpatial.getVariableSpatial()){
+                } else if(waterLevelVM.getValue() - variablesSpatial.getMax() > variableTime.getVariableSpatial()&& variablesSpatial.getMax()>0){
                     waterLevelVM.setWarning(5);
                     break;
                 }
             }
         }
+        if(!continude){
+            waterLevelVM.setWarning(1);
+        }
         return waterLevelDAO.updateWaterLevel(waterLevelVM);
     }
 
     @Override
-    public List<WaterLevel> getListWaterLevelByTime(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, BusinessException {
-        //List<WaterLevel> list = waterLevelDAO.getListWaterLevelByTime(defaultRequestPagingVM);
-        return null;
+    public DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
+
+         this.timeTmp = 0L;
+
+        List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
+        if(waterLevels.size() == 0){
+            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+        }
+
+        try{
+            PrintWriter print = new PrintWriter(new File(Constants.WATER_LEVEL.FOLDER_EXPORT));
+
+            WaterLevelExecute firstTmp = waterLevels.get(0);
+
+            Calendar calendarFirst = convertStringToCalender(firstTmp);
+
+            StringBuilder title = new StringBuilder("     1 ");
+            title.append(calendarFirst.get(Calendar.YEAR));
+            print.println(title.toString());
+
+            for (WaterLevelExecute waterLevelExecute: waterLevels) {
+                int position = waterLevels.indexOf(waterLevelExecute);
+                if(position==0){
+                    print.println(lineWithDate(waterLevelExecute, null));
+                } else {
+                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
+                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
+                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
+                    } else{
+                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
+                    }
+
+                }
+
+            }
+            print.flush();
+            print.close();
+
+        }
+        catch (FileNotFoundException | ParseException e ) {
+            e.printStackTrace();
+            return DefaultResponseDTO.builder().status(0).message("Không thành công : " + e.getMessage()).build();
+        }
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
+
+    private String lineWithDate(WaterLevelExecute waterLevelExecute, WaterLevelExecute waterLevelExecuteBefore) throws ParseException {
+        Calendar calendar = convertStringToCalender(waterLevelExecute);
+        if(waterLevelExecuteBefore != null){
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            Calendar calendarBefore = convertStringToCalender(waterLevelExecuteBefore);
+            long tmp = calendar.getTimeInMillis() - calendarBefore.getTimeInMillis();
+            this.timeTmp = this.timeTmp + tmp/1000;
+
+        }
+        StringBuilder line = new StringBuilder("");
+        line.append(timeTmp+". ");
+        line.append(waterLevelExecute.getValue());
+        line.append(" \t");
+        line.append(calendar.get(Calendar.YEAR));
+        line.append(" ");
+        line.append(calendar.get(Calendar.MONTH)+1);
+        line.append(" ");
+        line.append(calendar.get(Calendar.DAY_OF_MONTH));
+        line.append(" ");
+        line.append(calendar.get(Calendar.HOUR));
+        line.append(" ");
+        line.append(calendar.get(Calendar.MINUTE));
+        line.append(" ");
+        line.append(calendar.get(Calendar.SECOND));
+        return line.toString();
+    }
+    private String line(WaterLevelExecute waterLevelExecute, WaterLevelExecute waterLevelExecuteBefore) throws ParseException {
+        Calendar calendar = convertStringToCalender(waterLevelExecute);
+        if(waterLevelExecuteBefore != null){
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            Calendar calendarBefore = convertStringToCalender(waterLevelExecuteBefore);
+            long tmp = calendar.getTimeInMillis() - calendarBefore.getTimeInMillis();
+            this.timeTmp = this.timeTmp + tmp/1000;
+
+        }
+        StringBuilder line = new StringBuilder("");
+        line.append(timeTmp+". ");
+        line.append(waterLevelExecute.getValue());
+        return line.toString();
+    }
+    private Calendar convertStringToCalender(WaterLevelExecute tmp) throws  ParseException{
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+        Date dateFirst = formatter.parse(tmp.getTimestamp());
+        Calendar calendarFirst = Calendar.getInstance();
+        calendarFirst.setTime(dateFirst);
+        return calendarFirst;
+    }
+
 }
