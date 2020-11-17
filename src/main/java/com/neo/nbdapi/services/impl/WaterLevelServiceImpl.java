@@ -253,9 +253,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            Process process = processBuilder.start();
-
             processBuilder.command("bash", "-c", "ls /home/tb5/harmony_constant");
+            Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh";
             String line = "";
