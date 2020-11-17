@@ -25,18 +25,10 @@ public class CasbinRuleController {
         return casbinRuleService.getCasbinRuleByUser(userId);
     }
 
-    @PostMapping("/add-casbin")
-    public DefaultResponseDTO addCasbin(@RequestBody List<CasbinRule> casbinRules) throws SQLException {
-        return casbinRuleService.add(casbinRules);
-    }
-
     @PostMapping("/update-casbin")
-    public DefaultResponseDTO updateCasbin(@RequestBody List<CasbinRule> casbinRules) throws SQLException {
+    public DefaultResponseDTO updateCasbin(@RequestBody List<List<CasbinRule>> casbinRules)
+            throws SQLException {
         return casbinRuleService.update(casbinRules);
     }
 
-    @PostMapping("/delete-casbin")
-    public DefaultResponseDTO deleteCasbin(@RequestBody List<CasbinRule> casbinRules) throws SQLException {
-        return casbinRuleService.delete(casbinRules);
-    }
 }
