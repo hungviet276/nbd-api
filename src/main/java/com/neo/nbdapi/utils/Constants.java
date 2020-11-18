@@ -30,6 +30,7 @@ public interface Constants {
 
             // module report
             public static final String URI_REPORT = "/report";
+            public static final String URI_CASSBIN_RULE = "/casbin-rule";
         }
     }
 
