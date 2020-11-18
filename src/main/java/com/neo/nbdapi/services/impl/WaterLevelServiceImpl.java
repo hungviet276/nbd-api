@@ -253,11 +253,10 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("bash", "-c", "ls");
             Process process = processBuilder.start();
-
-            processBuilder.command("bash", "-c", "ls /home/tb5/harmony_constant");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String s = "Đây là log của đức Anh";
+            String s = "Đây là log của đức Anh:";
             String line = "";
             while ((line = reader.readLine()) != null) {
                 s = s +line;
@@ -326,6 +325,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         Calendar calendarFirst = Calendar.getInstance();
         calendarFirst.setTime(dateFirst);
         return calendarFirst;
-    }
 
+    }
 }
