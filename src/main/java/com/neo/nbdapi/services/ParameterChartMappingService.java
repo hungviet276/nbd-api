@@ -9,5 +9,5 @@ import java.sql.SQLException;
  * @project NBD
  */
 public interface ParameterChartMappingService {
-    ParameterChartMapping getParameterChartMappingByParameterTypeId(Long parameterTypeId) throws SQLException;
+    ParameterChartMapping getParameterChartMappingByParameterTypeId(Integer parameterTypeId) throws SQLException;
 }

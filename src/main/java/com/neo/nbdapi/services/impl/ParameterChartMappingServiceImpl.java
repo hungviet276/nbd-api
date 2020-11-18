@@ -18,7 +18,7 @@ public class ParameterChartMappingServiceImpl implements ParameterChartMappingSe
     @Autowired
     private ParameterChartMappingDAO parameterChartMappingDAO;
 
-    public ParameterChartMapping getParameterChartMappingByParameterTypeId(Long parameterTypeId) throws SQLException {
+    public ParameterChartMapping getParameterChartMappingByParameterTypeId(Integer parameterTypeId) throws SQLException {
         return parameterChartMappingDAO.getParameterChartMappingByParameterTypeId(parameterTypeId);
     }
 }

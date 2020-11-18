@@ -3,6 +3,7 @@ package com.neo.nbdapi.dao.impl;
 import com.neo.nbdapi.dao.UserInfoDAO;
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.UserInfo;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,12 +36,15 @@ public class UserInfoDAOImpl implements UserInfoDAO {
     public UserInfo findUserInfoByUsername(String username) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             UserInfo userInfo = null;
-            String sql = "SELECT id, password FROM user_info WHERE id = ?";
+            // lay ra user chua bi xoa va status active
+            String sql = "SELECT id, password FROM user_info WHERE id = ? AND is_delete = ? AND status_id = ?";
             // log sql
             logger.debug("JDBC execute query : {}", sql);
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, username);
+            statement.setInt(2, Constants.USER_INFO.IS_DELETE_FALSE);
+            statement.setInt(3, Constants.USER_INFO.STATUS_ACTIVE);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 userInfo = UserInfo

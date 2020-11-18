@@ -12,7 +12,7 @@ import java.util.List;
 public interface StationDAO {
     List<ComboBoxStr> getStationComboBox(String query) throws SQLException;
 
-    List<Object[]> getAllStation() throws SQLException;
+    List<Object[]> getAllStationOwnedByUser() throws SQLException;
 
     Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException;
 

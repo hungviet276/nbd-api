@@ -79,4 +79,10 @@ public interface Constants {
         public static final int IS_DEL_TRUE = 1;
         public static final int IN_ACTIVE = 0;
     }
+
+    class USER_INFO {
+
+        public static final int IS_DELETE_FALSE = 0;
+        public static final int STATUS_ACTIVE = 1;
+    }
 }

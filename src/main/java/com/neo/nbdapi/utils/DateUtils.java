@@ -14,9 +14,9 @@ import java.util.Date;
  */
 public class DateUtils {
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    public static final String DEFAULT_DATE_FORMAT = "dd/mm/yyyy";
+    public static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
 
     public static String convertDateToString(Date date) {
         if (date == null)

@@ -29,7 +29,7 @@ public class ObjectValue implements Serializable {
 
     @JsonProperty("timestamp")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern= "dd/MM/yyyy HH:mm")
-    private String timestamp;
+    private Date timestamp;
 
     @JsonProperty("status")
     private Integer status;

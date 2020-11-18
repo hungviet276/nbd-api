@@ -29,7 +29,7 @@ public class ParameterChartMapping implements Serializable {
     private String templateDir;
 
     // ngay tao
-    private String createdDate;
+    private Date createdDate;
 
     // nguoi tao
     private String createdBy;

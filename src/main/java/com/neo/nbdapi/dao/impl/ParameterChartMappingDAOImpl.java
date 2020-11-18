@@ -24,7 +24,7 @@ public class ParameterChartMappingDAOImpl implements ParameterChartMappingDAO {
     private HikariDataSource ds;
 
     @Override
-    public ParameterChartMapping getParameterChartMappingByParameterTypeId(Long parameterTypeId) throws SQLException {
+    public ParameterChartMapping getParameterChartMappingByParameterTypeId(Integer parameterTypeId) throws SQLException {
         String sql = "SELECT id, parameter_type_id, template_dir, created_date, created_by FROM parameter_chart_mapping WHERE parameter_type_id = ?";
         ParameterChartMapping parameterChartMapping = null;
         try (
@@ -38,7 +38,7 @@ public class ParameterChartMappingDAOImpl implements ParameterChartMappingDAO {
                         .id(resultSet.getLong("id"))
                         .parameterTypeId(resultSet.getLong("parameter_type_id"))
                         .templateDir(resultSet.getString("template_dir"))
-                        .createdDate(DateUtils.getStringFromDateFormat(resultSet.getDate("created_date"), "dd/MM/yyyy HH:mm"))
+                        .createdDate(resultSet.getDate("created_date"))
                         .createdBy(resultSet.getString("created_by"))
                         .build();
             }

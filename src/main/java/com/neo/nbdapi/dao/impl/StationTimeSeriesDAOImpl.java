@@ -2,9 +2,7 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.StationTimeSeriesDAO;
 import com.neo.nbdapi.entity.ObjectValue;
-import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.entity.StationTimeSeries;
-import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,7 +77,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                     ObjectValue objectValue = ObjectValue.builder()
                             .tsId(resultSet.getLong("ts_id"))
                             .value(resultSet.getFloat("value"))
-                            .timestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("timestamp"), "dd/MM/yyyy HH:mm"))
+                            .timestamp(resultSet.getDate("timestamp"))
                             .status(resultSet.getInt("status"))
                             .manual(resultSet.getInt("manual"))
                             .warning(resultSet.getInt("warning"))
@@ -90,5 +88,31 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
             }
         }
         return objectValues;
+    }
+
+    @Override
+    public List<StationTimeSeries> findByStationIdAndListParameterTypeId(String stationId, String listParameterTypeId) throws SQLException {
+        String sql = "SELECT ts_id, ts_name, station_id, ts_type_id, parametertype_id, parametertype_name, storage FROM station_time_series WHERE station_id = ? AND parametertype_id IN ("+ listParameterTypeId +")";
+        List<StationTimeSeries> listStationTimeSeries = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, stationId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                 StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                        .tsId(resultSet.getInt("ts_id"))
+                        .tsName(resultSet.getString("ts_name"))
+                        .stationId(resultSet.getString("station_id"))
+                        .tsTypeId(resultSet.getInt("ts_type_id"))
+                        .parameterTypeId(resultSet.getInt("parametertype_id"))
+                        .parameterTypeName(resultSet.getString("parametertype_name"))
+                        .storage(resultSet.getString("storage"))
+                        .build();
+                 listStationTimeSeries.add(stationTimeSeries);
+            }
+        }
+        return listStationTimeSeries;
     }
 }

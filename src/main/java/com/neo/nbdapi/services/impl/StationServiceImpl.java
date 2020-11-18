@@ -26,6 +26,6 @@ public class StationServiceImpl implements StationService {
     @Override
     public String getAllStationCsv() throws SQLException {
         String header = "stationId,stationCode,stationName,image,longitude,latitude,transMiss,address,areaName,isActive,stationTypeName";
-        return CsvUtils.writeToCsvText(stationDAO.getAllStation(), header);
+        return CsvUtils.writeToCsvText(stationDAO.getAllStationOwnedByUser(), header);
     }
 }
