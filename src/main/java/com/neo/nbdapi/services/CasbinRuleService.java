@@ -12,7 +12,7 @@ public interface CasbinRuleService {
 
     DefaultResponseDTO add(List<CasbinRule> casbinRules) throws SQLException;
 
-    DefaultResponseDTO update(List<CasbinRule> casbinRules) throws SQLException;
+    DefaultResponseDTO update(List<List<CasbinRule>> casbinRules) throws SQLException;
 
     DefaultResponseDTO delete(List<CasbinRule> casbinRule) throws SQLException;
 }

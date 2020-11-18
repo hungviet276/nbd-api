@@ -17,4 +17,9 @@ public class CasbinRule {
     private String v3;
     private String v4;
     private String v5;
+
+    @Override
+    public String toString() {
+        return "CasbinRule : pType : " + pType + ",v0 : " + v0 + ",v1 : " + v1 + ",v2 : " + v2;
+    }
 }

@@ -67,8 +67,7 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
             if(selectGroupDTO.getTerm() != null){
                 sql += " and (u.name like ? or u.name like ? or u.email like ?)";
-            }
-            if(selectGroupDTO.getIdGroup()!= null){
+            } else if(selectGroupDTO.getIdGroup()!= null){
                 sql +=" and u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
             }
             sql+= " and rownum < 100";
@@ -158,5 +157,25 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                 throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
             return userInfo;
         }
+    }
+
+    @Override
+    public List<NameUserDTO> getAllUserId() throws SQLException {
+        List<NameUserDTO> nameUserDTOs = new ArrayList<>();
+        try (Connection connection = ds.getConnection()) {
+            NameUserDTO nameUserDTO = null;
+            String sql = "select u.id from user_info u";
+            logger.debug("JDBC getAllNameUser query : {}", sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                nameUserDTO = NameUserDTO
+                        .builder()
+                        .id(resultSet.getString("id"))
+                        .build();
+                nameUserDTOs.add(nameUserDTO);
+            }
+        }
+        return nameUserDTOs;
     }
 }

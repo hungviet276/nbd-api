@@ -7,11 +7,4 @@ import java.util.List;
 
 public interface CasbinRuleDAO {
     List<CasbinRule> getCasbinRuleByUser(String userId) throws SQLException;
-
-    int addCasbin(List<CasbinRule> casbinRule) throws SQLException;
-
-    int update(CasbinRule casbinRuleOld, CasbinRule casbinRuleNew) throws SQLException;
-
-    int delete(List<CasbinRule> casbinRules) throws SQLException;
-
 }
