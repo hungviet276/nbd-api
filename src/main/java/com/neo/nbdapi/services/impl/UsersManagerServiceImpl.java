@@ -14,7 +14,6 @@ import com.neo.nbdapi.rest.vm.UsersManagerVM;
 import com.neo.nbdapi.services.UsersManagerService;
 import com.neo.nbdapi.services.objsearch.SearchMailConfig;
 import com.neo.nbdapi.services.objsearch.SearchUsesManager;
-import com.sun.org.apache.xpath.internal.objects.XString;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.ToString;
 import oracle.jdbc.OracleTypes;

@@ -1,4 +1,4 @@
-package com.neo.nbdapi.config;
+package com.neo.nbdapi.anotation.validate;
 
 import com.neo.nbdapi.utils.DateUtils;
 

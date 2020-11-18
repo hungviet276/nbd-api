@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface StationService {
     List<ComboBoxStr> getStationComboBox(String query) throws SQLException;
-    List<StationMapDTO> getAllStation() throws SQLException;
     public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException;
+
+    String getAllStationCsv() throws SQLException;
 }

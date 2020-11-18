@@ -27,6 +27,9 @@ public interface Constants {
             public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
             public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
             public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
+
+            // module report
+            public static final String URI_REPORT = "/report";
         }
     }
 
@@ -77,5 +80,18 @@ public interface Constants {
         public static final String PARAMETER_TYPE_ID = "80";
         // thư mục cấu hình đẩy file dữ liệu chay
        public static final String FOLDER_EXPORT = "NEO\\phuquoc1h";
+    }
+
+    class STATION {
+        public static final int ACTIVE = 1;
+        public static final int IS_DEL_FALSE = 0;
+        public static final int IS_DEL_TRUE = 1;
+        public static final int IN_ACTIVE = 0;
+    }
+
+    class USER_INFO {
+
+        public static final int IS_DELETE_FALSE = 0;
+        public static final int STATUS_ACTIVE = 1;
     }
 }

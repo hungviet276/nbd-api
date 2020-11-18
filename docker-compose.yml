@@ -8,3 +8,5 @@ services:
     ports:
       - "8080:8080"
     tty: true
+    volumes:
+      - /app:/folder_cua_minh

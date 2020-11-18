@@ -2,15 +2,12 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.LogActDAO;
 import com.neo.nbdapi.dto.LogActDTO;
-import com.neo.nbdapi.entity.LogAct;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import sun.rmi.runtime.Log;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

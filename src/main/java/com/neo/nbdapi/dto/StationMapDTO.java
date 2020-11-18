@@ -22,7 +22,7 @@ public class StationMapDTO implements Serializable {
 
     private float latitude;
 
-    private long stationId;
+    private String stationId;
 
     private String stationCode;
 
