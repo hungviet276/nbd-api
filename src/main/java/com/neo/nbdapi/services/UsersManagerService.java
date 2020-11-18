@@ -38,4 +38,6 @@ public interface UsersManagerService {
 
     String deleteUsers(String username) throws SQLException, BusinessException;
 
+     DefaultResponseDTO deleteUsersMutil( List<String> ids) throws SQLException;
+
 }
