@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.MailConfig;
 import com.neo.nbdapi.entity.UserInfo;
@@ -59,7 +60,9 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                 int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
                 String search = defaultRequestPagingVM.getSearch();
 
-                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name FROM user_info u join group_user_info g on u.office_code = g.id ) where 1=1");
+//                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete FROM user_info u join group_user_info g on u.office_code = g.id ) where is_delete = 0")select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete FROM user_info u join group_user_info g on u.office_code = g.id ) where is_delete = 0");
+                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete");
+                sql.append(" FROM user_info u left join group_detail gd on u.id = gd.user_info_id left join group_user_info g on gd.group_id = g.id ) where is_delete = 0");
                 List<Object> paramSearch = new ArrayList<>();
                 logger.debug("Object search: {}", search);
                 if (Strings.isNotEmpty(search)) {
@@ -684,6 +687,37 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                 }
             }
         }
+    }
+
+    @Override
+    public DefaultResponseDTO   deleteUsersMutil( List<String> ids) throws SQLException {
+            String sqlDeleteManager = "update user_info set is_delete = 1 where id =?";
+
+            Connection connection = ds.getConnection();
+            try{
+                connection.setAutoCommit(false);
+                PreparedStatement stmDetateManager = connection.prepareStatement(sqlDeleteManager);
+
+                for (String tmp: ids) {
+                    System.out.println("ids======================"+ ids);
+                    stmDetateManager.setString(1, tmp);
+                    stmDetateManager.addBatch();
+                }
+                stmDetateManager.executeBatch();
+
+                connection.commit();
+
+            } catch (Exception e){
+                connection.rollback();
+                logger.error("deleteUsersMutil exception : {}", e.getMessage());
+                return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
+
+            } finally {
+                connection.close();
+            }
+
+            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+
     }
 
 }
