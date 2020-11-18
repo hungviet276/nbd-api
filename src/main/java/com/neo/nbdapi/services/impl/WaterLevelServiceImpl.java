@@ -23,6 +23,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -252,7 +253,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "pwd");
+            processBuilder.command("bash", "-c", "echo NEO/phuquoc1h.par | ./tt_phantich_v1_2");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";

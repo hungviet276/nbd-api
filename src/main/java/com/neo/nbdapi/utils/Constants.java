@@ -76,6 +76,6 @@ public interface Constants {
         //id của yếu tố mực nước
         public static final String PARAMETER_TYPE_ID = "80";
         // thư mục cấu hình đẩy file dữ liệu chay
-       public static final String FOLDER_EXPORT = "D:\\testout.ip";
+       public static final String FOLDER_EXPORT = "NEO\\phuquoc1h";
     }
 }
