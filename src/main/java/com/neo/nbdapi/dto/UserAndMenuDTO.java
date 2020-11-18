@@ -1,6 +1,5 @@
 package com.neo.nbdapi.dto;
 
-import com.neo.nbdapi.entity.Menu;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,4 +22,5 @@ public class UserAndMenuDTO implements Serializable {
     private List<ApiUrlDTO> urlApi;
 
     private String password;
+
 }

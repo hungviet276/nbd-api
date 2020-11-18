@@ -15,4 +15,5 @@ public interface UserInfoService {
 
 	List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException;
 
+	List<NameUserDTO> getAllUserId() throws SQLException ;
 }
