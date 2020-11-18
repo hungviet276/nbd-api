@@ -25,7 +25,8 @@ public interface Constants {
             public static final String URI_GROUP_MAIL_CONFIG = "/group-mail-config";
             public static final String URI_CDH_HISTORY = "/cdh-history";
             public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
-            public static final String URI_CASSBIN_RULE = "/casbin-rule";
+            public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
+            public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
         }
     }
 
@@ -69,5 +70,12 @@ public interface Constants {
     }
     class LOG_CDH {
         public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
+    }
+
+    class  WATER_LEVEL{
+        //id của yếu tố mực nước
+        public static final String PARAMETER_TYPE_ID = "80";
+        // thư mục cấu hình đẩy file dữ liệu chay
+       public static final String FOLDER_EXPORT = "NEO\\phuquoc1h";
     }
 }

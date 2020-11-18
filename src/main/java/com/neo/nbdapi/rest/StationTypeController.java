@@ -983,9 +983,15 @@ public class StationTypeController {
     }
 
     @GetMapping("/get-list-select-station")
-    public List<ComboBoxStr> getListSelectStation() throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME from stations where ISDEL = 0");
+    public List<ComboBoxStr> getListSelectStation(@RequestParam Map<String,String> params) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME, RIVER_ID from stations where ISDEL = 0");
+        if(params.get("stationType") != null){
+            sql.append(" STATION_TYPE_ID in (?)");
+        }
         try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            if(params.get("stationType") != null){
+                st.setString(1,params.get("stationType").toString());
+            }
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
@@ -999,6 +1005,7 @@ public class StationTypeController {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("STATION_ID"))
                         .text(rs.getString("STATION_NAME"))
+                        .moreInfo(rs.getString("RIVER_ID"))
                         .build();
                 list.add(stationType);
             }

@@ -64,4 +64,9 @@ public class StationController {
         });
         return output.toString();
     }
+
+    @PostMapping("/station-select-water-level")
+    public List<ComboBoxStr> getStationComboBoxWaterLevel(@RequestBody SelectVM selectVM) throws SQLException {
+        return stationService.getStationComboBox(selectVM.getTerm());
+    }
 }

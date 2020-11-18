@@ -27,7 +27,7 @@ public class UserInfoController {
         return userInfoService.getUserInfoAndListMenu();
     }
 
-    @GetMapping("/get-name-user")
+    @PostMapping("/get-name-user")
     public List<NameUserDTO> getUserInfo(SelectGroupDTO selectGroupDTO) throws SQLException {
         return userInfoService.getNameUser(selectGroupDTO);
     }

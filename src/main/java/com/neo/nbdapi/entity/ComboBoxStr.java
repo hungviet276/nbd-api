@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class ComboBoxStr {
     private String id;
     private String text;
+    private String moreInfo;
 }

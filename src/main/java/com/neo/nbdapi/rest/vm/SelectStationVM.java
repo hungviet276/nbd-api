@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class SelectStationVM {
     private String term;
     private String _type;
-    private Long station;
+    private String station;
 }

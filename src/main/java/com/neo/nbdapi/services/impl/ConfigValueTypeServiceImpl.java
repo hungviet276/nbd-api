@@ -5,6 +5,7 @@ import com.neo.nbdapi.dao.ConfigValueTypeDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.ConfigValueType;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -154,7 +155,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     }
 
     @Override
-    public List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException {
+    public List<ComboBox> getValueType(String stationId, Long valueTypeId) throws SQLException {
         return configValueTypeDAO.getValueType(stationId,valueTypeId);
     }
 
@@ -164,12 +165,12 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
     }
 
     @Override
-    public List<ComboBox> getStationComboBox(String query, Long idStation) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(String query, String idStation) throws SQLException {
         return configValueTypeDAO.getStationComboBox(query,idStation);
     }
 
     @Override
-    public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws SQLException {
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(String idStation, Long idValueType, String code) throws SQLException {
         return configValueTypeDAO.getStationValueTypeSpatial(idStation, idValueType, code);
     }
 

@@ -1,0 +1,60 @@
+CHƯƠNG TRÌNH PHÂN TÍCH HẰNG SỐ ĐIỀU HOÀ THUỶ TRIỀU
+ 
+A. NEO.zip bao gồm các file như sau:
+
+(1)    tt_phantich_v1  Chương trình phân tích hằng số điều hoà thuỷ triều.
+
+(2)    readme .......  File giải thích
+
+(3)     *.con ........ Các files chứa thông tin của 116 phân triều
+                       
+(4)     *.lst ........ 14 files (tcona.lst -> tconn.lst) chưa tên của các phân triều 
+                       sử dụng để phân tích các chuỗi số liệu có độ dài khác nhau 
+
+(5)    ha_tien ......  File thí dụ chứa các hằng số điều hoà của trạm chính Hà Tiên
+		       (reference port)
+
+(6)    ganh_hao1.par   File tham số để chạy chương trình tt_phantich_v1.
+
+(7)    ganh_hao1.ip .  File số liệu đầu vào thí dụ của trạm Gành Hào.
+
+(8)    tides ........  File khai báo đường dẫn đến thư mục hoạt động hiện hành
+  
+
+B. Chương trình tt_phantich_v1 sử dụng file tham số để xác định các biến sau:
+
+OPRESID ........... "t" for output of residuals, otherwise "f" 
+
+CONSLIST_FILE ..... khai báo tên của file chứa danh sách các phân triều
+
+INPUT_FILE ........ khai báo tên của file số liệu đầu vào
+
+HGOUT_FILE ........ khai báo tên của file chứa kết quả
+
+RESOUT_FILE ....... khai báo tên của file chứa số dư đánh giá sai số
+
+TEMP_FILE ......... khai báo tên của file lưu trữ tạm thời
+
+NHEAD ............. khai báo số dòng chứa thông tin của đầu file kết quả 
+
+TZ_T .............. khai báo múi giờ của chuỗi số liệu phân tích (giờ) 
+
+TIME_TYPE NONREP .. Định dạng của chuỗi thời gian:
+                      "REP": chuỗi thời gian lặp lại hàng năm;
+                      "NONREP": chuỗi thời gian liên tục từ năm này qua năm khác
+
+PORT_REF .......... Tên file chứa các hằng số điều hoà của tram chính quy chiếu
+
+ganh_hao1.par và ganh_hao1.ip là các file tham số và số liệu đầu vào mẫu  
+
+C. Trong môi trường Unix/Linux, sử dụng cú pháp sau để chạy chương trình:
+
+  echo ganh_hao1.par | ./tt_phantich_v1_2
+
+D.  HGOUT_FILE file "ganh_hao1.hg" là file chứa kết quả phân tích của chuỗi số liệu ganh_hao1.ip. Các giá trị bao gồm:
+
+     Z0
+     <tên phân triều> <h, metres> <g, degrees>
+
+
+11/10/2020.
