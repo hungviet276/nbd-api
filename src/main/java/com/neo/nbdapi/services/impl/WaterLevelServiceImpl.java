@@ -325,6 +325,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         Calendar calendarFirst = Calendar.getInstance();
         calendarFirst.setTime(dateFirst);
         return calendarFirst;
-        
+
     }
 }
