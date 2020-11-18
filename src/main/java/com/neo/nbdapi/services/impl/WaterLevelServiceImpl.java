@@ -23,7 +23,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
