@@ -88,7 +88,7 @@ public class UsersManagerController {
         return usersManagerService.deleteTemp(tempId,threadId);
     }
     @DeleteMapping
-    public DefaultResponseDTO deleteUsersMutil(@RequestParam Long id) throws SQLException{
-        return usersManagerService.deleteUsersMutil(id);
+    public DefaultResponseDTO deleteUsersMutil(@RequestBody  List<String> ids) throws SQLException{
+        return usersManagerService.deleteUsersMutil(ids);
     }
 }
