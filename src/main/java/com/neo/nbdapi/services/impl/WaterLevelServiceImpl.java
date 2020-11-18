@@ -326,5 +326,4 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         calendarFirst.setTime(dateFirst);
         return calendarFirst;
     }
-
 }
