@@ -1,8 +1,10 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.MailGroupConFigVM;
 import com.neo.nbdapi.services.GroupMailReceiveService;
 import com.neo.nbdapi.services.MailGroupConfigService;
 import com.neo.nbdapi.utils.Constants;
@@ -25,4 +27,11 @@ public class MailGroupConfigController {
     public DefaultPaginationDTO getListMailConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         return mailGroupConfigService.getGroupReceiveMailsPagination(defaultRequestPagingVM);
     }
+
+    @PostMapping
+    public DefaultResponseDTO getListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException, BusinessException {
+        return mailGroupConfigService.createMailGroupConfig(mailGroupConFigVM);
+    }
+
+
 }

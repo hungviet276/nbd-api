@@ -2,11 +2,14 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.GroupMailReceiveDetailDAO;
+import com.neo.nbdapi.dao.MailGroupConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.GroupMailReceive;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.MailGroupConFigVM;
 import com.neo.nbdapi.services.MailGroupConfigService;
 import com.neo.nbdapi.services.objsearch.SearchGroupMailReceive;
 import com.zaxxer.hikari.HikariDataSource;
@@ -32,6 +35,9 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     @Autowired
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private MailGroupConfigDAO mailGroupConfigDAO;
 
     @Autowired
     private GroupMailReceiveDetailDAO groupMailReceiveDetailDAO;
@@ -102,5 +108,10 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
                     .content(groupReceives)
                     .build();
         }
+    }
+
+    @Override
+    public DefaultResponseDTO createMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException {
+        return mailGroupConfigDAO.createMailGroupConfig(mailGroupConFigVM);
     }
 }

@@ -5,6 +5,7 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.SelectStationVM;
@@ -41,21 +42,21 @@ public class ConfigValueTypeController {
     }
 
     @PostMapping("/get-list-station-other")
-    public List<ComboBox> getStationComboBox(@RequestBody SelectStationVM selectVM) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(@RequestBody SelectStationVM selectVM) throws SQLException {
         if(selectVM.getStation()==null){
-            List<ComboBox> comboBoxes  = new ArrayList<>();
+            List<ComboBoxStr> comboBoxes  = new ArrayList<>();
            return  comboBoxes;
         }
         return configValueTypeService.getStationComboBox(selectVM.getTerm(), selectVM.getStation());
     }
 
     @PostMapping("/get-list-value-type")
-    public List<ComboBox> getValueTypeConfig(@RequestParam Long idStation, @RequestParam Long valueTypeId) throws SQLException {
+    public List<ComboBox> getValueTypeConfig(@RequestParam String idStation, @RequestParam Long valueTypeId) throws SQLException {
         return configValueTypeService.getValueType(idStation,valueTypeId);
     }
 
     @GetMapping("/get-station-value-type-spatial")
-    public StationValueTypeSpatialDTO getStationValueTypeSpatial(@RequestParam Long idStation, @RequestParam Long idValueType,@RequestParam String code) throws  SQLException{
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(@RequestParam String idStation, @RequestParam Long idValueType,@RequestParam String code) throws  SQLException{
         return configValueTypeService.getStationValueTypeSpatial(idStation, idValueType,code);
     }
 
@@ -70,7 +71,7 @@ public class ConfigValueTypeController {
     }
 
     @GetMapping("/get-value-type-station-value-type")
-    public ComboBox getValueTypesWithStationAndValueType(@RequestParam Long idStation, @RequestParam Long idValueType) throws  SQLException{
+    public ComboBox getValueTypesWithStationAndValueType(@RequestParam String idStation, @RequestParam Long idValueType) throws  SQLException{
         return valueTypeService.getStationValueType(idStation,idValueType);
     }
 

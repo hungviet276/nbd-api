@@ -1,4 +1,4 @@
-package com.neo.nbdapi.rest.vm;
+package com.neo.nbdapi.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SelectStationVM {
-    private String term;
-    private String _type;
-    private String station;
+public class WaterLevelExecute {
+
+    private Float value;
+
+    private String timestamp;
 }

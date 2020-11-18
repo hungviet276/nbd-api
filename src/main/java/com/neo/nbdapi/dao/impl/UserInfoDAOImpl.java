@@ -67,7 +67,8 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
             if(selectGroupDTO.getTerm() != null){
                 sql += " and (u.name like ? or u.name like ? or u.email like ?)";
-            } else if(selectGroupDTO.getIdGroup()!= null){
+            }
+            if(selectGroupDTO.getIdGroup()!= null){
                 sql +=" and u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
             }
             sql+= " and rownum < 100";
