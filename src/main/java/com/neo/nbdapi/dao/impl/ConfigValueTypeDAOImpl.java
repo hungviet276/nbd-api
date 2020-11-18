@@ -6,6 +6,7 @@ import com.neo.nbdapi.dto.ConfigValueTypeDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
 import com.neo.nbdapi.entity.ComboBox;
+import com.neo.nbdapi.entity.ComboBoxStr;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -21,12 +22,12 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     private HikariDataSource ds;
 
     @Override
-    public List<ComboBox> getValueType(Long stationId, Long valueTypeId) throws SQLException {
+    public List<ComboBox> getValueType(String stationId, Long valueTypeId) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             String sql = "select c.PARAMETER_TYPE_ID, v.parameter_type_code , v.parameter_type_name, c.code from config_value_types c inner join parameter_type v on c.PARAMETER_TYPE_ID = v.parameter_type_id where c.station_id = ? and c.PARAMETER_TYPE_ID = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, stationId);
+            statement.setString(1, stationId);
             statement.setLong(2, valueTypeId);
             ResultSet resultSet = statement.executeQuery();
             ComboBox comboBox = null;
@@ -63,7 +64,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     }
 
     @Override
-    public List<ComboBox> getStationComboBox(String query, Long idStation) throws SQLException {
+    public List<ComboBoxStr> getStationComboBox(String query, String idStation) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String sql = "select distinct c.station_id as id, s.station_code as code, s.station_name as name from stations s inner join config_value_types c on s.station_id = c.station_id where 1 = 1";
             if(query!=null && !query.equals("")){
@@ -74,14 +75,14 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             PreparedStatement statement = connection.prepareStatement(sql);
             if(query!=null && !query.equals("")){
                 statement.setString(1,"%"+query+"%");
-                statement.setLong(2, idStation);
+                statement.setString(2, idStation);
             } else{
-                statement.setLong(1, idStation);
+                statement.setString(1, idStation);
             }
             ResultSet resultSet = statement.executeQuery();
-            List<ComboBox> comboBoxes = new ArrayList<>();
+            List<ComboBoxStr> comboBoxes = new ArrayList<>();
             while (resultSet.next()) {
-                ComboBox comboBox = ComboBox.builder().id(resultSet.getLong(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
                 comboBoxes.add(comboBox);
             }
             statement.close();
@@ -90,19 +91,19 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     }
 
     @Override
-    public StationValueTypeSpatialDTO getStationValueTypeSpatial(Long idStation, Long idValueType, String code) throws SQLException {
+    public StationValueTypeSpatialDTO getStationValueTypeSpatial(String idStation, Long idValueType, String code) throws SQLException {
         StationValueTypeSpatialDTO stationValueTypeSpatialDTO = new StationValueTypeSpatialDTO();
         try (Connection connection = ds.getConnection()) {
             String sql = "select c.id, c.station_id,s.station_code, s.station_name , c.parameter_type_id, v.parameter_type_code, v.parameter_type_name , c.variable_spatial, c.code from config_value_types c inner join stations s on s.station_id = c.station_id inner join parameter_type v on v.parameter_type_id = c.parameter_type_id where c.station_id = ? and c.parameter_type_id = ? and c.code = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, idStation);
+            statement.setString(1, idStation);
             statement.setLong(2, idValueType);
             statement.setString(3, code);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 stationValueTypeSpatialDTO = StationValueTypeSpatialDTO.
                         builder().id(resultSet.getLong("id"))
-                        .stationId(resultSet.getLong("station_id"))
+                        .stationId(resultSet.getString("station_id"))
                         .stationCode(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .valueTypeId(resultSet.getLong("parameter_type_id"))
@@ -121,7 +122,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         try (Connection connection = ds.getConnection()) {
             connection.setAutoCommit(false);
             String sqlInsertConfig = "insert into config_value_types (ID,STATION_ID,PARAMETER_TYPE_ID,MIN,MAX,VARIABLE_TIME,VARIABLE_SPATIAL,START_APPLY_DATE,END_APPLY_DATE,CODE) values(config_value_types_seq.nextval,?,?,?,?,?,?,?,?,?)";
-            String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.nextval, ?,?)";
+            String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.d, ?,?)";
             String sqlGetCurrentId = "SELECT  config_value_types_seq.CURRVAL FROM dual";
             PreparedStatement stmInsertConfig = connection.prepareStatement(sqlInsertConfig);
             PreparedStatement stmGetCurrentId = connection.prepareStatement(sqlGetCurrentId);
@@ -189,7 +190,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             while (resultSet.next()) {
                 StationValueTypeSpatialDTO stationValueTypeSpatialDTO = StationValueTypeSpatialDTO.
                         builder().id(resultSet.getLong("id"))
-                        .stationId(resultSet.getLong("station_id"))
+                        .stationId(resultSet.getString("station_id"))
                         .stationCode(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .valueTypeId(resultSet.getLong("parameter_type_id"))

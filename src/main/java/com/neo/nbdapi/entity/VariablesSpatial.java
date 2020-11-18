@@ -9,8 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ComboBoxStr {
-    private String id;
-    private String text;
-    private String moreInfo;
+public class VariablesSpatial {
+
+    private String StationId;
+
+    private Float variableSpatial;
+
+    private Float min;
+
+    private Float max;
 }

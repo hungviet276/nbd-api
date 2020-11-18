@@ -15,7 +15,7 @@ public class StationValueTypeSpatialDTO  implements Serializable {
 
     private Long id;
 
-    private Long stationId;
+    private String stationId;
 
     private String stationCode;
 

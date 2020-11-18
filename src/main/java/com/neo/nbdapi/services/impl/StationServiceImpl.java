@@ -26,4 +26,9 @@ public class StationServiceImpl implements StationService {
     public List<StationMapDTO> getAllStation() throws SQLException {
         return stationDAO.getAllStationMap();
     }
+
+    @Override
+    public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException {
+        return stationDAO.getStationComboBoxWaterLevel(query);
+    }
 }
