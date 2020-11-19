@@ -8,3 +8,5 @@ services:
     ports:
       - "8080:8080"
     tty: true
+    volumes:
+      - /home/tb5/harmony_constant/NEO:/water_level

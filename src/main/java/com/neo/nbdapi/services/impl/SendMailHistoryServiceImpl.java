@@ -80,7 +80,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                 try {
                     SearchSendMailHistory objectSearch = objectMapper.readValue(search, SearchSendMailHistory.class);
                         if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-                            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+                            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
                             if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                                 sql.append(" and station_code  like ?");
                                 paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -98,7 +98,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                                 paramSearch.add("%" + objectSearch.getWarningCode() + "%");
                             }
                             if (Strings.isNotEmpty(objectSearch.getWarningName())) {
-                                sql.append(" AND name like ? ");
+                                sql.append(" AND warning_name like ? ");
                                 paramSearch.add("%" + objectSearch.getWarningName() + "%");
                             }
                             if (Strings.isNotEmpty(objectSearch.getStationId())) {
@@ -109,7 +109,10 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                                 sql.append(" AND id = ? ");
                                 paramSearch.add(objectSearch.getWarningId());
                             }
-
+                            if (Strings.isNotEmpty(objectSearch.getGroupMail())) {
+                                sql.append(" and gr_mail_name like ?");
+                                paramSearch.add("%" + objectSearch.getGroupMail() + "%");
+                            }
                             if (Strings.isNotEmpty(objectSearch.getFromDate())) {
                                 sql.append(" and push_timestap >= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
                                 paramSearch.add(objectSearch.getFromDate());
@@ -137,9 +140,10 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         .stationNo(resultSetListData.getString("station_code"))
                         .stationName(resultSetListData.getString("station_name"))
                         .warningNo(resultSetListData.getString("code"))
-                        .warningName(resultSetListData.getString("name"))
+                        .warningName(resultSetListData.getString("warning_name"))
                         .description(resultSetListData.getString("description"))
                         .pushTimestampStr(resultSetListData.getString("timestampChar"))
+                        .groupReMailName(resultSetListData.getString("gr_mail_name"))
                         .build();
                 noficationHistoryList.add(noficationHistory);
 
@@ -223,7 +227,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         List<Object> paramSearch = new ArrayList<>();
         // set param query to sql
         if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
             if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                 sql.append(" and station_code  like ?");
                 paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -241,8 +245,12 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                 paramSearch.add("%" + objectSearch.getWarningCode() + "%");
             }
             if (Strings.isNotEmpty(objectSearch.getWarningName())) {
-                sql.append(" AND name like ? ");
+                sql.append(" AND warning_name like ? ");
                 paramSearch.add("%" + objectSearch.getWarningName() + "%");
+            }
+            if (Strings.isNotEmpty(objectSearch.getGroupMail())) {
+                sql.append(" and gr_mail_name like ?");
+                paramSearch.add("%" + objectSearch.getGroupMail() + "%");
             }
             if (Strings.isNotEmpty(objectSearch.getStationId())) {
                 sql.append(" AND station_id = ? ");
@@ -283,7 +291,8 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         .stationNo(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .warningNo(resultSet.getString("code"))
-                        .warningName(resultSet.getString("name"))
+                        .warningName(resultSet.getString("warning_name"))
+                        .groupReMailName(resultSet.getString("gr_mail_name"))
                         .description(resultSet.getString("description"))
                         .pushTimestampStr(resultSet.getString("timestampChar"))
                         .build();
@@ -324,7 +333,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         titleHeadRow.createCell(0);
         titleHeadRow.getCell((short)0).setCellValue("Lịch sử gửi mail cảnh báo");
         titleHeadRow.getCell((short)0).setCellStyle(style);
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:F1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
 
         SXSSFRow header = sheet.createRow(2);
         for (int i = 0; i <=  cellNum; i++) {
@@ -335,34 +344,33 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         header.getCell((short)1).setCellValue("Tên trạm");
         header.getCell((short)2).setCellValue("Mã loại cảnh báo");
         header.getCell((short)3).setCellValue("Tên loại cảnh báo");
-        header.getCell((short)4).setCellValue("Tiêu đề mail");
-        header.getCell((short)5).setCellValue("Thời gian gửi mail");
+        header.getCell((short)4).setCellValue("Nhóm nhận cảnh báo");
+        header.getCell((short)5).setCellValue("Tiêu đề mail");
+        header.getCell((short)6).setCellValue("Thời gian gửi mail");
         //end create header
 //create content
         noficationHistoryList.forEach(logMail -> {
             SXSSFRow row = sheet.createRow(3);
-            // ghi id cua log act
             SXSSFCell cell0 = row.createCell(0, CellType.STRING);
             cell0.setCellValue(logMail.getStationNo());
 
-            // ghi ten menu cua log act
             SXSSFCell cell1 = row.createCell(1, CellType.STRING);
             cell1.setCellValue(logMail.getStationName());
 
-            // ghi act cua log act
             SXSSFCell cell2 = row.createCell(2, CellType.STRING);
             cell2.setCellValue(logMail.getWarningNo());
 
-            // ghi account cua log act
             SXSSFCell cell3 = row.createCell(3, CellType.STRING);
             cell3.setCellValue(logMail.getWarningName());
 
-            // ghi ngay tac dong cua log act
             SXSSFCell cell4 = row.createCell(4, CellType.STRING);
-            cell4.setCellValue(logMail.getDescription());
+            cell4.setCellValue(logMail.getGroupReMailName());
 
             SXSSFCell cell5 = row.createCell(5, CellType.STRING);
-            cell5.setCellValue(logMail.getPushTimestampStr());
+            cell5.setCellValue(logMail.getDescription());
+
+            SXSSFCell cell6 = row.createCell(6, CellType.STRING);
+            cell6.setCellValue(logMail.getPushTimestampStr());
 
         });
         sheet.autoSizeColumn((short)0);
@@ -371,6 +379,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         sheet.autoSizeColumn((short)3);
         sheet.autoSizeColumn((short)4);
         sheet.autoSizeColumn((short)5);
+        sheet.autoSizeColumn((short)6);
 
         return workbook;
     }

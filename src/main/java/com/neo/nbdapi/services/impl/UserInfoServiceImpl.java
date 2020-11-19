@@ -45,4 +45,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 		return userInfoDAO.getNameUserByGroupId(groupDetail);
 	}
 
+	@Override
+	public List<NameUserDTO> getAllUserId() throws SQLException {
+		return userInfoDAO.getAllUserId();
+	}
+
 }

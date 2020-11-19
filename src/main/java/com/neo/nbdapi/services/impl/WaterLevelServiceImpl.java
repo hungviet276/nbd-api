@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -217,6 +219,12 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     @Override
     public DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
 
+        logger.error("==============================================================>");
+        logger.error("==============================================================>");
+        logger.error("==============================================================>");
+        logger.error("==============================================================>");
+        logger.error("==============================================================>");
+        logger.error("==============================================================>");
          this.timeTmp = 0L;
 
         List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
@@ -225,7 +233,14 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         }
 
         try{
-            PrintWriter print = new PrintWriter(new File(Constants.WATER_LEVEL.FOLDER_EXPORT));
+            URL resource = getClass().getClassLoader().getResource(Constants.WATER_LEVEL.FOLDER_EXPORT);
+            File file = null;
+            if (resource == null) {
+                throw new IllegalArgumentException("file not found!");
+            } else {
+                file =  new File(resource.toURI());
+            }
+            PrintWriter print = new PrintWriter(file);
 
             WaterLevelExecute firstTmp = waterLevels.get(0);
 
@@ -253,20 +268,20 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("bash", "-c", "ls");
             Process process = processBuilder.start();
-
-            processBuilder.command("bash", "-c", "ls /home/tb5/harmony_constant");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String s = "Đây là log của đức Anh";
+            String s = "Đây là log của đức Anh:";
             String line = "";
             while ((line = reader.readLine()) != null) {
                 s = s +line;
             }
-            logger.info("==============================================================>");
-            logger.info("==============================================================>");
-            logger.info(s);
-            logger.info("<==============================================================");
-            logger.info("<==============================================================");
+            System.out.println("Đây là cái cần check =========================> " +s);
+            logger.error("==============================================================>");
+            logger.error("==============================================================>");
+            logger.error(s);
+            logger.error("<==============================================================");
+            logger.error("<==============================================================");
 
         }
         catch (FileNotFoundException | ParseException e ) {
@@ -274,6 +289,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             return DefaultResponseDTO.builder().status(0).message("Không thành công : " + e.getMessage()).build();
         } catch (IOException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
@@ -326,6 +343,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         Calendar calendarFirst = Calendar.getInstance();
         calendarFirst.setTime(dateFirst);
         return calendarFirst;
-    }
 
+    }
 }

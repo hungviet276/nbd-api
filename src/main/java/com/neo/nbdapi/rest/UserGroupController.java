@@ -43,7 +43,7 @@ public class UserGroupController {
 
     @PostMapping("/get-stations")
     public List<ComboBoxStr> getStations() throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where status=1 order by station_code, station_name");
+        StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where is_active=1 order by station_code, station_name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -70,8 +70,8 @@ public class UserGroupController {
     public UserGroupDTO getUserGroupById(@RequestParam(name = "groupId") String groupId) {
         List<UserGroupDetail> users = new ArrayList<>();
         if (StringUtils.isEmpty(groupId)) return UserGroupDTO.builder().build();
-        StringBuilder sql1 = new StringBuilder("select id,name,description,create_by,create_at,modify_at,modify_by,group_parent,group_level,station_id,status from group_user_info where status=1 and id=?");
-        StringBuilder sql2 = new StringBuilder("select id,group_id,user_info_id,is_group_leader from group_detail where group_id=?");
+        StringBuilder sql1 = new StringBuilder("select id,name,description,create_by,create_at,modify_at,modify_by,group_parent,group_level,station_id,status from group_user_info where 1=1 and id=?");
+        StringBuilder sql2 = new StringBuilder("select gd.* from group_detail gd join user_info u on gd.user_info_id = u.id where gd.group_id= ? and u.is_delete = 0 and u.status_id = 1");
         try (Connection connection = ds.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql1.toString());
              PreparedStatement ps2 = connection.prepareStatement(sql2.toString())) {
@@ -243,7 +243,7 @@ public class UserGroupController {
         try {
             connection.setAutoCommit(false);
 //            StringBuilder sql = new StringBuilder("begin delete from group_detail where group_id=?; delete from group_user_info where id=?; end;");
-            StringBuilder sql = new StringBuilder("begin update group_user_info set is_delete = 1 where id in (select id from (select id,group_parent,name from group_user_info  CONNECT BY PRIOR id=group_parent   start with id in (select id from group_user_info where group_parent= ?)  ORDER SIBLINGS BY id,group_parent,name)); end;");
+            StringBuilder sql = new StringBuilder("begin update group_user_info set is_delete = 1 where id in (select id from (select id,group_parent,name from group_user_info  CONNECT BY PRIOR id=group_parent   start with id = ?  ORDER SIBLINGS BY id,group_parent,name)); end;");
             ps = connection.prepareCall(sql.toString());
             ps.setLong(1, userGroup.getId());
 //            ps.setLong(2, userGroup.getId());
@@ -268,7 +268,7 @@ public class UserGroupController {
 
     @GetMapping("/get-user")
     public List<UserInfo> getUserGroup() throws SQLException, BusinessException{
-        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 and rownum < 100 order by id, name");
+        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 and id not in (select user_info_id from group_detail) and rownum < 100 order by id, name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -374,4 +374,36 @@ public class UserGroupController {
                     .build();
         }
     }
+
+    @DeleteMapping
+    public DefaultResponseDTO deleteUsersMutil(@RequestBody  List<String> ids) throws SQLException{
+            String sqlDeleteManager = "update user_info set is_delete = 1 where id =?";
+
+            Connection connection = ds.getConnection();
+            try{
+                connection.setAutoCommit(false);
+                PreparedStatement stmDetateManager = connection.prepareStatement(sqlDeleteManager);
+
+                for (String tmp: ids) {
+                    System.out.println("ids======================"+ ids);
+                    stmDetateManager.setString(1, tmp);
+                    stmDetateManager.addBatch();
+                }
+                stmDetateManager.executeBatch();
+
+                connection.commit();
+
+            } catch (Exception e){
+                connection.rollback();
+//                logger.error("deleteUsersMutil exception : {}", e.getMessage());
+                System.out.println("deleteUsersMutil exception : {}" + e.getMessage());
+                return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
+
+            } finally {
+                connection.close();
+            }
+
+            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+
+        }
 }

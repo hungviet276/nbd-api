@@ -3,6 +3,7 @@ package com.neo.nbdapi.dao.impl;
 import com.neo.nbdapi.dao.UserInfoDAO;
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.UserInfo;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,12 +36,15 @@ public class UserInfoDAOImpl implements UserInfoDAO {
     public UserInfo findUserInfoByUsername(String username) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             UserInfo userInfo = null;
-            String sql = "SELECT id, password FROM user_info WHERE id = ?";
+            // lay ra user chua bi xoa va status active
+            String sql = "SELECT id, password FROM user_info WHERE id = ? AND is_delete = ? AND status_id = ?";
             // log sql
             logger.debug("JDBC execute query : {}", sql);
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, username);
+            statement.setInt(2, Constants.USER_INFO.IS_DELETE_FALSE);
+            statement.setInt(3, Constants.USER_INFO.STATUS_ACTIVE);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 userInfo = UserInfo
@@ -67,8 +71,7 @@ public class UserInfoDAOImpl implements UserInfoDAO {
 
             if(selectGroupDTO.getTerm() != null){
                 sql += " and (u.name like ? or u.name like ? or u.email like ?)";
-            }
-            if(selectGroupDTO.getIdGroup()!= null){
+            } else if(selectGroupDTO.getIdGroup()!= null){
                 sql +=" and u.id not in(select gd.user_info_id from group_receive_mail_detail gd where gd.id_group_receive_mail = ?)";
             }
             sql+= " and rownum < 100";
@@ -158,5 +161,25 @@ public class UserInfoDAOImpl implements UserInfoDAO {
                 throw new UsernameNotFoundException("Tài khoản không tồn tại trong hệ thống");
             return userInfo;
         }
+    }
+
+    @Override
+    public List<NameUserDTO> getAllUserId() throws SQLException {
+        List<NameUserDTO> nameUserDTOs = new ArrayList<>();
+        try (Connection connection = ds.getConnection()) {
+            NameUserDTO nameUserDTO = null;
+            String sql = "select u.id from user_info u";
+            logger.debug("JDBC getAllNameUser query : {}", sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                nameUserDTO = NameUserDTO
+                        .builder()
+                        .id(resultSet.getString("id"))
+                        .build();
+                nameUserDTOs.add(nameUserDTO);
+            }
+        }
+        return nameUserDTOs;
     }
 }

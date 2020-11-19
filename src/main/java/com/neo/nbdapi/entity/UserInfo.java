@@ -31,15 +31,15 @@ public class UserInfo {
 
     private String email;
 
-    private int gender;
+    private Integer gender;
 
     private String genders;
 
-    private int statusId;
+    private Integer statusId;
 
     private String statusIds;
 
-    private int checkRole;
+    private Integer checkRole;
 
     private String dateRole;
 
@@ -54,7 +54,7 @@ public class UserInfo {
 
     private String officeCode;
 
-    private int group_id;
+    private Integer group_id;
 
     private Date createdDate;
 
@@ -64,5 +64,5 @@ public class UserInfo {
 
     private String text;
 
-
+    private Integer isDelete;
 }

@@ -36,4 +36,9 @@ public class UserInfoController {
     public List<NameUserDTO> getUserInfoByGroup(@RequestBody GroupDetail groupDetail) throws SQLException {
         return userInfoService.getNameUserByGroupId(groupDetail);
     }
+
+    @GetMapping("/get-all-user-id")
+    public List<NameUserDTO> getAllUserId() throws SQLException {
+        return userInfoService.getAllUserId();
+    }
 }
