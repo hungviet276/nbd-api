@@ -9,13 +9,11 @@ import com.neo.nbdapi.services.GroupMailReceiveService;
 import com.neo.nbdapi.services.MailGroupConfigService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.SQLException;
+import java.util.List;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_GROUP_MAIL_CONFIG)
@@ -31,6 +29,11 @@ public class MailGroupConfigController {
     @PostMapping
     public DefaultResponseDTO getListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException, BusinessException {
         return mailGroupConfigService.createMailGroupConfig(mailGroupConFigVM);
+    }
+
+    @GetMapping("/get-info")
+    public List<Object> getListMailConfigPagination(@RequestParam  Long id) throws SQLException {
+        return mailGroupConfigService.getInfoMailReceive(id);
     }
 
 

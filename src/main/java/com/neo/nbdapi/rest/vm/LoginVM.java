@@ -16,10 +16,10 @@ import java.io.Serializable;
 public class LoginVM implements Serializable {
 
     @NotNull
-    @Size(min = 1, max = 50)
+    @Size(min = 1, max = 50, message = "Tên đăng nhập trong khoảng 1 đến 50 ký tự")
     private String username;
 
     @NotNull
-    @Size(min = 4, max = 100)
+    @Size(min = 4, max = 100, message = "Mật khẩu trong khoảng 4 đến 100 ký tự")
     private String password;
 }

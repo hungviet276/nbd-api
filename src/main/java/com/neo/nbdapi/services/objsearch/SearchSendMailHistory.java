@@ -42,4 +42,7 @@ public class SearchSendMailHistory implements Serializable {
 
     @JsonProperty("s_todate")
     String toDate;
+
+    @JsonProperty("s_group_mail")
+    String groupMail;
 }
