@@ -262,6 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("bash", "-c", "chown tb5:tb5 phu_quoc1h.ip");
             processBuilder.command("bash", "-c", "echo phu_quoc1h.par | ./tt_phantich_v1_2");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
