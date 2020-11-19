@@ -42,6 +42,8 @@ public class Station {
 
     private Integer status;
 
+    private Integer is_active;
+
     private Integer isDel;
 
     //	@DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
