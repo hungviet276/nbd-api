@@ -233,40 +233,34 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         }
 
         try{
-            URL resource = getClass().getClassLoader().getResource(Constants.WATER_LEVEL.FOLDER_EXPORT);
-            File file = null;
-            if (resource == null) {
-                throw new IllegalArgumentException("file not found!");
-            } else {
-                file =  new File(resource.toURI());
-            }
-            PrintWriter print = new PrintWriter(file);
 
-            WaterLevelExecute firstTmp = waterLevels.get(0);
-
-            Calendar calendarFirst = convertStringToCalender(firstTmp);
-
-            StringBuilder title = new StringBuilder("     1 ");
-            title.append(calendarFirst.get(Calendar.YEAR));
-            print.println(title.toString());
-
-            for (WaterLevelExecute waterLevelExecute: waterLevels) {
-                int position = waterLevels.indexOf(waterLevelExecute);
-                if(position==0){
-                    print.println(lineWithDate(waterLevelExecute, null));
-                } else {
-                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
-                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
-                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
-                    } else{
-                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
-                    }
-
-                }
-
-            }
-            print.flush();
-            print.close();
+//            PrintWriter print = new PrintWriter(file);
+//
+//            WaterLevelExecute firstTmp = waterLevels.get(0);
+//
+//            Calendar calendarFirst = convertStringToCalender(firstTmp);
+//
+//            StringBuilder title = new StringBuilder("     1 ");
+//            title.append(calendarFirst.get(Calendar.YEAR));
+//            print.println(title.toString());
+//
+//            for (WaterLevelExecute waterLevelExecute: waterLevels) {
+//                int position = waterLevels.indexOf(waterLevelExecute);
+//                if(position==0){
+//                    print.println(lineWithDate(waterLevelExecute, null));
+//                } else {
+//                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
+//                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
+//                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
+//                    } else{
+//                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
+//                    }
+//
+//                }
+//
+//            }
+//            print.flush();
+//            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.command("bash", "-c", "ls");
             Process process = processBuilder.start();
@@ -284,14 +278,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             logger.error("<==============================================================");
 
         }
-        catch (FileNotFoundException | ParseException e ) {
-            e.printStackTrace();
-            return DefaultResponseDTO.builder().status(0).message("Không thành công : " + e.getMessage()).build();
-        } catch (IOException e) {
+         catch (IOException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        } 
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
