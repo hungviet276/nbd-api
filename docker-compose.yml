@@ -1,7 +1,6 @@
 version: '3.8'
 services:
   nbd_api_dev:
-    user: tb5
     build:
       context: ./
       dockerfile: Dockerfile
