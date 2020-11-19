@@ -114,4 +114,9 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     public DefaultResponseDTO createMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException {
         return mailGroupConfigDAO.createMailGroupConfig(mailGroupConFigVM);
     }
+
+    @Override
+    public List<Object> getInfoMailReceive(Long id) throws SQLException {
+        return mailGroupConfigDAO.getInfoMailReceive(id);
+    }
 }

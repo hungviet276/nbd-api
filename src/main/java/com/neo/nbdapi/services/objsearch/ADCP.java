@@ -1,8 +1,6 @@
 package com.neo.nbdapi.services.objsearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.neo.nbdapi.config.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

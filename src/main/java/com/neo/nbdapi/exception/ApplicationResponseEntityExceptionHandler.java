@@ -44,7 +44,7 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
         ex.printStackTrace();
         ResponseBasicObj responseBasicObj =
                 new ResponseBasicObj(Constants.EXCEPTION.INTERNAL_SERVER_ERROR,
-                        "Server error : " + ex.getMessage());
+                        "Lỗi hệ thống!");
 
         return new ResponseEntity(responseBasicObj, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -84,7 +84,7 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ResponseBasicObj responseBasicObj =
                 new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
-                        "Missing parameter :" + ex.getParameterName());
+                        "Truyền thiếu tham số :" + ex.getParameterName());
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }
 
@@ -92,7 +92,7 @@ public class ApplicationResponseEntityExceptionHandler extends ResponseEntityExc
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         ResponseBasicObj responseBasicObj =
                 new ResponseBasicObj(Constants.EXCEPTION.BAD_REQUEST,
-                        "Missing path variable :" + ex.getVariableName());
+                        "Truyền thiếu tham số :" + ex.getVariableName());
         return new ResponseEntity(responseBasicObj, HttpStatus.BAD_REQUEST);
     }
 }

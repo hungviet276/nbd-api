@@ -7,6 +7,7 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.LogActDTO;
 import com.neo.nbdapi.dto.MenuDTO;
+import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.LogActService;
 import com.neo.nbdapi.services.objsearch.SearchLogAct;
@@ -93,14 +94,20 @@ public class LogActServiceImpl implements LogActService, Constants {
                         sql.append(" AND created_by LIKE ? ");
                         paramSearch.add("%" + objectSearch.getCreatedBy() + "%");
                     }
-                    if (Strings.isNotEmpty(objectSearch.getFromDate()) && DateUtils.isValid(objectSearch.getFromDate(), DateUtils.DEFAULT_DATE_FORMAT)) {
-                        sql.append(" AND created_at >= TO_DATE(?, 'dd/mm/yyyy') ");
+
+                    if (Strings.isNotEmpty(objectSearch.getFromDate())) {
+                        if (!DateUtils.isValid(objectSearch.getFromDate(), DateUtils.DEFAULT_DATE_FORMAT))
+                            throw new BusinessException("Ngày bắt đầu không hợp lệ, định dạng dd/mm/yyyy");
+                        sql.append(" AND created_at >= TO_DATE(?, 'DD/MM/YYYY') ");
                         paramSearch.add(objectSearch.getFromDate());
                     }
-                    if (Strings.isNotEmpty(objectSearch.getToDate()) && DateUtils.isValid(objectSearch.getToDate(), DateUtils.DEFAULT_DATE_FORMAT)) {
-                        sql.append(" AND created_at <= TO_DATE(?, 'dd/mm/yyyy') ");
+                    if (Strings.isNotEmpty(objectSearch.getToDate())) {
+                        if (!DateUtils.isValid(objectSearch.getToDate(), DateUtils.DEFAULT_DATE_FORMAT))
+                            throw new BusinessException("Ngày kết thúc không hợp lệ, định dạng dd/mm/yyyy");
+                        sql.append(" AND created_at <= TO_DATE(?, 'DD/MM/YYYY') ");
                         paramSearch.add(objectSearch.getToDate());
                     }
+                    System.out.println(objectSearch);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

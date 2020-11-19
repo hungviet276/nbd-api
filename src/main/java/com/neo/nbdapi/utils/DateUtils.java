@@ -1,5 +1,9 @@
 package com.neo.nbdapi.utils;
 
+import com.neo.nbdapi.exception.BusinessException;
+
+import java.nio.Buffer;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,9 +14,9 @@ import java.util.Date;
  */
 public class DateUtils {
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    public static final String DEFAULT_DATE_FORMAT = "dd/mm/yyyy";
+    public static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
 
     public static String convertDateToString(Date date) {
         if (date == null)
@@ -38,16 +42,31 @@ public class DateUtils {
             return false;
         }
         try {
-
-            int year = Integer.parseInt(value.substring(0, 4));
-            int month = Integer.parseInt(value.substring(5, 7));
-            int day = Integer.parseInt(value.substring(9, 11));
-
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormatString);
-            Date date = simpleDateFormat.parse(value);
+            simpleDateFormat.parse(value);
             return true;
         } catch (ParseException e) {
             return false;
+        }
+    }
+
+    public static Date getDateFromStringFormat(String date, String format) throws BusinessException {
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+            return simpleDateFormat.parse(date);
+        } catch (ParseException e) {
+            throw new BusinessException("Ngày tháng không hợp lệ");
+        }
+    }
+
+    public static String getStringFromDateFormat(Date date, String format) {
+        if (date == null)
+            return null;
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+            return simpleDateFormat.format(date);
+        } catch (Exception e) {
+            return null;
         }
     }
 }

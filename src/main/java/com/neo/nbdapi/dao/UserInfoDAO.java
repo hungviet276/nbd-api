@@ -15,5 +15,7 @@ public interface UserInfoDAO {
 
 	List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException;
 
-	UserInfo findUserInfo(String username) throws SQLException;
+	UserInfo findUserInfo(String username) throws SQLException ;
+
+	List<NameUserDTO> getAllUserId() throws SQLException;
 }
