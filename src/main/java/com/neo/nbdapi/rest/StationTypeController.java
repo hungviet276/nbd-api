@@ -160,7 +160,7 @@ public class StationTypeController {
                     }
 
                     if (Strings.isNotEmpty(params.get("s_status"))) {
-                        sql.append(" and a.status = ? ");
+                        sql.append(" and a.is_active = ? ");
                         paramSearch.add(params.get("s_status"));
                     }
                 } catch (Exception e) {
@@ -183,7 +183,7 @@ public class StationTypeController {
                         .longtitude(rs.getFloat("LONGTITUDE"))
                         .trans_miss(rs.getInt("TRANS_MISS"))
                         .address(rs.getString("ADDRESS"))
-                        .status(rs.getInt("STATUS"))
+                        .is_active(rs.getInt("IS_ACTIVE"))
                         .riverId(rs.getLong("RIVER_ID"))
                         .riverName(rs.getString("RIVER_NAME"))
                         .provinceId(rs.getLong("PROVINCE_ID"))
