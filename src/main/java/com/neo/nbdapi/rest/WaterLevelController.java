@@ -33,7 +33,6 @@ public class WaterLevelController {
 
     @PostMapping("/execute-water-level")
     public DefaultResponseDTO executeWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, FileNotFoundException, ParseException {
-        
         return waterLevelService.executeWaterLevel(waterLevelExecutedVM);
     }
 
