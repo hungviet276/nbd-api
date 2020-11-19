@@ -225,7 +225,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         logger.error("==============================================================>");
         logger.error("==============================================================>");
         logger.error("==============================================================>");
-         this.timeTmp = 0L;
+        this.timeTmp = 0L;
 
         List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
         if(waterLevels.size() == 0){
@@ -233,14 +233,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         }
 
         try{
-            URL resource = getClass().getClassLoader().getResource(Constants.WATER_LEVEL.FOLDER_EXPORT);
-            File file = null;
-            if (resource == null) {
-                throw new IllegalArgumentException("file not found!");
-            } else {
-                file =  new File(resource.toURI());
-            }
-            PrintWriter print = new PrintWriter(file);
+
+            PrintWriter print = new PrintWriter(new File("/water_level/phuquoc1h.ip"));
 
             WaterLevelExecute firstTmp = waterLevels.get(0);
 
@@ -268,7 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls");
+            processBuilder.command("bash", "-c", "cat /water_level/phuquoc1h.ip");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
@@ -284,13 +278,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             logger.error("<==============================================================");
 
         }
-        catch (FileNotFoundException | ParseException e ) {
-            e.printStackTrace();
-            return DefaultResponseDTO.builder().status(0).message("Không thành công : " + e.getMessage()).build();
-        } catch (IOException e) {
+         catch (IOException | ParseException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
