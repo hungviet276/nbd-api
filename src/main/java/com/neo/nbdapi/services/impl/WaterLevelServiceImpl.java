@@ -262,7 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 //            print.flush();
 //            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls");
+            processBuilder.command("bash", "-c", "ls water_level");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
@@ -280,7 +280,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         }
          catch (IOException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
-        } 
+        }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
