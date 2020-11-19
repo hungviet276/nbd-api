@@ -176,7 +176,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
 
     @Override
     public List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where status = 1 and rownum < 100 ");
+        StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where is_active = 1 and isdel = 0 and rownum < 100 ");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
