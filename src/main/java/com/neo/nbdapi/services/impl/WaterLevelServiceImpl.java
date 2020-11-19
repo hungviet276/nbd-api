@@ -261,22 +261,21 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             }
             print.flush();
             print.close();
-//            ProcessBuilder processBuilder = new ProcessBuilder();
-//            processBuilder.command("bash", "-c", "chown tb5:tb5 phu_quoc1h.ip");
-//            processBuilder.command("bash", "-c", "echo phu_quoc1h.par | ./tt_phantich_v1_2");
-//            Process process = processBuilder.start();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//            String s = "Đây là log của đức Anh:";
-//            String line = "";
-//            while ((line = reader.readLine()) != null) {
-//                s = s +line;
-//            }
-//            System.out.println("Đây là cái cần check =========================> " +s);
-//            logger.error("==============================================================>");
-//            logger.error("==============================================================>");
-//            logger.error(s);
-//            logger.error("<==============================================================");
-//            logger.error("<==============================================================");
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("bash", "-c", "echo phu_quoc1h.par | ./tt_phantich_v1_2");
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String s = "Đây là log của đức Anh:";
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                s = s +line;
+            }
+            System.out.println("Đây là cái cần check =========================> " +s);
+            logger.error("==============================================================>");
+            logger.error("==============================================================>");
+            logger.error(s);
+            logger.error("<==============================================================");
+            logger.error("<==============================================================");
 
         }
          catch (IOException | ParseException e) {
