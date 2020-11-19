@@ -20,5 +20,5 @@ public interface WaterLevelDAO {
 
  List<WaterLevelExecute> executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException;
 
-
+ List<Object> getInfoEdit(Long id) throws  SQLException;
 }
