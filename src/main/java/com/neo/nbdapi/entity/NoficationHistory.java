@@ -25,4 +25,5 @@ public class NoficationHistory {
 	private String pushTimestampStr;
 	private String stationCode;
 	private String status;
+	private String groupReMailName;
 }

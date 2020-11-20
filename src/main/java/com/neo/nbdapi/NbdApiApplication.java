@@ -13,20 +13,6 @@ public class NbdApiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(NbdApiApplication.class, args);
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls /var/lib/mysql");
-            Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String s = "Đây là log của đức Anh:";
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                s = s +line;
-            }
-            System.out.println("Đây là cái cần check =========================> " +s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }
