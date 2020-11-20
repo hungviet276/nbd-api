@@ -16,6 +16,7 @@ pipeline {
                     sh 'mvn install:install-file -Dfile=/app/ojdbc8-12.2.0.1.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector -Dspring.profiles.active=prod'
                     sh 'mvn -DskipTests clean verify install'
                     sh 'mvn dockerfile:build'
+                    sh 'docker run -v /home/tb5/harmony_constant/NEO /var/lib/harmony_constant/NEO'
                     sh "docker-compose up -d --build"
                 }
             }
