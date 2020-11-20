@@ -232,7 +232,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             return DefaultResponseDTO.builder().status(1).message("Thành công").build();
         }
 
-        
         try{
 
             PrintWriter print = new PrintWriter(new File("/nbd-api/phu_quoc1h.ip"));
