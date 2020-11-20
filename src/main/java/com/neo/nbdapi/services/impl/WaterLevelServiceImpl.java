@@ -262,7 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 //            print.flush();
 //            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("/bin/sh", "-c",  "chmod -R 777 /home/tb5/harmony_constant/neo/**;cd /home/tb5/harmony_constant/neo;ls;echo phu_quoc1h.par | ./tt_phantich_v1_2");
+            processBuilder.command("/bin/sh", "-c",  "chmod -R 777 /home/tb5/harmony_constant/neo/**;cd /home/tb5/harmony_constant/neo;ls;echo cd /home/tb5/harmony_constant/neo");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
