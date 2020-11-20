@@ -262,7 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 //            print.flush();
 //            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "cd water_level/NEO; echo phu_quoc1h.par | ./tt_phantich_v1_2");
+            processBuilder.command("bash", "-c", "ls water_level");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
