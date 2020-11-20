@@ -234,7 +234,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         try{
 
-            PrintWriter print = new PrintWriter(new File("/water_level/phu_quoc1h.ip"));
+            PrintWriter print = new PrintWriter(new File("/water_level/home/ducanh/Desktop/apptest/harmony_constant/NEO"));
 
             WaterLevelExecute firstTmp = waterLevels.get(0);
 
