@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dto;
 
 import com.neo.nbdapi.entity.ParameterChartMapping;
+import com.neo.nbdapi.entity.StationTimeSeries;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class ParameterChartMappingAndDataDTO implements Serializable {
+    private StationTimeSeries stationTimeSeries;
+
     private ParameterChartMapping chartMapping;
 
     private Object data;
