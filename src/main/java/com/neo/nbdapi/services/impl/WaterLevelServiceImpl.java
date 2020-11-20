@@ -234,35 +234,35 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         try{
 
-//            PrintWriter print = new PrintWriter(new File("/water_level/home/ducanh/Desktop/apptest/harmony_constant/NEO"));
-//
-//            WaterLevelExecute firstTmp = waterLevels.get(0);
-//
-//            Calendar calendarFirst = convertStringToCalender(firstTmp);
-//
-//            StringBuilder title = new StringBuilder("     1 ");
-//            title.append(calendarFirst.get(Calendar.YEAR));
-//            print.println(title.toString());
-//
-//            for (WaterLevelExecute waterLevelExecute: waterLevels) {
-//                int position = waterLevels.indexOf(waterLevelExecute);
-//                if(position==0){
-//                    print.println(lineWithDate(waterLevelExecute, null));
-//                } else {
-//                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
-//                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
-//                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
-//                    } else{
-//                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
-//                    }
-//
-//                }
-//
-//            }
-//            print.flush();
-//            print.close();
+            PrintWriter print = new PrintWriter(new File("/water_level/home/ducanh/Desktop/apptest/harmony_constant/NEO/phu_quoc1h.ip"));
+
+            WaterLevelExecute firstTmp = waterLevels.get(0);
+
+            Calendar calendarFirst = convertStringToCalender(firstTmp);
+
+            StringBuilder title = new StringBuilder("     1 ");
+            title.append(calendarFirst.get(Calendar.YEAR));
+            print.println(title.toString());
+
+            for (WaterLevelExecute waterLevelExecute: waterLevels) {
+                int position = waterLevels.indexOf(waterLevelExecute);
+                if(position==0){
+                    print.println(lineWithDate(waterLevelExecute, null));
+                } else {
+                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
+                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
+                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
+                    } else{
+                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
+                    }
+
+                }
+
+            }
+            print.flush();
+            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls /water_level");
+            processBuilder.command("bash", "-c", "echo /water_level/home/tb5/harmony_constant/NEO/phu_quoc1h.par | water_level/home/tb5/harmony_constant/NEO/tt_phantich_v1_2");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
@@ -278,7 +278,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             logger.error("<==============================================================");
 
         }
-         catch (IOException e) {
+         catch (IOException | ParseException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
