@@ -7,6 +7,9 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.GroupMailReceive;
+import com.neo.nbdapi.entity.UserExpandReceiveMail;
+import com.neo.nbdapi.entity.UserInfoReceiveMail;
+import com.neo.nbdapi.entity.WarningRecipentReceiveMail;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.MailGroupConFigVM;
@@ -118,5 +121,46 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     @Override
     public List<Object> getInfoMailReceive(Long id) throws SQLException {
         return mailGroupConfigDAO.getInfoMailReceive(id);
+    }
+
+    @Override
+    public DefaultResponseDTO editMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException {
+        List<Object> datas = mailGroupConfigDAO.getInfoMailReceive(Long.parseLong(mailGroupConFigVM.getId()));
+        List<UserInfoReceiveMail> userInfoReceiveMails = (List<UserInfoReceiveMail>) datas.get(0);
+        List<UserExpandReceiveMail> userExpandReceiveMails = (List<UserExpandReceiveMail>) datas.get(1);
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMails = (List<WarningRecipentReceiveMail>) datas.get(2);
+
+        List<UserInfoReceiveMail> UserInfoReceiveMailInserts = new ArrayList<>();
+        List<UserInfoReceiveMail> UserInfoReceiveMailDeletes = new ArrayList<>();
+
+        List<UserExpandReceiveMail> userExpandReceiveMailInserts = new ArrayList<>();
+        List<UserExpandReceiveMail> userExpandReceiveMailDeletes = new ArrayList<>();
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMailInserts = new ArrayList<>();
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes = new ArrayList<>();
+
+        for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
+            Boolean isInsert = true;
+            for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
+                if(userInfoTmp.equals(userInfoReceiveMail.getName())){
+                    isInsert = false;
+                    break;
+                }
+                if(isInsert){
+                    UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name("userInfoTmp").build());
+                }
+            }
+        }
+
+        for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
+            Boolean isDell = true;
+            for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
+
+            }
+        }
+
+
+
+
+        return null;
     }
 }

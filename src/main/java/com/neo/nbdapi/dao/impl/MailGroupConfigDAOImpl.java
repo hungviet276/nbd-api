@@ -89,7 +89,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
 
     @Override
     public List<Object> getInfoMailReceive(Long id) throws SQLException {
-        String sqlUserInSite = "select g.id, u.name, u.email from group_receive_mail_detail g inner join user_info u on u.id = g.user_info_id where g.id_group_receive_mail = ?";
+        String sqlUserInSite = "select g.id, u.id as name, u.email from group_receive_mail_detail g inner join user_info u on u.id = g.user_info_id where g.id_group_receive_mail = ?";
         String sqlUserOutSite = "select ue.id, ue.name, ue.email from user_info_expand  ue inner join group_receive_mail_detail g on g.user_info_expant = ue.id where g.id_group_receive_mail = ?";
         String sqlWarning = "select w.id, s.station_id as station_id, s.station_name, ws.id as warning_id, ws.code   from warning_recipents w inner join warning_manage_stations ws on ws.id = w.manage_warning_stations inner join stations s on s.station_id = ws.station_id where w.group_receive_mail_id = ?";
 
@@ -192,13 +192,12 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
                                                   List<WarningRecipentReceiveMail> warningRecipentReceiveMailInsert) throws SQLException {
         Connection connection = ds.getConnection();
         String sqlUpdateGroupReceiveMail = "update group_receive_mail set name = ?, description = ? , modify_at = sysdate , modify_by = ? where id = ?";
-        String sqlDeleteInSite = "delete from group_receive_mail_detail where  id = ?";
+        String sqlDeleteInSite = "delete from group_receive_mail_detail where  id_group_receive_mail = ?, ";
         String sqlDeleteOut = "delete from group_receive_mail_detail where id_group_receive_mail = ? and user_info_expant = ?";
         String sqlDeleteWarning = "delete from warning_recipents where id = ?";
 
         String sqlInsertGroupReceiveMailDetail = "insert into GROUP_RECEIVE_MAIL_DETAIL (ID, ID_GROUP_RECEIVE_MAIL, USER_INFO_ID, USER_INFO_EXPANT) values (GROUP_RECEIVE_MAIL_DETAIL_SEQ.nextval, ?,?,?)";
         String sqlInsertWarningRecipents = "insert into warning_recipents (id, GROUP_RECEIVE_MAIL_ID, manage_warning_stations) values (WARNING_RECIPENTS_SEQ.nextval,?,?)";
-
 
         PreparedStatement stmUpdateGroupReceiveMail = null;
         PreparedStatement stmDeleteInSite = null;
@@ -217,13 +216,10 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             stmInsertWarningRecipents = connection.prepareStatement(sqlInsertWarningRecipents);
 
 
-            // update group receive mail
             stmUpdateGroupReceiveMail.setString(1,mailGroupConFigVM.getName());
             stmUpdateGroupReceiveMail.setString(2, mailGroupConFigVM.getDescription());
             stmUpdateGroupReceiveMail.setString(3, mailGroupConFigVM.getUser());
             stmUpdateGroupReceiveMail.setLong(4, Long.parseLong(mailGroupConFigVM.getId()));
-
-            // delete insite List<UserInfoReceiveMail> userInfoReceiveMailDeletes
 
             for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMailDeletes){
                 stmDeleteInSite.setLong(1, userInfoReceiveMail.getId());
@@ -231,14 +227,11 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             }
             stmDeleteInSite.executeBatch();
 
-            // List<UserExpandReceiveMail> userExpandReceiveMailDelete,
-
             for(UserExpandReceiveMail userExpandReceiveMail : userExpandReceiveMailDelete){
                 stmDeleteOut.setLong(1, userExpandReceiveMail.getId());
                 stmDeleteOut.addBatch();
             }
             stmDeleteOut.executeBatch();
-            // delete warning List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes,
 
             for(WarningRecipentReceiveMail warningRecipentReceiveMail : warningRecipentReceiveMailDeletes){
                 stmDeleteWarning.setLong(1, warningRecipentReceiveMail.getId());
@@ -246,30 +239,57 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             }
             stmDeleteWarning.executeBatch();
 
-
-            //List<UserInfoReceiveMail> userInfoReceiveMailInserts,
-            //List<UserExpandReceiveMail> userExpandReceiveMailInserts,
-            //String sqlInsertGroupReceiveMailDetail = "insert into GROUP_RECEIVE_MAIL_DETAIL (ID, ID_GROUP_RECEIVE_MAIL, USER_INFO_ID, USER_INFO_EXPANT) values (GROUP_RECEIVE_MAIL_DETAIL_SEQ.nextval, ?,?,?)";
-
             for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMailInserts){
                 stmInsertGroupReceiveMailDetail.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
-                //stmInsertGroupReceiveMailDetail.setLong(2, userInfoReceiveMail.getId());
-            }
+                stmInsertGroupReceiveMailDetail.setString(2,userInfoReceiveMail.getName());
+                stmInsertGroupReceiveMailDetail.setNull(3, Types.BIGINT);
+                stmInsertGroupReceiveMailDetail.addBatch();
 
+            }
+            stmInsertGroupReceiveMailDetail.executeBatch();
             for(UserExpandReceiveMail userExpandReceiveMail : userExpandReceiveMailInserts){
+                stmInsertGroupReceiveMailDetail.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
+                stmInsertGroupReceiveMailDetail.setNull(2, Types.CHAR);
+                stmInsertGroupReceiveMailDetail.setLong(3,userExpandReceiveMail.getId());
+                stmInsertGroupReceiveMailDetail.addBatch();
+            }
+            stmInsertGroupReceiveMailDetail.executeBatch();
 
+            for(WarningRecipentReceiveMail warningRecipentReceiveMail :warningRecipentReceiveMailInsert ){
+                stmInsertWarningRecipents.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
+                stmInsertWarningRecipents.setLong(2,warningRecipentReceiveMail.getWarningManagerId());
+                stmInsertWarningRecipents.addBatch();
 
             }
-
-
-
-
+            stmInsertWarningRecipents.executeBatch();
+            connection.commit();
 
         } catch (Exception e){
 
-        } finally {
+            e.printStackTrace();
 
+        } finally {
+            if(stmUpdateGroupReceiveMail != null){
+                stmUpdateGroupReceiveMail.close();
+            }
+
+            if(stmDeleteInSite != null){
+                stmDeleteInSite.close();
+            }
+            if(stmDeleteOut !=null){
+                stmDeleteOut.close();
+            }
+            if(stmDeleteWarning != null){
+                stmDeleteWarning.close();
+            }
+           if(stmInsertGroupReceiveMailDetail!=null){
+               stmInsertGroupReceiveMailDetail.close();
+           }
+           if(stmInsertWarningRecipents != null){
+               stmInsertWarningRecipents.close();
+           }
+           connection.close();
         }
-        return null;
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 }

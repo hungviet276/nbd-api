@@ -13,4 +13,5 @@ public interface MailGroupConfigService {
     DefaultPaginationDTO getGroupReceiveMailsPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
     DefaultResponseDTO createMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException;
     List<Object> getInfoMailReceive(Long id) throws SQLException;
+    DefaultResponseDTO editMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException;
 }
