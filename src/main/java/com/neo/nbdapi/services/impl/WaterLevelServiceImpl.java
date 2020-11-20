@@ -228,9 +228,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         this.timeTmp = 0L;
 
         List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
-        if(waterLevels.size() == 0){
-            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
-        }
+//        if(waterLevels.size() == 0){
+//            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+//        }
 
         try{
 
