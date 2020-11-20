@@ -234,7 +234,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         try{
 
-            PrintWriter print = new PrintWriter(new File("/water_level/home/tb5/harmony_constant/NEO/phu_quoc1h.ip"));
+            PrintWriter print = new PrintWriter(new File("/nbd-api/phu_quoc1h.ip"));
 
             WaterLevelExecute firstTmp = waterLevels.get(0);
 
@@ -262,7 +262,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "echo /water_level/home/tb5/harmony_constant/NEO/phu_quoc1h.par | /water_level/home/tb5/harmony_constant/NEO/tt_phantich_v1_2");
+            processBuilder.command("bash", "-c", "pwd;ls");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";

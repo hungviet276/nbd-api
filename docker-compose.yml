@@ -9,4 +9,4 @@ services:
       - "8080:8080"
     tty: true
     volumes:
-      - /:/water_level
+      - /home/tb5/harmony_constant/NEO:/nbd-api
