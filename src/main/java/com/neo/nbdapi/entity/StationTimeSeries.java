@@ -42,6 +42,7 @@ public class StationTimeSeries {
 	private Integer status;
 	private Integer unitId;
 	private String unitName;
+	private String unitCode;
 	private String timeSeries;
 	private String objectTypeShortName;
 	private String prTimestamp;

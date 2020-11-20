@@ -28,7 +28,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
 
     @Override
     public StationTimeSeries findByStationIdAndParameterTypeId(String stationId, Long parameterTypeId) throws SQLException {
-        String sql = "SELECT ts_id, ts_name, station_id, ts_type_id, parametertype_id, parametertype_name, storage FROM station_time_series WHERE station_id = ? AND parametertype_id = ?";
+        String sql = "SELECT sts.ts_id, sts.ts_name, sts.station_id, sts.ts_type_id, sts.parametertype_id, sts.parametertype_name, sts.storage, un.unit_id, un.unit_name,un.unit_code FROM station_time_series sts JOIN parameter_type pt ON sts.parametertype_id = pt.parameter_type_id JOIN unit un ON pt.unit_id = un.unit_id WHERE sts.station_id = ? AND sts.parametertype_id = ?";
         StationTimeSeries stationTimeSeries = null;
         try (
                 Connection connection = ds.getConnection();
@@ -46,6 +46,9 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                         .parameterTypeId(resultSet.getInt("parametertype_id"))
                         .parameterTypeName(resultSet.getString("parametertype_name"))
                         .storage(resultSet.getString("storage"))
+                        .unitId(resultSet.getInt("unit_id"))
+                        .unitName(resultSet.getString("unit_name"))
+                        .unitCode(resultSet.getString("unit_code"))
                         .build();
             }
         }
@@ -59,7 +62,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                 Connection connection = ds.getConnection();
         ) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            String tableNameRequest = Strings.isEmpty(type)? storage : storage + "_" + type;
+            String tableNameRequest = Strings.isEmpty(type)? storage : storage + type;
             ResultSet table = databaseMetaData.getTables(null, null, tableNameRequest.toUpperCase(), new String[]{"TABLE"});
             if (table.next()) {
                 String sql = "SELECT ts_id, value, timestamp, status, manual, warning, create_user FROM %s WHERE timestamp >= to_date(?, 'dd/mm/yyyy HH24:mi')";

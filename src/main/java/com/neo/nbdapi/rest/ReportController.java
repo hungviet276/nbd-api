@@ -1,8 +1,6 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.ParameterChartMappingAndDataDTO;
-import com.neo.nbdapi.dto.StationDataReportDTO;
-import com.neo.nbdapi.dto.TimeSeriesDataDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.GetParameterChartMappingAndDataVM;
 import com.neo.nbdapi.rest.vm.GetStationDataReportVM;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * @author thanglv on 11/14/2020
@@ -33,13 +30,14 @@ public class ReportController {
     // lay du lieu report cua 1 yeu to cua tram do theo startdate va enddate
     @PostMapping("/get-parameter-chart-mapping-and-data")
     public ParameterChartMappingAndDataDTO getParameterChartMappingAndData(@RequestBody @Valid GetParameterChartMappingAndDataVM request) throws SQLException, BusinessException {
+        System.out.println(request.getType() == null ? "ssss": ">" + request.getType() + "<");
         return reportService.getParameterChartMappingAndData(request);
     }
 
-    // lay du lieu report tat ca cac yeu to cua tram do cua 7 ngay truoc tinh tu ngay hom nay
-    @PostMapping("/get-station-report-data-seven-day-ago")
-    public List<TimeSeriesDataDTO> getStationDataReport(@RequestBody @Valid GetStationDataReportVM request) throws SQLException, BusinessException {
-        return  reportService.getStationDataReport(request);
+    // lay ra list parameter type id hien thi cua tram
+    @PostMapping("/get-parameter-display-chart")
+    public String[] getListParameterDisplayChartOfStation(@RequestBody @Valid GetStationDataReportVM request) throws SQLException, BusinessException {
+        return  reportService.getListParameterDisplayChartOfStation(request);
     }
 
 }
