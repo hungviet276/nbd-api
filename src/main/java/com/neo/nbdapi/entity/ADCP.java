@@ -47,21 +47,27 @@ public class ADCP implements Serializable {
 
     private Long waterLevelAvg;
 
-    private Long speedAvg;
+    private Float speedAvg;
 
-    private Long speedMax;
+    private Float speedMax;
 
-    private Long deepAvg;
+    private Float deepAvg;
 
-    private Long deepMax;
+    private Float deepMax;
 
-    private Long squareRiver;
+    private Float squareRiver;
 
-    private Long widthRiver;
+    private Float widthRiver;
 
-    private Long waterFlow;
+    private Float waterFlow;
 
     private String note;
+
+    private String data;
+
+    private String dataAvg;
+
+    private Float totalTurb;
 
     private File fileUpload;
 

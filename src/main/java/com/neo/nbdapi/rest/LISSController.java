@@ -6,8 +6,8 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ADCP;
-import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.exception.BusinessException;
+import com.neo.nbdapi.rest.StationTypeController;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.StationManagementService;
 import com.neo.nbdapi.utils.Constants;
@@ -35,7 +35,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/manual-input")
-public class ADCPController {
+public class LISSController {
     private Logger logger = LogManager.getLogger(StationTypeController.class);
 
     private Logger loggerAction = LogManager.getLogger("ActionCrud");
@@ -53,7 +53,7 @@ public class ADCPController {
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
 
-    @PostMapping("/get-list-adcp-pagination")
+    @PostMapping("/get-list-liss-pagination")
     public DefaultPaginationDTO getListStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -62,7 +62,7 @@ public class ADCPController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from adcp a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
+            StringBuilder sql = new StringBuilder("select a.*,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from liss a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
                     "where a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
@@ -119,18 +119,19 @@ public class ADCPController {
                         .timeStart(rs.getDate("TIME_START"))
                         .timeEnd(rs.getDate("TIME_END"))
                         .timeAvg(rs.getDate("TIME_AVG"))
-                        .waterLevelStart(rs.getLong("WATER_LEVEL_START"))
-                        .waterLevelEnd(rs.getLong("WATER_LEVEL_END"))
-                        .waterLevelAvg(rs.getLong("WATER_LEVEL_AVG"))
-                        .speedAvg(rs.getFloat("SPEED_AVG"))
-                        .speedMax(rs.getFloat("SPEED_MAX"))
-                        .deepAvg(rs.getFloat("DEEP_AVG"))
-                        .deepMax(rs.getFloat("DEEP_MAX"))
-                        .squareRiver(rs.getFloat("SQUARE_RIVER"))
-                        .widthRiver(rs.getFloat("WIDTH_RIVER"))
-                        .waterFlow(rs.getFloat("WATER_FLOW"))
-                        .note(rs.getString("NOTE"))
-                        .linkFile(rs.getString("LINK_FILE"))
+                        .data(rs.getString("DATA"))
+                        .dataAvg(rs.getString("DATA_AVG"))
+                        .totalTurb(rs.getFloat("TOTAL_TURB"))
+//                        .waterLevelAvg(rs.getLong("WATER_LEVEL_AVG"))
+//                        .speedAvg(rs.getLong("SPEED_AVG"))
+//                        .speedMax(rs.getLong("SPEED_MAX"))
+//                        .deepAvg(rs.getLong("DEEP_AVG"))
+//                        .deepMax(rs.getLong("DEEP_MAX"))
+//                        .squareRiver(rs.getLong("SQUARE_RIVER"))
+//                        .widthRiver(rs.getLong("WIDTH_RIVER"))
+//                        .waterFlow(rs.getLong("WATER_FLOW"))
+//                        .note(rs.getString("NOTE"))
+//                        .linkFile(rs.getString("LINK_FILE"))
                         .createdAt(rs.getDate("CREATED_AT"))
                         .build();
                 list.add(bo);
@@ -149,11 +150,11 @@ public class ADCPController {
         }
     }
 
-    @PostMapping("/create-adcp")
+    @PostMapping("/create-liss")
     public DefaultResponseDTO createADCP(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params) +  file.length);
 
-        loggerAction.info("{};{}", "create-adcp", objectMapper.writeValueAsString(params));
+        loggerAction.info("{};{}", "create-liss", objectMapper.writeValueAsString(params));
         //tao thu muc luu tru file
         File f = new File(request.getRealPath("") + "/upload");
         if(!f.exists()){
@@ -172,12 +173,10 @@ public class ADCPController {
                 e.printStackTrace();
             }
         }
-
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "insert into adcp(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,WATER_LEVEL_START,WATER_LEVEL_END," +
-                "WATER_LEVEL_AVG,SPEED_AVG,SPEED_MAX,DEEP_AVG,DEEP_MAX,SQUARE_RIVER,WIDTH_RIVER,WATER_FLOW,NOTE,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
-                "values(adcp_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,?,?,?,?,?,?,?,?,sysdate,?,?)";
+        String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
+                "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,sysdate,?,?)";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("stationId"));
@@ -185,19 +184,20 @@ public class ADCPController {
             statement.setString(i++, params.get("timeEnd"));
             statement.setString(i++, params.get("timeAvg"));
 
-            statement.setString(i++, params.get("waterLevelStart"));
-            statement.setString(i++, params.get("waterLevelEnd"));
-            statement.setString(i++, params.get("waterLevelAvg"));
-            statement.setString(i++, params.get("speedAvg"));
-            statement.setString(i++, params.get("speedMax"));
-
-            statement.setString(i++, params.get("deepAvg"));
-            statement.setString(i++, params.get("deepMax"));
-            statement.setString(i++, params.get("squareRiver"));
-            statement.setString(i++, params.get("widthRiver"));
-
-            statement.setString(i++, params.get("waterFlow"));
-            statement.setString(i++, params.get("note"));
+            statement.setString(i++, params.get("data"));
+            statement.setString(i++, params.get("dataAvg"));
+            statement.setString(i++, params.get("totalTurb"));
+//            statement.setString(i++, params.get("waterLevelAvg"));
+//            statement.setString(i++, params.get("speedAvg"));
+//            statement.setString(i++, params.get("speedMax"));
+//
+//            statement.setString(i++, params.get("deepAvg"));
+//            statement.setString(i++, params.get("deepMax"));
+//            statement.setString(i++, params.get("squareRiver"));
+//            statement.setString(i++, params.get("widthRiver"));
+//
+//            statement.setString(i++, params.get("waterFlow"));
+//            statement.setString(i++, params.get("note"));
             statement.setString(i++, params.get("username"));
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
@@ -216,7 +216,7 @@ public class ADCPController {
         }
     }
 
-    @PostMapping("/update-adcp")
+    @PostMapping("/update-liss")
     public DefaultResponseDTO updateADCP(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params) +  file.length);
 
@@ -284,11 +284,11 @@ public class ADCPController {
         }
     }
 
-    @PostMapping("/delete-adcp")
+    @PostMapping("/delete-liss")
     public DefaultResponseDTO deleteADCP(@RequestParam("id") String id){
 
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "delete adcp where id =?";
+        String sql = "delete liss where id =?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, id);
