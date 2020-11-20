@@ -263,6 +263,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.command("bash", "-c", "echo /water_level/phu_quoc1h.par | /water_level/tt_phantich_v1_2");
+            
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
