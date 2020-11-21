@@ -138,6 +138,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         List<WarningRecipentReceiveMail> warningRecipentReceiveMailInserts = new ArrayList<>();
         List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes = new ArrayList<>();
 
+        // lấy ra các user info cần thêm mới
         for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
             Boolean isInsert = true;
             for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
@@ -145,22 +146,85 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
                     isInsert = false;
                     break;
                 }
-                if(isInsert){
-                    UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name("userInfoTmp").build());
-                }
+            }
+            if(isInsert){
+                UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name("userInfoTmp").build());
             }
         }
-
+        // lấy ra các user info cần xóa
         for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
             Boolean isDell = true;
             for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
-
+                if(userInfoReceiveMail.getName().equals(userInfoTmp)){
+                    isDell = false;
+                    break;
+                }
+            }
+            if(isDell){
+                UserInfoReceiveMailDeletes.add(userInfoReceiveMail);
             }
         }
 
+        //lấy ra các user ngoài hệ thống cần thêm mới
+        for(String idExpand : mailGroupConFigVM.getUserOutSite()){
+            Boolean insert = true;
+            for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
+                if(userExpandReceiveMail.getId() == Long.parseLong(idExpand)){
+                    insert = false;
+                    break;
+                }
+            }
+            if(insert){
+                userExpandReceiveMailInserts.add(UserExpandReceiveMail.builder().id(Long.parseLong(idExpand)).build());
+            }
+        }
 
+        // lấy ra các user expand cần xóa
 
+        for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
+            Boolean delete = true;
+            for(String idExpand : mailGroupConFigVM.getUserOutSite()){
+                if(userExpandReceiveMail.getId() == Long.parseLong(idExpand)){
+                    delete = false;
+                    break;
+                }
+            }
+            if(delete){
+                userExpandReceiveMailDeletes.add(userExpandReceiveMail);
+            }
 
-        return null;
+        }
+
+        // sánh sách các cảnh báo được insert   List<WarningRecipentReceiveMail> warningRecipentReceiveMails
+
+        for(String warning : mailGroupConFigVM.getWarningConfig()){
+           boolean insert = true;
+            for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
+                if(warningRecipentReceiveMail.getId() == Long.parseLong(warning)){
+                    insert = false;
+                    break;
+                }
+            }
+            if(insert){
+                warningRecipentReceiveMailInserts.add(WarningRecipentReceiveMail.builder().id(Long.parseLong(warning)).build());
+            }
+
+        }
+
+        for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
+            boolean delete = true;
+            for(String warning : mailGroupConFigVM.getWarningConfig()){
+                if(warningRecipentReceiveMail.getId() == Long.parseLong(warning)){
+                    delete = false;
+                    break;
+                }
+            }
+            if(delete){
+                warningRecipentReceiveMailDeletes.add(warningRecipentReceiveMail);
+            }
+
+        }
+        return mailGroupConfigDAO.editMailGroupConfig(mailGroupConFigVM, UserInfoReceiveMailDeletes, UserInfoReceiveMailInserts,
+                userExpandReceiveMailInserts, userExpandReceiveMailDeletes, warningRecipentReceiveMailDeletes, warningRecipentReceiveMailInserts);
     }
 }
