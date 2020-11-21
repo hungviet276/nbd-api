@@ -26,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -569,7 +570,7 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.TS_CONFIG_ID,b.uuid from TIME_SERIES_TYPE a, TIME_SERIES_CONFIG b where a.TS_TYPE_ID = b.TS_TYPE_ID ");
+            StringBuilder sql = new StringBuilder("select a.*,b.TS_CONFIG_ID,b.uuid, b.STORAGE,b.TS_CONFIG_NAME from TIME_SERIES_TYPE a, TIME_SERIES_CONFIG b where a.TS_TYPE_ID = b.TS_TYPE_ID ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -600,6 +601,8 @@ public class StationTypeController {
                         .parameterName(rs.getString("TS_TYPE_NAME"))
                         .unitName(rs.getString("TS_TYPE_DESCRIPTION"))
                         .uuid(rs.getString("UUID"))
+                        .storage(rs.getString("STORAGE"))
+                        .tsConfigName(rs.getString("TS_CONFIG_NAME"))
                         .build();
                 list.add(bo);
             }
@@ -984,7 +987,9 @@ public class StationTypeController {
 
     @GetMapping("/get-list-select-station")
     public List<ComboBoxStr> getListSelectStation(@RequestParam Map<String,String> params) throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME, RIVER_ID from stations where ISDEL = 0");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME, RIVER_ID from stations where ISDEL = 0 ");
         if(params.get("stationType") != null){
             sql.append(" STATION_TYPE_ID in (?)");
         }
