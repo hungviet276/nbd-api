@@ -377,11 +377,11 @@ public class StationTypeController {
 
     @PostMapping("/search-parameter-type")
     public DefaultPaginationDTO searchParameterType(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder("select a.*, b.listSeries,c.unit_name from parameter_type a ,\n" +
-                "  (select c.PARAMETER_TYPE_ID , LISTAGG(TS_TYPE_NAME, '; ') \n" +
+        StringBuilder sql = new StringBuilder("select a.*, b.listSeries,b.storage,c.unit_name from parameter_type a ,\n" +
+                "  (select c.STORAGE, c.PARAMETER_TYPE_ID , LISTAGG(TS_TYPE_NAME, '; ') \n" +
                 "                    WITHIN GROUP (ORDER BY TS_TYPE_NAME) listSeries  from (\n" +
-                "select a.PARAMETER_TYPE_ID, b.TS_TYPE_NAME from TIME_SERIES_CONFIG a, TIME_SERIES_TYPE b where a.TS_TYPE_ID = b.TS_TYPE_ID \n" +
-                ") c where 1=1 GROUP BY PARAMETER_TYPE_ID) b, unit c\n" +
+                "select a.STORAGE, a.PARAMETER_TYPE_ID, b.TS_TYPE_NAME from TIME_SERIES_CONFIG a, TIME_SERIES_TYPE b where a.TS_TYPE_ID = b.TS_TYPE_ID \n" +
+                ") c where 1=1 GROUP BY PARAMETER_TYPE_ID, c.STORAGE ) b, unit c\n" +
                 "    where a.PARAMETER_TYPE_ID = b.PARAMETER_TYPE_ID(+) and a.unit_id = c.unit_id(+)");
         try (Connection connection = ds.getConnection();) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
@@ -425,6 +425,7 @@ public class StationTypeController {
                         .unitId(Integer.parseInt(rs.getString("UNIT_ID")))
                         .unitName(rs.getString("UNIT_NAME"))
                         .timeSeries(rs.getString("LISTSERIES"))
+                        .storage(rs.getString("STORAGE"))
                         .build();
                 list.add(bo);
             }
