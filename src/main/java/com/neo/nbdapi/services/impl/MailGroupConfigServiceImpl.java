@@ -169,13 +169,13 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         for(String idExpand : mailGroupConFigVM.getUserOutSite()){
             Boolean insert = true;
             for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
-                if(userExpandReceiveMail.getId() == Long.parseLong(idExpand)){
+                if(userExpandReceiveMail.getId().equals(idExpand)){
                     insert = false;
                     break;
                 }
             }
             if(insert){
-                userExpandReceiveMailInserts.add(UserExpandReceiveMail.builder().id(Long.parseLong(idExpand)).build());
+                userExpandReceiveMailInserts.add(UserExpandReceiveMail.builder().id(idExpand).build());
             }
         }
 
@@ -184,7 +184,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
             Boolean delete = true;
             for(String idExpand : mailGroupConFigVM.getUserOutSite()){
-                if(userExpandReceiveMail.getId() == Long.parseLong(idExpand)){
+                if(userExpandReceiveMail.getId().equals(idExpand)){
                     delete = false;
                     break;
                 }

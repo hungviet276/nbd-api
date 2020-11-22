@@ -133,7 +133,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             while (resultSetUserOutSite.next()) {
                 UserExpandReceiveMail userExpandReceiveMail = UserExpandReceiveMail
                         .builder()
-                        .id(resultSetUserOutSite.getLong("id"))
+                        .id(resultSetUserOutSite.getString("id"))
                         .name(resultSetUserOutSite.getString("name"))
                         .email(resultSetUserOutSite.getString("email"))
                         .build();
@@ -192,7 +192,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
                                                   List<WarningRecipentReceiveMail> warningRecipentReceiveMailInsert) throws SQLException {
         Connection connection = ds.getConnection();
         String sqlUpdateGroupReceiveMail = "update group_receive_mail set name = ?, description = ? , modify_at = sysdate , modify_by = ? where id = ?";
-        String sqlDeleteInSite = "delete from group_receive_mail_detail where  id_group_receive_mail = ?, ";
+        String sqlDeleteInSite = "delete from group_receive_mail_detail where  id_group_receive_mail = ? and USER_INFO_ID = ? ";
         String sqlDeleteOut = "delete from group_receive_mail_detail where id_group_receive_mail = ? and user_info_expant = ?";
         String sqlDeleteWarning = "delete from warning_recipents where id = ?";
 
@@ -222,13 +222,15 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             stmUpdateGroupReceiveMail.setLong(4, Long.parseLong(mailGroupConFigVM.getId()));
 
             for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMailDeletes){
-                stmDeleteInSite.setLong(1, userInfoReceiveMail.getId());
+                stmDeleteInSite.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
+                stmDeleteInSite.setString(2, userInfoReceiveMail.getName());
                 stmDeleteInSite.addBatch();
             }
             stmDeleteInSite.executeBatch();
 
             for(UserExpandReceiveMail userExpandReceiveMail : userExpandReceiveMailDelete){
-                stmDeleteOut.setLong(1, userExpandReceiveMail.getId());
+                stmDeleteOut.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
+                stmDeleteOut.setString(2, userExpandReceiveMail.getId());
                 stmDeleteOut.addBatch();
             }
             stmDeleteOut.executeBatch();
@@ -250,7 +252,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             for(UserExpandReceiveMail userExpandReceiveMail : userExpandReceiveMailInserts){
                 stmInsertGroupReceiveMailDetail.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
                 stmInsertGroupReceiveMailDetail.setNull(2, Types.CHAR);
-                stmInsertGroupReceiveMailDetail.setLong(3,userExpandReceiveMail.getId());
+                stmInsertGroupReceiveMailDetail.setString(3,userExpandReceiveMail.getId());
                 stmInsertGroupReceiveMailDetail.addBatch();
             }
             stmInsertGroupReceiveMailDetail.executeBatch();

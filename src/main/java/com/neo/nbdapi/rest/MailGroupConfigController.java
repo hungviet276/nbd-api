@@ -37,4 +37,9 @@ public class MailGroupConfigController {
     }
 
 
+   @PutMapping
+    public DefaultResponseDTO editListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException {
+        return mailGroupConfigService.editMailGroupConfig(mailGroupConFigVM);
+    }
+
 }
