@@ -148,7 +148,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
                 }
             }
             if(isInsert){
-                UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name("userInfoTmp").build());
+                UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name(userInfoTmp).build());
             }
         }
         // lấy ra các user info cần xóa
@@ -200,13 +200,13 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         for(String warning : mailGroupConFigVM.getWarningConfig()){
            boolean insert = true;
             for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
-                if(warningRecipentReceiveMail.getId() == Long.parseLong(warning)){
+                if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
                     insert = false;
                     break;
                 }
             }
             if(insert){
-                warningRecipentReceiveMailInserts.add(WarningRecipentReceiveMail.builder().id(Long.parseLong(warning)).build());
+                warningRecipentReceiveMailInserts.add(WarningRecipentReceiveMail.builder().warningManagerId(Long.parseLong(warning)).build());
             }
 
         }
@@ -214,7 +214,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
             boolean delete = true;
             for(String warning : mailGroupConFigVM.getWarningConfig()){
-                if(warningRecipentReceiveMail.getId() == Long.parseLong(warning)){
+                if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
                     delete = false;
                     break;
                 }

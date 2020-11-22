@@ -89,7 +89,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
 
     @Override
     public List<Object> getInfoMailReceive(Long id) throws SQLException {
-        String sqlUserInSite = "select g.id, u.id as name, u.email from group_receive_mail_detail g inner join user_info u on u.id = g.user_info_id where g.id_group_receive_mail = ?";
+        String sqlUserInSite = "select u.id, u.name, u.email from group_receive_mail_detail g inner join user_info u on u.id = g.user_info_id where g.id_group_receive_mail = ?";
         String sqlUserOutSite = "select ue.id, ue.name, ue.email from user_info_expand  ue inner join group_receive_mail_detail g on g.user_info_expant = ue.id where g.id_group_receive_mail = ?";
         String sqlWarning = "select w.id, s.station_id as station_id, s.station_name, ws.id as warning_id, ws.code   from warning_recipents w inner join warning_manage_stations ws on ws.id = w.manage_warning_stations inner join stations s on s.station_id = ws.station_id where w.group_receive_mail_id = ?";
 
@@ -118,7 +118,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
             while (resultSetUserInSite.next()) {
                 UserInfoReceiveMail userInfoReceiveMail = UserInfoReceiveMail
                         .builder()
-                        .id(resultSetUserInSite.getLong("id"))
+                        .id(resultSetUserInSite.getString("id"))
                         .name(resultSetUserInSite.getString("name"))
                         .email(resultSetUserInSite.getString("email"))
                         .build();
@@ -191,7 +191,7 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
                                                   List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes,
                                                   List<WarningRecipentReceiveMail> warningRecipentReceiveMailInsert) throws SQLException {
         Connection connection = ds.getConnection();
-        String sqlUpdateGroupReceiveMail = "update group_receive_mail set name = ?, description = ? , modify_at = sysdate , modify_by = ? where id = ?";
+        String sqlUpdateGroupReceiveMail = "update group_receive_mail set name = ?, code = ?, description = ? , modify_at = sysdate , modify_by = ?, STATUS = ? where id = ?";
         String sqlDeleteInSite = "delete from group_receive_mail_detail where  id_group_receive_mail = ? and USER_INFO_ID = ? ";
         String sqlDeleteOut = "delete from group_receive_mail_detail where id_group_receive_mail = ? and user_info_expant = ?";
         String sqlDeleteWarning = "delete from warning_recipents where id = ?";
@@ -217,13 +217,16 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
 
 
             stmUpdateGroupReceiveMail.setString(1,mailGroupConFigVM.getName());
-            stmUpdateGroupReceiveMail.setString(2, mailGroupConFigVM.getDescription());
-            stmUpdateGroupReceiveMail.setString(3, mailGroupConFigVM.getUser());
-            stmUpdateGroupReceiveMail.setLong(4, Long.parseLong(mailGroupConFigVM.getId()));
+            stmUpdateGroupReceiveMail.setString(2, mailGroupConFigVM.getCode());
+            stmUpdateGroupReceiveMail.setString(3, mailGroupConFigVM.getDescription());
+            stmUpdateGroupReceiveMail.setString(4, mailGroupConFigVM.getUser());
+            stmUpdateGroupReceiveMail.setInt(5, mailGroupConFigVM.getStatus());
+            stmUpdateGroupReceiveMail.setLong(6, Long.parseLong(mailGroupConFigVM.getId()));
+            stmUpdateGroupReceiveMail.executeUpdate();
 
             for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMailDeletes){
                 stmDeleteInSite.setLong(1, Long.parseLong(mailGroupConFigVM.getId()));
-                stmDeleteInSite.setString(2, userInfoReceiveMail.getName());
+                stmDeleteInSite.setString(2, userInfoReceiveMail.getId());
                 stmDeleteInSite.addBatch();
             }
             stmDeleteInSite.executeBatch();
