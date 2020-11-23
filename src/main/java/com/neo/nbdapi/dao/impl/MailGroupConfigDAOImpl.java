@@ -2,9 +2,7 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.MailGroupConfigDAO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.dto.NameUserDTO;
 import com.neo.nbdapi.entity.UserExpandReceiveMail;
-import com.neo.nbdapi.entity.UserInfo;
 import com.neo.nbdapi.entity.UserInfoReceiveMail;
 import com.neo.nbdapi.entity.WarningRecipentReceiveMail;
 import com.neo.nbdapi.rest.vm.MailGroupConFigVM;

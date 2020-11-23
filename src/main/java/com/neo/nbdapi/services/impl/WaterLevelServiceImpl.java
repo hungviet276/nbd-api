@@ -15,7 +15,6 @@ import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
 import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.services.WaterLevelService;
 import com.neo.nbdapi.services.objsearch.WaterLevelSearch;
-import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,9 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -278,7 +277,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             logger.error("<==============================================================");
 
         }
-         catch (IOException | ParseException e) {
+         catch (IOException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();

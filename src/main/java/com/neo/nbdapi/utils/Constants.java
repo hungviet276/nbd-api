@@ -95,4 +95,7 @@ public interface Constants {
         public static final int IS_DELETE_FALSE = 0;
         public static final int STATUS_ACTIVE = 1;
     }
+    class URI_RESTEMPLATE {
+        public static final String URI_WATER_LEVEL = "http://192.168.1.20/:8082/";
+    }
 }

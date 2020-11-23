@@ -15,12 +15,12 @@ import java.util.List;
 
 public interface WarningMangerStationService {
     DefaultPaginationDTO getListWarningThresholdStation(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
-    public List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException;
-    public List<ComboBox> getListParameterWarningThreshold(SelectWarningManagerVM selectVM) throws SQLException;
-    public WarningThresholdINF getInFoWarningThreshold(Long idThreshold) throws SQLException;
-    public DefaultResponseDTO createWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
-    public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
-    public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
-    public DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
-    public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException ;
+    List<ComboBox> getListParameterWarningConfig(SelectWarningManagerStrVM selectVM) throws SQLException;
+    List<ComboBox> getListParameterWarningThreshold(SelectWarningManagerVM selectVM) throws SQLException;
+    WarningThresholdINF getInFoWarningThreshold(Long idThreshold) throws SQLException;
+    DefaultResponseDTO createWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
+    List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException;
+    DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
+    DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
+    List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException ;
 }

@@ -42,8 +42,6 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     @Autowired
     private MailGroupConfigDAO mailGroupConfigDAO;
 
-    @Autowired
-    private GroupMailReceiveDetailDAO groupMailReceiveDetailDAO;
     @Override
     public DefaultPaginationDTO getGroupReceiveMailsPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         List<GroupMailReceive> groupReceives = new ArrayList<>();
