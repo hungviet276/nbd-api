@@ -37,7 +37,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -403,13 +406,14 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
     }
 
     private MimeMessage createMailMessage(List<Long> groupEmailid, Long warningStationId) throws MessagingException {
-        List<String> mailRiecieve = mailConfigDAO.getGroupRieveMail(groupEmailid);
+        String bccRecipient = getBccEmail(groupEmailid);
         EmailBuilder mail = createMail(warningStationId);
         Session session = createSession(mail);
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(mail.getMailFrom()));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(mail.getMailFrom()));
-//        message.setRecipients(Message.RecipientType.CC, InternetAddress.parse("cdh@kttv.gov.vn,cdh@kttv.gov.vn"));
+        if (!bccRecipient.isEmpty())
+            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipient));
         Multipart multipart = new MimeMultipart();
         MimeBodyPart textPart = new MimeBodyPart();
         textPart.setContent(mail.getContent(), "text/html; charset=utf-8");
@@ -461,6 +465,17 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         });
         session.setDebug(true);
         return session;
+    }
+
+    private String getBccEmail(List<Long> groupEmailid) {
+        List<String> mailRiecieve = mailConfigDAO.getGroupRieveMail(groupEmailid);
+        String bccRecipient = "";
+        int size = mailRiecieve.size();
+        for (int i = 0; i < size; i++) {
+            bccRecipient += mailRiecieve.get(i);
+            if (i < size - 1) bccRecipient += ",";
+        }
+        return bccRecipient;
     }
 
 }

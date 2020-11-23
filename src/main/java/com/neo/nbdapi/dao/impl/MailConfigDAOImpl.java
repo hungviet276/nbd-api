@@ -145,14 +145,6 @@ public class MailConfigDAOImpl implements MailConfigDAO {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 mailConfig = EmailBuilder.builder()
-//                        .ip("smtp.gmail.com")
-//                        .port("465")
-//                        .password("123456788zZ@")
-//                        .senderName("trang.tran114200@gmail.com")
-//                        .mailFrom("trang.tran114200@gmail.com")
-//                        .username("trang.tran114200@gmail.com")
-//                        .protocol("smtp")
-//                        .build();
                         .ip(resultSet.getString("ip"))
                         .port(resultSet.getString("port"))
                         .password(resultSet.getString("password"))
