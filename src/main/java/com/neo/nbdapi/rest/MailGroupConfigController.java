@@ -5,7 +5,6 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.MailGroupConFigVM;
-import com.neo.nbdapi.services.GroupMailReceiveService;
 import com.neo.nbdapi.services.MailGroupConfigService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;

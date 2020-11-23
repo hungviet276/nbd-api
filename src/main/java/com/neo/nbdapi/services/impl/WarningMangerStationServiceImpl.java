@@ -56,7 +56,7 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select w.id, s.station_id, s.station_name, w.code, w.name, w.icon, w.created_at, w.description, w.content, w.color from warning_manage_stations w inner join stations s on s.STATION_ID = w.STATION_ID where s.isdel = 0 and s.status = 1 ");
+            StringBuilder sql = new StringBuilder("select w.id, s.station_id, s.station_name, w.code, w.name, w.icon, w.created_at, w.description, w.content, w.color from warning_manage_stations w inner join stations s on s.STATION_ID = w.STATION_ID where s.isdel = 0 and s.IS_ACTIVE = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("Object search: {}", search);
             // set value query to sql
