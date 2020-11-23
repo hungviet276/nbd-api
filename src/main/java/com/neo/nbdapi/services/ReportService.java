@@ -17,4 +17,6 @@ public interface ReportService {
     ParameterChartMappingAndDataDTO getParameterChartMappingAndData(GetParameterChartMappingAndDataVM request) throws SQLException, BusinessException;
 
     List<TimeSeriesDataDTO> getStationDataReport(GetStationDataReportVM request) throws BusinessException, SQLException;
+
+    String[] getListParameterDisplayChartOfStation(GetStationDataReportVM request) throws SQLException, BusinessException;
 }

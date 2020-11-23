@@ -228,41 +228,41 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         this.timeTmp = 0L;
 
         List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
-        if(waterLevels.size() == 0){
-            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
-        }
+//        if(waterLevels.size() == 0){
+//            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+//        }
 
         try{
 
-            PrintWriter print = new PrintWriter(new File("/water_level/phu_quoc1h.ip"));
-
-            WaterLevelExecute firstTmp = waterLevels.get(0);
-
-            Calendar calendarFirst = convertStringToCalender(firstTmp);
-
-            StringBuilder title = new StringBuilder("     1 ");
-            title.append(calendarFirst.get(Calendar.YEAR));
-            print.println(title.toString());
-
-            for (WaterLevelExecute waterLevelExecute: waterLevels) {
-                int position = waterLevels.indexOf(waterLevelExecute);
-                if(position==0){
-                    print.println(lineWithDate(waterLevelExecute, null));
-                } else {
-                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
-                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
-                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
-                    } else{
-                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
-                    }
-
-                }
-
-            }
-            print.flush();
-            print.close();
+//            PrintWriter print = new PrintWriter(new File("/water_level/phu_quoc1h.ip"));
+//
+//            WaterLevelExecute firstTmp = waterLevels.get(0);
+//
+//            Calendar calendarFirst = convertStringToCalender(firstTmp);
+//
+//            StringBuilder title = new StringBuilder("     1 ");
+//            title.append(calendarFirst.get(Calendar.YEAR));
+//            print.println(title.toString());
+//
+//            for (WaterLevelExecute waterLevelExecute: waterLevels) {
+//                int position = waterLevels.indexOf(waterLevelExecute);
+//                if(position==0){
+//                    print.println(lineWithDate(waterLevelExecute, null));
+//                } else {
+//                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
+//                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
+//                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
+//                    } else{
+//                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
+//                    }
+//
+//                }
+//
+//            }
+//            print.flush();
+//            print.close();
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls -a");
+            processBuilder.command("bash", "-c", "ls /water_level");
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String s = "Đây là log của đức Anh:";
