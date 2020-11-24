@@ -5,10 +5,8 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.entity.VariableTime;
-import com.neo.nbdapi.entity.VariablesSpatial;
-import com.neo.nbdapi.entity.WaterLevel;
-import com.neo.nbdapi.entity.WaterLevelExecute;
+import com.neo.nbdapi.dto.WaterLevelDTO;
+import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
@@ -22,20 +20,18 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class WaterLevelServiceImpl implements WaterLevelService {
@@ -218,67 +214,105 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     @Override
     public DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
+            String fileName = "/";
+            String fileNameExecute = "";
+        if(waterLevelExecutedVM.getStationId().equals(Constants.WATER_LEVEL.ID_PHU_QUOC)){
+            fileName+=Constants.WATER_LEVEL.FILE_PHU_QUOC;
+            fileNameExecute=Constants.WATER_LEVEL.FILE_PHU_QUOC;
+        } else if(waterLevelExecutedVM.getStationId().equals(Constants.WATER_LEVEL.ID_GANH_HAO)){
+            fileName+=Constants.WATER_LEVEL.FILE_GANH_HAO;
+            fileNameExecute=Constants.WATER_LEVEL.FILE_GANH_HAO;
+        } else if(waterLevelExecutedVM.getStationId().equals(Constants.WATER_LEVEL.ID_HA_TIEN)){
+            fileName+=Constants.WATER_LEVEL.FILE_HA_TIEN;
+            fileNameExecute=Constants.WATER_LEVEL.FILE_HA_TIEN;;
+        } else{
+            return DefaultResponseDTO.builder().status(0).message("Trạm chưa hợp lệ").build();
+        }
 
-        logger.error("==============================================================>");
-        logger.error("==============================================================>");
-        logger.error("==============================================================>");
-        logger.error("==============================================================>");
-        logger.error("==============================================================>");
-        logger.error("==============================================================>");
+
+        if(waterLevelExecutedVM.getHours() == 1){
+            fileName+="1h";
+        } else if(waterLevelExecutedVM.getHours() == 3){
+            fileName+="3h";
+        }
+        else if(waterLevelExecutedVM.getHours() == 24){
+            fileName+="24h";
+        } else{
+            return DefaultResponseDTO.builder().status(0).message("Khoảng thời gian chưa hợp lệ").build();
+        }
         this.timeTmp = 0L;
 
         List<WaterLevelExecute> waterLevels = waterLevelDAO.executeWaterLevel(waterLevelExecutedVM);
-//        if(waterLevels.size() == 0){
-//            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
-//        }
+        if(waterLevels.size() == 0){
+            return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+        }
 
         try{
+            String folderExport = Constants.WATER_LEVEL.FOLDER_EXPORT;
 
-//            PrintWriter print = new PrintWriter(new File("/water_level/phu_quoc1h.ip"));
-//
-//            WaterLevelExecute firstTmp = waterLevels.get(0);
-//
-//            Calendar calendarFirst = convertStringToCalender(firstTmp);
-//
-//            StringBuilder title = new StringBuilder("     1 ");
-//            title.append(calendarFirst.get(Calendar.YEAR));
-//            print.println(title.toString());
-//
-//            for (WaterLevelExecute waterLevelExecute: waterLevels) {
-//                int position = waterLevels.indexOf(waterLevelExecute);
-//                if(position==0){
-//                    print.println(lineWithDate(waterLevelExecute, null));
-//                } else {
-//                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
-//                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
-//                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
-//                    } else{
-//                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
-//                    }
-//
-//                }
-//
-//            }
-//            print.flush();
-//            print.close();
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls /water_level; echo /water_level/neo/phu_quoc24h.par | /water_level/neo/tt_phantich_v1_2");
-            Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String s = "Đây là log của đức Anh:";
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                s = s +line;
+
+
+            PrintWriter print = new PrintWriter(new File(folderExport + fileName + ".ip"));
+
+            WaterLevelExecute firstTmp = waterLevels.get(0);
+
+            Calendar calendarFirst = convertStringToCalender(firstTmp);
+
+            StringBuilder title = new StringBuilder("     1 ");
+            title.append(calendarFirst.get(Calendar.YEAR));
+            print.println(title.toString());
+
+            for (WaterLevelExecute waterLevelExecute: waterLevels) {
+                int position = waterLevels.indexOf(waterLevelExecute);
+                if(position==0){
+                    print.println(lineWithDate(waterLevelExecute, null));
+                } else {
+                    WaterLevelExecute waterLevelExecuteBefore = waterLevels.get(position-1);
+                    if(convertStringToCalender(waterLevelExecute).get(Calendar.DAY_OF_MONTH) !=  convertStringToCalender(waterLevelExecuteBefore).get(Calendar.DAY_OF_MONTH)){
+                        print.println(lineWithDate(waterLevelExecute, waterLevelExecuteBefore));
+                    } else{
+                        print.println(line(waterLevelExecute, waterLevelExecuteBefore));
+                    }
+
+                }
+
             }
-            System.out.println("Đây là cái cần check =========================> " +s);
-            logger.error("==============================================================>");
-            logger.error("==============================================================>");
-            logger.error(s);
-            logger.error("<==============================================================");
-            logger.error("<==============================================================");
+            print.flush();
+            print.close();
+
+            // sử dụng restemplate để thực hiện tính hằng số điều hòa
+
+            String command = "echo "+fileNameExecute+".par | ./tt_phantich_v1_2";
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("commandExecute", command);
+            map.put("stationId", waterLevelExecutedVM.getStationId());
+            map.put("fileName", fileName);
+
+            // build the request
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+            //DataResponse dataResponse = restTemplate.getForObject("http://localhost:8082/water-level/excute", DataResponse.class);
+
+            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                logger.info("========================================>");
+                logger.info("========================================>");
+                logger.info("========================================> {}", response.getBody());
+            } else {
+                logger.info("========================================>");
+                logger.info("========================================>");
+                logger.info("========================================>{}", response.getStatusCode());
+            }
 
         }
-         catch (IOException e) {
+         catch (IOException | ParseException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();

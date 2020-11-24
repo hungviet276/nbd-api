@@ -5,6 +5,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.rest.vm.SelectVM;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,4 +20,5 @@ public interface StationDAO {
     Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException;
 
     boolean isStationOwnedByUser(String stationId, String userId) throws SQLException;
+
 }
