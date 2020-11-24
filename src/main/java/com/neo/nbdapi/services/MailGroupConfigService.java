@@ -14,4 +14,5 @@ public interface MailGroupConfigService {
     DefaultResponseDTO createMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException;
     List<Object> getInfoMailReceive(Long id) throws SQLException;
     DefaultResponseDTO editMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException;
+    public DefaultResponseDTO deleteMailGroupConfig(Long id) throws SQLException;
 }

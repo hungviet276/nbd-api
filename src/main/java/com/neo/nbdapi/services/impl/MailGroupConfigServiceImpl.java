@@ -225,4 +225,9 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         return mailGroupConfigDAO.editMailGroupConfig(mailGroupConFigVM, UserInfoReceiveMailDeletes, UserInfoReceiveMailInserts,
                 userExpandReceiveMailInserts, userExpandReceiveMailDeletes, warningRecipentReceiveMailDeletes, warningRecipentReceiveMailInserts);
     }
+
+    @Override
+    public DefaultResponseDTO deleteMailGroupConfig(Long id) throws SQLException {
+        return mailGroupConfigDAO.deleteMailGroupConfig(id);
+    }
 }

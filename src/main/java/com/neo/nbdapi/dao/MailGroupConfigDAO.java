@@ -20,4 +20,6 @@ public interface MailGroupConfigDAO {
                                            List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes,
                                            List<WarningRecipentReceiveMail> warningRecipentReceiveMailInsert) throws SQLException;
 
+    DefaultResponseDTO deleteMailGroupConfig(Long id) throws SQLException;
+
 }

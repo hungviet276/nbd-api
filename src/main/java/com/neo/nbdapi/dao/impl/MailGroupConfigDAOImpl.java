@@ -295,4 +295,49 @@ public class MailGroupConfigDAOImpl implements MailGroupConfigDAO {
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
+
+    @Override
+    public DefaultResponseDTO deleteMailGroupConfig(Long id) throws SQLException {
+        Connection connection = ds.getConnection();
+        String sqlDeleteDetail = "delete from group_receive_mail_detail where id_group_receive_mail = ?";
+        String sqlDeleteWarning = "delete from warning_recipents where group_receive_mail_id = ?";
+        String sqlDeleteGroup = "delete from group_receive_mail where id = ?";
+        PreparedStatement stmDeleteDetail = null;
+        PreparedStatement stmDeleteWarning = null;
+        PreparedStatement stmDeleteGroup = null;
+        try{
+            connection.setAutoCommit(false);
+            stmDeleteDetail = connection.prepareStatement(sqlDeleteDetail);
+            stmDeleteWarning = connection.prepareStatement(sqlDeleteWarning);
+            stmDeleteGroup = connection.prepareStatement(sqlDeleteGroup);
+
+            stmDeleteDetail.setLong(1,id );
+            stmDeleteDetail.executeUpdate();
+
+            stmDeleteWarning.setLong(1,id );
+            stmDeleteWarning.executeUpdate();
+
+            stmDeleteGroup.setLong(1,id );
+            stmDeleteGroup.executeUpdate();
+
+            connection.commit();
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
+        } finally {
+            if(stmDeleteDetail!= null){
+                stmDeleteDetail.close();
+            }
+            if(stmDeleteWarning!= null){
+                stmDeleteWarning.close();
+            }
+            if(stmDeleteGroup!= null){
+                stmDeleteGroup.close();
+            }
+            connection.close();
+        }
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
 }

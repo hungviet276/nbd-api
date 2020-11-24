@@ -3,6 +3,7 @@ package com.neo.nbdapi.dao.impl;
 import com.neo.nbdapi.dao.StationDAO;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
+import com.neo.nbdapi.rest.vm.SelectVM;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -117,19 +118,19 @@ public class StationDAOImpl implements StationDAO {
     @Override
     public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1";
-            if(query!=null && !query.equals("")){
-                sql = sql+ " and station_name like ?";
+            String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1 and station_id in ('9_59_482_403', '9_63_-1_404', '9_59_492_402')";
+            if (query != null && !query.equals("")) {
+                sql = sql + " and station_name like ?";
             }
             sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1";
             PreparedStatement statement = connection.prepareStatement(sql);
-            if(query!=null && !query.equals("")){
-                statement.setString(1,"%"+query+"%");
+            if (query != null && !query.equals("")) {
+                statement.setString(1, "%" + query + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
             while (resultSet.next()) {
-                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2) + "-" + resultSet.getString(3)).build();
                 comboBoxes.add(comboBox);
             }
             statement.close();
