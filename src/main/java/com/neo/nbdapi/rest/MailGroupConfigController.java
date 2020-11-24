@@ -40,5 +40,9 @@ public class MailGroupConfigController {
     public DefaultResponseDTO editListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException {
         return mailGroupConfigService.editMailGroupConfig(mailGroupConFigVM);
     }
+    @DeleteMapping
+    public DefaultResponseDTO editMailGroupConfig(@RequestParam  Long id) throws SQLException{
+        return mailGroupConfigService.deleteMailGroupConfig(id);
+    }
 
 }
