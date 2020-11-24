@@ -1,7 +1,5 @@
 package com.neo.nbdapi.utils;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public interface Constants {
 
     class APPLICATION_API {
@@ -114,6 +112,9 @@ public interface Constants {
     }
     class URI_RESTEMPLATE {
         public static final String URI_WATER_LEVEL = "http://192.168.1.20/:8082/";
+    }
 
+    class MENU {
+        public static final String ACTION_VIEW_MENU = "xem";
     }
 }

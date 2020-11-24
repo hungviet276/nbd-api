@@ -15,8 +15,8 @@ spring:
     driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       connection-timeout: 20000       #maximum number of milliseconds that a client will wait for a connection
-      minimum-idle: 0                 #minimum number of idle connections maintained by HikariCP in a connection pool
-      maximum-pool-size: 256            #maximum pool size
+      minimum-idle: 1                 #minimum number of idle connections maintained by HikariCP in a connection pool
+      maximum-pool-size: 300            #maximum pool size
       idle-timeout: 10000             #maximum idle time for connection
       max-lifetime: 2000              # maximum lifetime in milliseconds of a connection in the pool after it is closed.
       pool-name: NBD_API
@@ -33,6 +33,7 @@ casbin:
   enableWatcher: false
 logging:
   config: classpath:logback.xml
+sysId: 1
 
 
 
