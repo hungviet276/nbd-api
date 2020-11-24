@@ -99,4 +99,6 @@ public class Station {
     private Integer modeStationType;
 
     private String createById;
+
+    private int curTsTypeId;
 }

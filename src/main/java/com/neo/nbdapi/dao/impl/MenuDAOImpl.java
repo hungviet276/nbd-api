@@ -5,10 +5,12 @@ import com.neo.nbdapi.dto.ApiUrlDTO;
 import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.entity.Menu;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +25,9 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Autowired
     private HikariDataSource ds;
+
+    @Value(("${sysId}"))
+    private int sysId;
 
     @Override
     public List<Menu> findAll() throws SQLException {
@@ -160,13 +165,15 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
-        String sql = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE publish = 1 AND ui.id = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id";
+        String sql = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND act = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
         ) {
             statement.setString(1, username);
+            statement.setInt(2, sysId);
+            statement.setString(3, Constants.MENU.ACTION_VIEW_MENU);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 MenuDTO menu = MenuDTO

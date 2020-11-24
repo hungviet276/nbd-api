@@ -95,4 +95,8 @@ public interface Constants {
         public static final int IS_DELETE_FALSE = 0;
         public static final int STATUS_ACTIVE = 1;
     }
+
+    class MENU {
+        public static final String ACTION_VIEW_MENU = "xem";
+    }
 }

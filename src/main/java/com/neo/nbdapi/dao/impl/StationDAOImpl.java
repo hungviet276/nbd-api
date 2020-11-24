@@ -50,7 +50,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public List<Object[]> getAllStationOwnedByUser() throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM stations st JOIN areas ar ON st.area_id = ar.area_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id WHERE st.station_id in (SELECT station_id FROM group_user_info CONNECT BY PRIOR id = group_parent START WITH id in (SELECT id FROM group_user_info WHERE id in (SELECT group_id FROM group_detail WHERE user_info_id = ?)))";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ?";
         List<Object[]> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -73,7 +73,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException {
-        String sql = "SELECT station_id, station_code, station_name, is_active, isdel FROM stations WHERE station_code = ?";
+        String sql = "SELECT station_id, station_code, station_name, is_active, isdel, cur_ts_type_id FROM stations WHERE station_code = ?";
         Station station = null;
         try (
                 Connection connection = ds.getConnection();
@@ -88,6 +88,7 @@ public class StationDAOImpl implements StationDAO {
                         .stationName(resultSet.getString("station_name"))
                         .isActive(resultSet.getInt("is_active"))
                         .isDel(resultSet.getInt("isdel"))
+                        .curTsTypeId(resultSet.getInt("cur_ts_type_id"))
                         .build();
             }
         }
@@ -96,13 +97,13 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public boolean isStationOwnedByUser(String stationId, String userId)  {
-        String sql = "SELECT COUNT(1) AS total FROM group_user_info WHERE station_id = ? CONNECT BY PRIOR id = group_parent START WITH id in (SELECT id FROM group_user_info WHERE id in (SELECT group_id FROM group_detail WHERE user_info_id = ?))";
+        String sql = "SELECT COUNT(1) AS total FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN user_info ui ON ui.id = gd.user_info_id JOIN stations st ON st.station_id = gui.station_id WHERE gd.user_info_id = ? AND st.station_id = ?";
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
         ) {
-            statement.setString(1, stationId);
-            statement.setString(2, userId);
+            statement.setString(1, userId);
+            statement.setString(2, stationId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getLong("total") > 0L;
