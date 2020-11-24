@@ -299,7 +299,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             //DataResponse dataResponse = restTemplate.getForObject("http://localhost:8082/water-level/excute", DataResponse.class);
 
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 logger.info("========================================>");
