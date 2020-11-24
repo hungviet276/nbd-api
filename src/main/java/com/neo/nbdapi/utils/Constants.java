@@ -1,5 +1,7 @@
 package com.neo.nbdapi.utils;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public interface Constants {
 
     class APPLICATION_API {
@@ -80,7 +82,22 @@ public interface Constants {
         //id của yếu tố mực nước
         public static final String PARAMETER_TYPE_ID = "80";
         // thư mục cấu hình đẩy file dữ liệu chay
-       public static final String FOLDER_EXPORT = "wwphuquoc1h";
+        public static final String FOLDER_EXPORT = "/water_level";
+
+        public static final String ID_PHU_QUOC = "9_59_492_402";
+        public static final String ID_GANH_HAO = "9_63_-1_404";
+        public static final String ID_HA_TIEN = "9_59_482_403";
+
+        public static final String FILE_PHU_QUOC = "phu_quoc";
+
+        public static final String FILE_GANH_HAO = "ganh_hao";
+        public static final String FILE_HA_TIEN = "ha_tien";
+
+//        public static final  String GHENH_HAO = "ganh_hao";
+//        public static final  String HA_TIEN = "ha_tien";
+//        public static final  String PHU_QUOC = "phu_quoc";
+
+
     }
 
     class STATION {
@@ -97,5 +114,6 @@ public interface Constants {
     }
     class URI_RESTEMPLATE {
         public static final String URI_WATER_LEVEL = "http://192.168.1.20/:8082/";
+
     }
 }
