@@ -30,7 +30,6 @@ public class BeanConfig {
         prop.setPath("station_quick_report_config.properties");
         prop.load();
         prop.setReloadingStrategy(new FileChangedReloadingStrategy());
-
         return prop;
     }
 }
