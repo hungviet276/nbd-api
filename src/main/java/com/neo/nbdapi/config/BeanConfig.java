@@ -27,7 +27,7 @@ public class BeanConfig {
         PropertiesConfiguration prop = new PropertiesConfiguration();
         prop.setDelimiterParsingDisabled(true);
         prop.setEncoding("UTF8");
-        prop.setPath("application_config.properties");
+        prop.setPath("station_quick_report_config.properties");
         prop.load();
         prop.setReloadingStrategy(new FileChangedReloadingStrategy());
 
