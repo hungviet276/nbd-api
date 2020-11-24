@@ -215,7 +215,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     @Override
     public DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
             String fileName = "/";
-            String fileNameExecute = "";
+            String fileNameExecute = "/";
         if(waterLevelExecutedVM.getStationId().equals(Constants.WATER_LEVEL.ID_PHU_QUOC)){
             fileName+=Constants.WATER_LEVEL.FILE_PHU_QUOC;
             fileNameExecute=Constants.WATER_LEVEL.FILE_PHU_QUOC;
@@ -232,11 +232,14 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         if(waterLevelExecutedVM.getHours() == 1){
             fileName+="1h";
+            fileNameExecute+="1h";
         } else if(waterLevelExecutedVM.getHours() == 3){
             fileName+="3h";
+            fileNameExecute+="3h";
         }
         else if(waterLevelExecutedVM.getHours() == 24){
             fileName+="24h";
+            fileNameExecute+="24h";
         } else{
             return DefaultResponseDTO.builder().status(0).message("Khoảng thời gian chưa hợp lệ").build();
         }
