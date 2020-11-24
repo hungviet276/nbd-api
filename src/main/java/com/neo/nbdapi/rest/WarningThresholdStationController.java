@@ -12,7 +12,6 @@ import com.neo.nbdapi.services.WarningThresoldService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,7 +31,7 @@ public class WarningThresholdStationController {
     }
 
     @GetMapping("/duplicate-code-threshold-warning")
-    public DefaultResponseDTO getListMailConfigPagination(@RequestParam String code) throws SQLException, BusinessException {
+    public DefaultResponseDTO getListMailConfigPagination(@RequestParam String code) throws SQLException {
         return warningThresoldService.getDuplicateCodeWarningThreshold(code);
     }
 

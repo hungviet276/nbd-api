@@ -7,6 +7,9 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.GroupMailReceive;
+import com.neo.nbdapi.entity.UserExpandReceiveMail;
+import com.neo.nbdapi.entity.UserInfoReceiveMail;
+import com.neo.nbdapi.entity.WarningRecipentReceiveMail;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.MailGroupConFigVM;
@@ -39,8 +42,6 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     @Autowired
     private MailGroupConfigDAO mailGroupConfigDAO;
 
-    @Autowired
-    private GroupMailReceiveDetailDAO groupMailReceiveDetailDAO;
     @Override
     public DefaultPaginationDTO getGroupReceiveMailsPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         List<GroupMailReceive> groupReceives = new ArrayList<>();
@@ -118,5 +119,110 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
     @Override
     public List<Object> getInfoMailReceive(Long id) throws SQLException {
         return mailGroupConfigDAO.getInfoMailReceive(id);
+    }
+
+    @Override
+    public DefaultResponseDTO editMailGroupConfig(MailGroupConFigVM mailGroupConFigVM) throws SQLException {
+        List<Object> datas = mailGroupConfigDAO.getInfoMailReceive(Long.parseLong(mailGroupConFigVM.getId()));
+        List<UserInfoReceiveMail> userInfoReceiveMails = (List<UserInfoReceiveMail>) datas.get(0);
+        List<UserExpandReceiveMail> userExpandReceiveMails = (List<UserExpandReceiveMail>) datas.get(1);
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMails = (List<WarningRecipentReceiveMail>) datas.get(2);
+
+        List<UserInfoReceiveMail> UserInfoReceiveMailInserts = new ArrayList<>();
+        List<UserInfoReceiveMail> UserInfoReceiveMailDeletes = new ArrayList<>();
+
+        List<UserExpandReceiveMail> userExpandReceiveMailInserts = new ArrayList<>();
+        List<UserExpandReceiveMail> userExpandReceiveMailDeletes = new ArrayList<>();
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMailInserts = new ArrayList<>();
+        List<WarningRecipentReceiveMail> warningRecipentReceiveMailDeletes = new ArrayList<>();
+
+        // lấy ra các user info cần thêm mới
+        for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
+            Boolean isInsert = true;
+            for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
+                if(userInfoTmp.equals(userInfoReceiveMail.getName())){
+                    isInsert = false;
+                    break;
+                }
+            }
+            if(isInsert){
+                UserInfoReceiveMailInserts.add(UserInfoReceiveMail.builder().name(userInfoTmp).build());
+            }
+        }
+        // lấy ra các user info cần xóa
+        for(UserInfoReceiveMail userInfoReceiveMail : userInfoReceiveMails){
+            Boolean isDell = true;
+            for(String  userInfoTmp : mailGroupConFigVM.getUserInSites()){
+                if(userInfoReceiveMail.getName().equals(userInfoTmp)){
+                    isDell = false;
+                    break;
+                }
+            }
+            if(isDell){
+                UserInfoReceiveMailDeletes.add(userInfoReceiveMail);
+            }
+        }
+
+        //lấy ra các user ngoài hệ thống cần thêm mới
+        for(String idExpand : mailGroupConFigVM.getUserOutSite()){
+            Boolean insert = true;
+            for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
+                if(userExpandReceiveMail.getId().equals(idExpand)){
+                    insert = false;
+                    break;
+                }
+            }
+            if(insert){
+                userExpandReceiveMailInserts.add(UserExpandReceiveMail.builder().id(idExpand).build());
+            }
+        }
+
+        // lấy ra các user expand cần xóa
+
+        for(UserExpandReceiveMail userExpandReceiveMail :userExpandReceiveMails){
+            Boolean delete = true;
+            for(String idExpand : mailGroupConFigVM.getUserOutSite()){
+                if(userExpandReceiveMail.getId().equals(idExpand)){
+                    delete = false;
+                    break;
+                }
+            }
+            if(delete){
+                userExpandReceiveMailDeletes.add(userExpandReceiveMail);
+            }
+
+        }
+
+        // sánh sách các cảnh báo được insert   List<WarningRecipentReceiveMail> warningRecipentReceiveMails
+
+        for(String warning : mailGroupConFigVM.getWarningConfig()){
+           boolean insert = true;
+            for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
+                if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
+                    insert = false;
+                    break;
+                }
+            }
+            if(insert){
+                warningRecipentReceiveMailInserts.add(WarningRecipentReceiveMail.builder().warningManagerId(Long.parseLong(warning)).build());
+            }
+
+        }
+
+        for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
+            boolean delete = true;
+            for(String warning : mailGroupConFigVM.getWarningConfig()){
+                if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
+                    delete = false;
+                    break;
+                }
+            }
+            if(delete){
+                warningRecipentReceiveMailDeletes.add(warningRecipentReceiveMail);
+            }
+
+        }
+        return mailGroupConfigDAO.editMailGroupConfig(mailGroupConFigVM, UserInfoReceiveMailDeletes, UserInfoReceiveMailInserts,
+                userExpandReceiveMailInserts, userExpandReceiveMailDeletes, warningRecipentReceiveMailDeletes, warningRecipentReceiveMailInserts);
     }
 }

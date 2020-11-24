@@ -25,4 +25,5 @@ public class Parameter {
 	private Integer tsId;
 	private Integer tsConfigId;
 	private String tsName;
+	private String storage;
 }

@@ -122,7 +122,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         try (Connection connection = ds.getConnection()) {
             connection.setAutoCommit(false);
             String sqlInsertConfig = "insert into config_value_types (ID,STATION_ID,PARAMETER_TYPE_ID,MIN,MAX,VARIABLE_TIME,VARIABLE_SPATIAL,START_APPLY_DATE,END_APPLY_DATE,CODE) values(config_value_types_seq.nextval,?,?,?,?,?,?,?,?,?)";
-            String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.d, ?,?)";
+            String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.nextval, ?,?)";
             String sqlGetCurrentId = "SELECT  config_value_types_seq.CURRVAL FROM dual";
             PreparedStatement stmInsertConfig = connection.prepareStatement(sqlInsertConfig);
             PreparedStatement stmGetCurrentId = connection.prepareStatement(sqlGetCurrentId);
