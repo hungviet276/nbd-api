@@ -96,6 +96,8 @@ public class Station {
 
     private String objectTypeName;
 
+    private Integer isAuto;
+
     private Integer modeStationType;
 
     private String createById;

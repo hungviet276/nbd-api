@@ -567,6 +567,7 @@ public class StationManagementService {
                         .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
                         .objectType(rs.getString("OBJECT_TYPE"))
                         .objectTypeName(rs.getString("OBJECT_TYPE_SHORTNAME"))
+                        .isAuto(rs.getInt("IS_AUTO"))
                         .build();
                 list.add(bo);
             }
