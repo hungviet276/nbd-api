@@ -381,7 +381,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         File[] fileList = directory.listFiles(new FileFilter("*.hg"));
         List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
         for (File f : fileList) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;
