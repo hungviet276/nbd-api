@@ -7,7 +7,6 @@ import com.neo.nbdapi.entity.VariableTime;
 import com.neo.nbdapi.entity.VariablesSpatial;
 import com.neo.nbdapi.entity.WaterLevel;
 import com.neo.nbdapi.entity.WaterLevelExecute;
-import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
 import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.utils.Constants;

@@ -3,7 +3,6 @@ package com.neo.nbdapi.dao.impl;
 import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dto.ApiUrlDTO;
 import com.neo.nbdapi.dto.MenuDTO;
-import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
