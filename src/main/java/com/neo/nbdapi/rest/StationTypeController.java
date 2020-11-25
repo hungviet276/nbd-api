@@ -943,6 +943,43 @@ public class StationTypeController {
         }
     }
 
+    @GetMapping("/get-list-station")
+    public List<ComboBoxStr> getListStation() {
+        List<ComboBoxStr> list = new ArrayList<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+
+        String sql = "select s.station_id,s.station_name,s.river_id \n" +
+                "    from group_user_info gui ,group_detail gd ,stations s \n" +
+                "        where gui.id = gd.group_id and gui.station_id = s.station_id " +
+                "           and gd.user_info_id = ? and s.station_type_id = 10";
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            st.setString(1, userLogin.getUsername());
+            ResultSet rs = st.executeQuery();
+
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
+                    .text("Lựa chọn")
+                    .build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("STATION_ID"))
+                        .text(rs.getString("STATION_NAME"))
+                        .moreInfo(rs.getString("RIVER_ID"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
     @PostMapping("/create-manual-parameter")
     public DefaultResponseDTO createManualParameter(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params));

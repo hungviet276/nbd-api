@@ -2,6 +2,7 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
+import com.neo.nbdapi.dao.TidalHarmonicConstantsDAO;
 import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
@@ -50,6 +51,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     @Autowired
     private WaterLevelDAO waterLevelDAO;
+
+    @Autowired
+    private TidalHarmonicConstantsDAO tidalHarmonicConstantsDAO;
 
     private static Long timeTmp;
 
@@ -280,8 +284,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             print.flush();
             print.close();
 
-            // sử dụng restemplate để thực hiện tính hằng số điều hòa
-
             String command = "echo "+fileNameExecute+".par | ./tt_phantich_v1_2";
 
             RestTemplate restTemplate = new RestTemplate();
@@ -296,26 +298,16 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-
-            //DataResponse dataResponse = restTemplate.getForObject("http://localhost:8082/water-level/excute", DataResponse.class);
-
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, String.class);
-
-            if (response.getStatusCode() == HttpStatus.OK) {
-                logger.info("========================================>");
-                logger.info("========================================>");
-                logger.info("========================================> {}", response.getBody());
-            } else {
-                logger.info("========================================>");
-                logger.info("========================================>");
-                logger.info("========================================>{}", response.getStatusCode());
-            }
+            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, DataResponse.class);
+            DataResponse dataResponse = response.getBody();
+            tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
+            return DefaultResponseDTO.builder().status(1).message(dataResponse.getResponse()).build();
 
         }
          catch (IOException | ParseException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
+            return DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         }
-        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
     private String lineWithDate(WaterLevelExecute waterLevelExecute, WaterLevelExecute waterLevelExecuteBefore) throws ParseException {
