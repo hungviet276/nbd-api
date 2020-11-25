@@ -27,9 +27,15 @@ public class StationController {
         return stationService.getStationComboBox(selectVM.getTerm());
     }
 
+    /**
+     * API lấy danh sách các trạm dựa vào loại trạm (ObjectType)
+     * @param objectType
+     * @return
+     * @throws SQLException
+     */
     @GetMapping(value = "/get-all-station-csv", produces = {"text/plain"})
-    public String geAllStation() throws SQLException {
-         return stationService.getAllStationCsv();
+    public String geAllStation(@RequestParam(required = false, name = "type") String objectType) throws SQLException {
+         return stationService.getStationWithObjectType(objectType);
     }
 
     @PostMapping("/station-select-water-level")
