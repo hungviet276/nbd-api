@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DataResponse implements Serializable {
 
-    private List<TidalHarmonicConstants> TidalHarmonicConstantes;
+    private List<TidalHarmonicConstants> tidalHarmonicConstantesl;
 
     private String response;
 
@@ -13,16 +13,16 @@ public class DataResponse implements Serializable {
     }
 
     public DataResponse(List<TidalHarmonicConstants> tidalHarmonicConstantesl, String response) {
-        TidalHarmonicConstantes = tidalHarmonicConstantesl;
+        tidalHarmonicConstantesl = tidalHarmonicConstantesl;
         this.response = response;
     }
 
     public List<TidalHarmonicConstants> getTidalHarmonicConstantes() {
-        return TidalHarmonicConstantes;
+        return tidalHarmonicConstantesl;
     }
 
-    public void setTidalHarmonicConstantes(List<TidalHarmonicConstants> tidalHarmonicConstantes) {
-        TidalHarmonicConstantes = tidalHarmonicConstantes;
+    public void setTidalHarmonicConstantes(List<TidalHarmonicConstants> tidalHarmonicConstantesl) {
+        tidalHarmonicConstantesl = tidalHarmonicConstantesl;
     }
 
 
