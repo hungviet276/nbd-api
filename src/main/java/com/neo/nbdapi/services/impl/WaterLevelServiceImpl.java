@@ -295,7 +295,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             Map<String, Object> map = new HashMap<>();
             map.put("commandExecute", command);
             map.put("stationId", waterLevelExecutedVM.getStationId());
-            map.put("fileName", fileName);
+            map.put("fileName", fileName+".ip");
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
