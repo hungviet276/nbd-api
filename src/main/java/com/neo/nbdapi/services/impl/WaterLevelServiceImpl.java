@@ -304,13 +304,11 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
             ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
             String dataResponse = response.getBody();
+            DataResponse object = objectMapper.readValue(dataResponse, DataResponse.class);
 
-            logger.info("======================>");
-            logger.info("{}",dataResponse);
-            logger.info("<======================");
-            //tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
+            tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(object.getTidalHarmonicConstantes());
 
-            return DefaultResponseDTO.builder().status(1).message(dataResponse).build();
+            return DefaultResponseDTO.builder().status(1).message(object.getResponse()).build();
 
         }
          catch (IOException | ParseException e) {
