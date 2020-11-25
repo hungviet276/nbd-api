@@ -53,7 +53,7 @@ public class ADCPController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-list-adcp-pagination")
-    public DefaultPaginationDTO getListStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getListADCPPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
