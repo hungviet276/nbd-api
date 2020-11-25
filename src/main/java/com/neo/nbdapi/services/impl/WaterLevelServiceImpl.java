@@ -6,6 +6,7 @@ import com.neo.nbdapi.dao.TidalHarmonicConstantsDAO;
 import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.FileWaterLevelInfo;
 import com.neo.nbdapi.dto.WaterLevelDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
@@ -33,6 +34,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+ import  com.neo.nbdapi.utils.FileFilter;
 
 @Service
 public class WaterLevelServiceImpl implements WaterLevelService {
@@ -54,6 +56,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     @Autowired
     private TidalHarmonicConstantsDAO tidalHarmonicConstantsDAO;
+
+    @Value("${water.level.file.out}")
+    private String pathDirectory;
 
     private static Long timeTmp;
 
@@ -302,10 +307,11 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, DataResponse.class);
-            DataResponse dataResponse = response.getBody();
-            tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
-            return DefaultResponseDTO.builder().status(1).message(dataResponse.getResponse()).build();
+            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
+            String dataResponse = response.getBody();
+            DataResponse object = objectMapper.readValue(dataResponse, DataResponse.class);
+            tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(object.getTidalHarmonicConstantes());
+            return DefaultResponseDTO.builder().status(1).message(object.getResponse()).build();
 
         }
          catch (IOException | ParseException e) {
@@ -364,4 +370,15 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         return calendarFirst;
 
     }
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
+        File directory = new File(pathDirectory);
+        File[] fileList = directory.listFiles(new FileFilter("*.hg"));
+        List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
+        for (File f : fileList) {
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName()).modifyDate( new Date(f.lastModified())).build();
+            fileWaterLevelInfos.add(fileWaterLevelInfo);
+        }
+        return fileWaterLevelInfos;
+    }
+
 }
