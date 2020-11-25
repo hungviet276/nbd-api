@@ -53,6 +53,6 @@ public class TidalHarmonicConstantsDAOImpl implements TidalHarmonicConstantsDAO 
                 connection.close();
             }
         }
-        return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 }

@@ -1,12 +1,10 @@
 package com.neo.nbdapi.rest;
 
-import com.neo.nbdapi.dao.UserInFoExpandDAO;
 import com.neo.nbdapi.dto.NameUserDTO;
 import com.neo.nbdapi.dto.SelectGroupDTO;
 import com.neo.nbdapi.services.UserInFoExpandService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -5,10 +5,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.UsersManagerVM;
-import com.neo.nbdapi.services.ManageCDHService;
 import com.neo.nbdapi.services.ManageOutputService;
-import com.neo.nbdapi.services.UsersManagerService;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_MANAGER_OUTPUTS)

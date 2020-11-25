@@ -236,11 +236,14 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         if(waterLevelExecutedVM.getHours() == 1){
             fileName+="1h";
+            fileNameExecute+="1h";
         } else if(waterLevelExecutedVM.getHours() == 3){
             fileName+="3h";
+            fileNameExecute+="3h";
         }
         else if(waterLevelExecutedVM.getHours() == 24){
             fileName+="24h";
+            fileNameExecute+="24h";
         } else{
             return DefaultResponseDTO.builder().status(0).message("Khoảng thời gian chưa hợp lệ").build();
         }
@@ -277,12 +280,13 @@ public class WaterLevelServiceImpl implements WaterLevelService {
                     } else{
                         print.println(line(waterLevelExecute, waterLevelExecuteBefore));
                     }
-
                 }
 
             }
             print.flush();
             print.close();
+
+            // sử dụng restemplate để thực hiện tính hằng số điều hòa
 
             String command = "echo "+fileNameExecute+".par | ./tt_phantich_v1_2";
 
@@ -294,11 +298,11 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             Map<String, Object> map = new HashMap<>();
             map.put("commandExecute", command);
             map.put("stationId", waterLevelExecutedVM.getStationId());
-            map.put("fileName", fileName);
+            map.put("fileName", fileName+".ip");
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, DataResponse.class);
+            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, DataResponse.class);
             DataResponse dataResponse = response.getBody();
             tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
             return DefaultResponseDTO.builder().status(1).message(dataResponse.getResponse()).build();
