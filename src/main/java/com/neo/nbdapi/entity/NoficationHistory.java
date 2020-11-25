@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NoficationHistory {
+public class 	NoficationHistory {
 	private Long warningManageStationsId;
 	private Long stationId;
 	private String stationNo;

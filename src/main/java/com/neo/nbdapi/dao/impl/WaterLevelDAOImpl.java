@@ -7,7 +7,6 @@ import com.neo.nbdapi.entity.VariableTime;
 import com.neo.nbdapi.entity.VariablesSpatial;
 import com.neo.nbdapi.entity.WaterLevel;
 import com.neo.nbdapi.entity.WaterLevelExecute;
-import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
 import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.utils.Constants;
@@ -202,7 +201,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
     }
 
     @Override
-    public List<WaterLevel> getListWaterLevelByTime(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, BusinessException {
+    public List<WaterLevel> getListWaterLevelByTime(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
         List<WaterLevel> waterLevels = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
 
@@ -279,12 +278,4 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         return waterLevels;
     }
 
-    @Override
-    public List<Object> getInfoEdit(Long id) throws SQLException {
-        String sqlInSite = "select g.id, u.name, u.email from group_receive_mail_detail g inner join user_info u on u.id = g.user_info_id where g.id_group_receive_mail = ?";
-        String sqlOutSite = "select ue.id, ue.name, ue.email from user_info_expand  ue inner join group_receive_mail_detail g on g.user_info_expant = ue.id where g.id_group_receive_mail = ?";
-        String sqlWarning = "select w.id, s.station_id as station_id, s.station_name, ws.id as warning_id, ws.code   from warning_recipents w inner join warning_manage_stations ws on ws.id = w.manage_warning_stations inner join stations s on s.station_id = ws.station_id where w.group_receive_mail_id = ?";
-
-        return null;
-    }
 }

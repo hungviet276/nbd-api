@@ -30,7 +30,6 @@ public class ReportController {
     // lay du lieu report cua 1 yeu to cua tram do theo startdate va enddate
     @PostMapping("/get-parameter-chart-mapping-and-data")
     public ParameterChartMappingAndDataDTO getParameterChartMappingAndData(@RequestBody @Valid GetParameterChartMappingAndDataVM request) throws SQLException, BusinessException {
-        System.out.println(request.getType() == null ? "ssss": ">" + request.getType() + "<");
         return reportService.getParameterChartMappingAndData(request);
     }
 

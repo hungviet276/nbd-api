@@ -66,9 +66,10 @@ public class ReportServiceImpl implements ReportService {
             throw new BusinessException("User không có quyền điều khiển trạm");
 
         // step 3: check xem yeu to co phai cua station hay khong
-        StationTimeSeries stationTimeSeries = stationTimeSeriesDAO.findByStationIdAndParameterTypeId(station.getStationId(), Long.parseLong(request.getParameterTypeId()));
+        StationTimeSeries stationTimeSeries = stationTimeSeriesDAO.findByStationIdAndParameterTypeId(station.getStationId(), Long.parseLong(request.getParameterTypeId()), station.getCurTsTypeId());
         if (stationTimeSeries == null)
             throw new BusinessException("Yếu tố không thuộc trạm");
+        logger.debug("station time series: {}", stationTimeSeries);
 
         // step 4: lay ra template dir, loai bieu do cua yeu to dua vao bang parameter_chart_mapping
         ParameterChartMapping parameterChartMapping = parameterChartMappingDAO.getParameterChartMappingByParameterTypeId(Integer.parseInt(request.getParameterTypeId()));
@@ -78,8 +79,7 @@ public class ReportServiceImpl implements ReportService {
         // lay du lieu tu bang tong hop ( = storage + type vi du: water_level_1H, salinity...)
         List<ObjectValue> objectValues = null;
         if (storage != null)
-            objectValues = stationTimeSeriesDAO.getStorageData(storage, request.getType(), request.getStartDate(), request.getEndDate());
-        System.out.println("data ====>" + objectValues);
+            objectValues = stationTimeSeriesDAO.getStorageData(storage, stationTimeSeries.getTsId(), request.getType(), request.getStartDate(), request.getEndDate());
         return ParameterChartMappingAndDataDTO.builder()
                 .stationTimeSeries(stationTimeSeries)
                 .chartMapping(parameterChartMapping)
@@ -119,7 +119,7 @@ public class ReportServiceImpl implements ReportService {
                 TimeSeriesDataDTO timeSeriesDataDTO = TimeSeriesDataDTO.builder()
                         .parameterChartMapping(parameterChartMapping)
                         .stationTimeSeries(timeSeries)
-                        .data(stationTimeSeriesDAO.getStorageData(timeSeries.getStorage(), null, startDate, endDate)) // dữ liệu 7 ngày
+                        .data(stationTimeSeriesDAO.getStorageData(timeSeries.getStorage(), timeSeries.getTsId(), null, startDate, endDate)) // dữ liệu 7 ngày
                         .build();
                 dataChart.add(timeSeriesDataDTO);
             }

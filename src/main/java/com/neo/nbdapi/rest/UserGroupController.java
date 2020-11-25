@@ -20,13 +20,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-import org.apache.logging.log4j.Logger;
 
 import javax.validation.Valid;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/user-group")
@@ -43,7 +41,7 @@ public class UserGroupController {
 
     @PostMapping("/get-stations")
     public List<ComboBoxStr> getStations() throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where is_active=1 order by station_code, station_name");
+        StringBuilder sql = new StringBuilder(" select station_id, station_code, station_name from stations where is_active=1 and isdel = 0 order by station_code, station_name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -111,7 +109,8 @@ public class UserGroupController {
         List<UserGroupDTO> uGroups = new ArrayList<>();
         if (StringUtils.isEmpty(stationId)) return uGroups;
         try (Connection connection = ds.getConnection()) {
-            StringBuilder sql = new StringBuilder("select id, name, group_level from group_user_info where status=1 and station_id=? order by name");
+//            StringBuilder sql = new StringBuilder("select id, name, group_level from group_user_info where status=1 and station_id=? order by name");
+            StringBuilder sql = new StringBuilder("select id, name, group_level from(select id, name, group_level from group_user_info where status=1 and station_id=? union select id, name, group_level from group_user_info where status=1 and station_id='000') order by name");
             PreparedStatement ps = connection.prepareStatement(sql.toString());
             ps.setString(1, stationId);
             ResultSet rs = ps.executeQuery();
