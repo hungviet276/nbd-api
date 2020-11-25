@@ -277,7 +277,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
                     } else{
                         print.println(line(waterLevelExecute, waterLevelExecuteBefore));
                     }
-
                 }
 
             }
@@ -300,7 +299,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, DataResponse.class);
+            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, DataResponse.class);
             DataResponse dataResponse = response.getBody();
             tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
             return DefaultResponseDTO.builder().status(1).message(dataResponse.getResponse()).build();
