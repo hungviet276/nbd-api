@@ -12,5 +12,5 @@ import java.util.Date;
 @Builder
 public class FileWaterLevelInfo implements Serializable {
     private String fileName;
-    private Date modifyDate;
+    private String modifyDate;
 }

@@ -7,7 +7,6 @@ import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.FileWaterLevelInfo;
-import com.neo.nbdapi.dto.WaterLevelDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -16,6 +15,7 @@ import com.neo.nbdapi.rest.vm.WaterLevelVM;
 import com.neo.nbdapi.services.WaterLevelService;
 import com.neo.nbdapi.services.objsearch.WaterLevelSearch;
 import com.neo.nbdapi.utils.Constants;
+import com.neo.nbdapi.utils.FileFilter;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,18 +23,23 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
- import  com.neo.nbdapi.utils.FileFilter;
 
 @Service
 public class WaterLevelServiceImpl implements WaterLevelService {
@@ -370,12 +375,13 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         return calendarFirst;
 
     }
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
     public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
         File directory = new File(pathDirectory);
         File[] fileList = directory.listFiles(new FileFilter("*.hg"));
         List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
         for (File f : fileList) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName()).modifyDate( new Date(f.lastModified())).build();
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;
