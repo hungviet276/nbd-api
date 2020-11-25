@@ -1,6 +1,7 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
@@ -9,13 +10,13 @@ import com.neo.nbdapi.services.SendMailHistoryService;
 import com.neo.nbdapi.services.objsearch.SearchSendMailHistory;
 import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
-import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
@@ -33,8 +34,13 @@ public class SendMailController {
     @Autowired
     private SendMailHistoryService sendMailHistoryService;
 
-    @Autowired
-    private HikariDataSource ds;
+    @PostMapping("/sendEmail")
+    public DefaultResponseDTO sendEmail(
+            @RequestParam("warningStationId") Long warningStationId
+            , @RequestBody List<Long> groupEmailid
+    ) throws MessagingException, SQLException {
+        return sendMailHistoryService.sendEmail(groupEmailid, warningStationId);
+    }
 
     @PostMapping("/get_list_outputs")
     public DefaultPaginationDTO getListOutpust(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
@@ -42,12 +48,12 @@ public class SendMailController {
     }
 
     @GetMapping("/get_list_stations")
-    public List<ComboBoxStr>  get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
+    public List<ComboBoxStr> get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
         return sendMailHistoryService.getListStations(userId);
     }
 
     @GetMapping("/getList_parameter_byStationId")
-    public List<ComboBox>  getListParameterByStations(@RequestParam("stationId") String stationId) throws SQLException, BusinessException {
+    public List<ComboBox> getListParameterByStations(@RequestParam("stationId") String stationId) throws SQLException, BusinessException {
         return sendMailHistoryService.getLstWarningManagerByStationId(stationId);
     }
 

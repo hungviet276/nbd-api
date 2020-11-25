@@ -2,9 +2,11 @@ package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
+import com.neo.nbdapi.dao.TidalHarmonicConstantsDAO;
 import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.WaterLevelDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -48,6 +51,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     @Autowired
     private WaterLevelDAO waterLevelDAO;
+
+    @Autowired
+    private TidalHarmonicConstantsDAO tidalHarmonicConstantsDAO;
 
     private static Long timeTmp;
 
@@ -213,7 +219,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     @Override
     public DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException {
             String fileName = "/";
-            String fileNameExecute = "/";
+            String fileNameExecute = "";
         if(waterLevelExecutedVM.getStationId().equals(Constants.WATER_LEVEL.ID_PHU_QUOC)){
             fileName+=Constants.WATER_LEVEL.FILE_PHU_QUOC;
             fileNameExecute=Constants.WATER_LEVEL.FILE_PHU_QUOC;
@@ -230,14 +236,11 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
         if(waterLevelExecutedVM.getHours() == 1){
             fileName+="1h";
-            fileNameExecute+="1h";
         } else if(waterLevelExecutedVM.getHours() == 3){
             fileName+="3h";
-            fileNameExecute+="3h";
         }
         else if(waterLevelExecutedVM.getHours() == 24){
             fileName+="24h";
-            fileNameExecute+="24h";
         } else{
             return DefaultResponseDTO.builder().status(0).message("Khoảng thời gian chưa hợp lệ").build();
         }
@@ -293,30 +296,20 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             Map<String, Object> map = new HashMap<>();
             map.put("commandExecute", command);
             map.put("stationId", waterLevelExecutedVM.getStationId());
-            map.put("fileName", fileNameExecute+".ip");
+            map.put("fileName", fileName);
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-
-            //DataResponse dataResponse = restTemplate.getForObject("http://localhost:8082/water-level/excute", DataResponse.class);
-
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
-
-            if (response.getStatusCode() == HttpStatus.OK) {
-                logger.info("========================================>");
-                logger.info("========================================>");
-                logger.info("========================================> {}", response.getBody());
-            } else {
-                logger.info("========================================>");
-                logger.info("========================================>");
-                logger.info("========================================>{}", response.getStatusCode());
-            }
+            ResponseEntity<DataResponse> response = restTemplate.postForEntity("http://192.168.1.20/:8082/water-level/excute", entity, DataResponse.class);
+            DataResponse dataResponse = response.getBody();
+            tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(dataResponse.getTidalHarmonicConstantes());
+            return DefaultResponseDTO.builder().status(1).message(dataResponse.getResponse()).build();
 
         }
          catch (IOException | ParseException e) {
             logger.error("WaterLevelServiceImpl exception : {} ", e.getMessage());
+            return DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         }
-        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
     private String lineWithDate(WaterLevelExecute waterLevelExecute, WaterLevelExecute waterLevelExecuteBefore) throws ParseException {
