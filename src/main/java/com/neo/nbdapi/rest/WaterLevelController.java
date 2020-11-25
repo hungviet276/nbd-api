@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.FileWaterLevelInfo;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_CONFIG_WATER_LEVEL)
@@ -34,6 +36,10 @@ public class WaterLevelController {
     @PostMapping("/execute-water-level")
     public DefaultResponseDTO executeWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, FileNotFoundException, ParseException {
         return waterLevelService.executeWaterLevel(waterLevelExecutedVM);
+    }
+    @GetMapping("/file-out-put-info")
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
+        return waterLevelService.getInfoFileWaterLevelInfo();
     }
 
 }
