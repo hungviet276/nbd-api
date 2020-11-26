@@ -7,7 +7,6 @@ import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ADCP;
 import com.neo.nbdapi.exception.BusinessException;
-import com.neo.nbdapi.rest.StationTypeController;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.StationManagementService;
 import com.neo.nbdapi.utils.Constants;
@@ -54,7 +53,7 @@ public class LISSController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-list-liss-pagination")
-    public DefaultPaginationDTO getListStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getListLISSPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
@@ -151,7 +150,7 @@ public class LISSController {
     }
 
     @PostMapping("/create-liss")
-    public DefaultResponseDTO createADCP(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO createLISS(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params) +  file.length);
 
         loggerAction.info("{};{}", "create-liss", objectMapper.writeValueAsString(params));
@@ -217,7 +216,7 @@ public class LISSController {
     }
 
     @PostMapping("/update-liss")
-    public DefaultResponseDTO updateADCP(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO updateLISS(HttpServletRequest request, @RequestParam Map<String, String> params, @RequestParam("linkFile") MultipartFile[] file) throws SQLException, JsonProcessingException {
         log.info(objectMapper.writeValueAsString(params) +  file.length);
 
         loggerAction.info("{};{}", "update-adcp", objectMapper.writeValueAsString(params));
@@ -285,7 +284,7 @@ public class LISSController {
     }
 
     @PostMapping("/delete-liss")
-    public DefaultResponseDTO deleteADCP(@RequestParam("id") String id){
+    public DefaultResponseDTO deleteLISS(@RequestParam("id") String id){
 
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "delete liss where id =?";

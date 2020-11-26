@@ -1,36 +1,42 @@
 package com.neo.nbdapi.entity;
 
+import org.springframework.stereotype.Repository;
+
 import java.io.Serializable;
 import java.util.Date;
 
 public class TidalHarmonicConstants implements Serializable {
-    private Long TsId;
+
+    private String stationId;
 
     private String waveName;
 
-    private Float amplitude;
+    private String amplitude;
 
-    private Float phase;
+    private String phase;
 
     private Date createDate;
 
     public TidalHarmonicConstants() {
+
     }
 
-    public TidalHarmonicConstants(Long tsId, String waveName, Float amplitude, Float phase, Date createDate) {
-        TsId = tsId;
+    public TidalHarmonicConstants(String stationId, String waveName, String amplitude, String phase, Date createDate) {
+        this.stationId = stationId;
         this.waveName = waveName;
         this.amplitude = amplitude;
         this.phase = phase;
         this.createDate = createDate;
     }
 
-    public Long getTsId() {
-        return TsId;
+
+
+    public String getStationId() {
+        return stationId;
     }
 
-    public void setTsId(Long tsId) {
-        TsId = tsId;
+    public void setStationId(String stationId) {
+        this.stationId = stationId;
     }
 
     public String getWaveName() {
@@ -41,19 +47,20 @@ public class TidalHarmonicConstants implements Serializable {
         this.waveName = waveName;
     }
 
-    public Float getAmplitude() {
+
+    public String getAmplitude() {
         return amplitude;
     }
 
-    public void setAmplitude(Float amplitude) {
+    public void setAmplitude(String amplitude) {
         this.amplitude = amplitude;
     }
 
-    public Float getPhase() {
+    public String getPhase() {
         return phase;
     }
 
-    public void setPhase(Float phase) {
+    public void setPhase(String phase) {
         this.phase = phase;
     }
 

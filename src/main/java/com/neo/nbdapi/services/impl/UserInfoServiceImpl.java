@@ -15,39 +15,39 @@ import java.util.List;
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
 
-	@Autowired
-	private UserInfoDAO userInfoDAO;
+    @Autowired
+    private UserInfoDAO userInfoDAO;
 
-	@Autowired
-	private MenuDAO menuDAO;
+    @Autowired
+    private MenuDAO menuDAO;
 
-	@Override
-	public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
-		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-		String username = user.getName();
-		List<MenuDTO> menuList = menuDAO.getListMenuAccessOfUserByUsername(username);
-		List<ApiUrlDTO> apiUrlDTOList = menuDAO.getListApiUrAccessOfUserByUsername(username);
-		return UserAndMenuDTO
-				.builder()
-				.userId(username)
-				.menus(menuList)
-				.urlApi(apiUrlDTOList)
-				.build();
-	}
+    @Override
+    public UserAndMenuDTO getUserInfoAndListMenu() throws SQLException {
+        UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        String username = user.getName();
+        List<MenuDTO> menuList = menuDAO.getListMenuAccessOfUserByUsername(username);
+        List<ApiUrlDTO> apiUrlDTOList = menuDAO.getListApiUrAccessOfUserByUsername(username);
+        return UserAndMenuDTO
+                .builder()
+                .userId(username)
+                .menus(menuList)
+                .urlApi(apiUrlDTOList)
+                .build();
+    }
 
-	@Override
-	public List<NameUserDTO> getNameUser(SelectGroupDTO selectGroupDTO) throws SQLException {
-		return userInfoDAO.getNameUser(selectGroupDTO);
-	}
+    @Override
+    public List<NameUserDTO> getNameUser(SelectGroupDTO selectGroupDTO) throws SQLException {
+        return userInfoDAO.getNameUser(selectGroupDTO);
+    }
 
-	@Override
-	public List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException {
-		return userInfoDAO.getNameUserByGroupId(groupDetail);
-	}
+    @Override
+    public List<NameUserDTO> getNameUserByGroupId(GroupDetail groupDetail) throws SQLException {
+        return userInfoDAO.getNameUserByGroupId(groupDetail);
+    }
 
-	@Override
-	public List<NameUserDTO> getAllUserId() throws SQLException {
-		return userInfoDAO.getAllUserId();
-	}
+    @Override
+    public List<NameUserDTO> getAllUserId() throws SQLException {
+        return userInfoDAO.getAllUserId();
+    }
 
 }
