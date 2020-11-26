@@ -30,6 +30,11 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
+    public List<ComboBoxStr> getStationByUser() {
+        return stationDAO.getStationByUser();
+    }
+
+    @Override
     public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException {
         return stationDAO.getStationComboBoxWaterLevel(query);
     }

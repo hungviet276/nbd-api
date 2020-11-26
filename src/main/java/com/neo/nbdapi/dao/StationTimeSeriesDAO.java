@@ -16,4 +16,6 @@ public interface StationTimeSeriesDAO {
     List<ObjectValue> getStorageData(String storage, String type, String startDate, String endDate) throws SQLException;
 
     List<StationTimeSeries> findByStationIdAndListParameterTypeId(String stationId, String listParameterTypeId) throws SQLException;
+
+    List<StationTimeSeries> findByStationId(String stationId);
 }

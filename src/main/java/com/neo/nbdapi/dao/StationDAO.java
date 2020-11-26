@@ -19,4 +19,6 @@ public interface StationDAO {
     Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException;
 
     boolean isStationOwnedByUser(String stationId, String userId) throws SQLException;
+
+    List<ComboBoxStr> getStationByUser();
 }

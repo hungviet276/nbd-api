@@ -9,11 +9,18 @@ import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.CsvUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -35,5 +42,10 @@ public class StationController {
     @PostMapping("/station-select-water-level")
     public List<ComboBoxStr> getStationComboBoxWaterLevel(@RequestBody SelectVM selectVM) throws SQLException {
         return stationService.getStationComboBox(selectVM.getTerm());
+    }
+
+    @GetMapping("/get-station-user")
+    public List<ComboBoxStr> getStationByUser() {
+        return stationService.getStationByUser();
     }
 }

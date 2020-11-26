@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.StationDAO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.zaxxer.hikari.HikariDataSource;
@@ -10,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Repository;
 
 import javax.xml.transform.Result;
@@ -135,4 +138,37 @@ public class StationDAOImpl implements StationDAO {
             return comboBoxes;
         }
     }
+
+    @Override
+    public List<ComboBoxStr> getStationByUser() {
+        List<ComboBoxStr> list = new ArrayList<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+                "        from group_user_info gui ,group_detail gd ,stations s\n" +
+                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
+                "        and gd.user_info_id =?";
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, userLogin.getUsername());
+            ResultSet rs = st.executeQuery();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
+                    .text("Lựa chọn")
+                    .build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("STATION_ID"))
+                        .text(rs.getString("STATION_NAME"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
 }

@@ -80,7 +80,6 @@ public class LISSController {
                         sql.append(" and b.station_code = ? ");
                         paramSearch.add(params.get("s_stationCode"));
                     }
-
                     if (Strings.isNotEmpty(params.get("s_stationName"))) {
                         sql.append(" and lower(b.STATION_NAME) like lower(?) ");
                         paramSearch.add("%" + params.get("s_stationName") + "%");
@@ -242,30 +241,17 @@ public class LISSController {
 
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "update adcp set TIME_START = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_END = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_AVG = to_date(?,'DD/MM/YYYY HH24:MI'),WATER_LEVEL_START = ?,WATER_LEVEL_END = ?," +
-                "WATER_LEVEL_AVG = ?,SPEED_AVG = ?,SPEED_MAX = ?,DEEP_AVG = ?,DEEP_MAX = ?,SQUARE_RIVER = ?,WIDTH_RIVER = ?,WATER_FLOW = ?,NOTE = ?,CREATED_BY = ?,LINK_FILE = ?\n" +
-                "where id =?";
+        String sql = "UPDATE liss SET TIME_START = ?, TIME_END = ?, total_turb = ?, data = ?, data_avg = ? where id = ?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
 //            statement.setString(i++, params.get("stationId"));
             statement.setString(i++, params.get("timeStart"));
             statement.setString(i++, params.get("timeEnd"));
-            statement.setString(i++, params.get("timeAvg"));
+            statement.setString(i++, params.get("totalTurb"));
+            statement.setString(i++, params.get("data"));
+            statement.setString(i++, params.get("dataAvg"));
+            statement.setString(i++, params.get("id"));
 
-            statement.setString(i++, params.get("waterLevelStart"));
-            statement.setString(i++, params.get("waterLevelEnd"));
-            statement.setString(i++, params.get("waterLevelAvg"));
-            statement.setString(i++, params.get("speedAvg"));
-            statement.setString(i++, params.get("speedMax"));
-
-            statement.setString(i++, params.get("deepAvg"));
-            statement.setString(i++, params.get("deepMax"));
-            statement.setString(i++, params.get("squareRiver"));
-            statement.setString(i++, params.get("widthRiver"));
-
-            statement.setString(i++, params.get("waterFlow"));
-            statement.setString(i++, params.get("note"));
-            statement.setString(i++, params.get("username"));
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
             }else{

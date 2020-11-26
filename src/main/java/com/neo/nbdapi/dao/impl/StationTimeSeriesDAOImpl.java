@@ -118,4 +118,35 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
         }
         return listStationTimeSeries;
     }
+
+    @Override
+    public List<StationTimeSeries> findByStationId(String stationId) {
+        String sql = "SELECT ts_id, ts_name, parametertype_name, parametertype_id, ts_type_id, parametertype_description\n" +
+                "    , station_no, storage from station_time_series where station_id =?";
+        List<StationTimeSeries> listStationTimeSeries = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, stationId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                        .tsId(resultSet.getInt("ts_id"))
+                        .tsName(resultSet.getString("ts_name"))
+                        .stationId(resultSet.getString("station_id"))
+                        .tsTypeId(resultSet.getInt("ts_type_id"))
+                        .parameterTypeId(resultSet.getInt("parametertype_id"))
+                        .parameterTypeName(resultSet.getString("parametertype_name"))
+                        .parameterTypeDescription(resultSet.getString("parametertype_description"))
+                        .storage(resultSet.getString("storage"))
+                        .stationNo(resultSet.getString("station_no"))
+                        .build();
+                listStationTimeSeries.add(stationTimeSeries);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return listStationTimeSeries;
+    }
 }
