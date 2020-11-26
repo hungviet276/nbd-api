@@ -23,4 +23,8 @@ public interface WarningMangerStationService {
     DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO) throws SQLException;
     DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
     List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException ;
+
+    // thanglv
+    // function get list notitication today
+    List<NotificationToDayDTO> getListNotificationToday() throws SQLException;
 }
