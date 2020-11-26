@@ -218,10 +218,15 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     @Override
     public List<NotificationToDayDTO> getListNotificationToday() throws SQLException {
         Calendar calendar = Calendar.getInstance();
-        String endDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy");
-        calendar.add(Calendar.DAY_OF_YEAR, -1);
-        String startDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy");
+        String endDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
+        calendar.add(Calendar.DAY_OF_YEAR, -2);
+        String startDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
 
         return warningManagerStationDAO.getListWarningManagerStationByDate(startDate, endDate);
+    }
+
+    @Override
+    public NotificationToDayDTO getNotificationById(Long warningManagerStationId) throws SQLException {
+        return warningManagerStationDAO.getWarningManagerStationById(warningManagerStationId);
     }
 }

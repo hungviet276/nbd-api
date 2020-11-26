@@ -27,4 +27,5 @@ public interface WarningMangerStationService {
     // thanglv
     // function get list notitication today
     List<NotificationToDayDTO> getListNotificationToday() throws SQLException;
+    NotificationToDayDTO getNotificationById(Long warningManagerStationId) throws SQLException;
 }

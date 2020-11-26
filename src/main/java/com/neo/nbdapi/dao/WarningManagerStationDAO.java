@@ -24,4 +24,6 @@ public interface WarningManagerStationDAO {
 
     // thanglv
     List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException;
+
+    NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException;
 }

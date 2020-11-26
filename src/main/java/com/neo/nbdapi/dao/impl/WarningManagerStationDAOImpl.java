@@ -305,14 +305,16 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
     @Override
     public List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException {
-        String sql = "SELECT DISTINCT wms.id, wms.name, wms.description, wms.color, wms.icon, wms.created_at FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_time_stap >= to_date(?, 'dd/mm/yyyy')";
+        logger.debug("START_DATE: {}, END_DATE: {}", startDate, endDate);
+        String sql = "SELECT DISTINCT wms.id, wms.name, wms.description, wms.color, wms.icon, wms.created_at FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
         PreparedStatement preparedStatement = null;
         List<NotificationToDayDTO> notificationToDayDTOList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
         ) {
             if (endDate != null)
-                sql = sql + " AND nh.push_timestap = ?";
+                sql = sql + " AND nh.push_timestap <= to_date(?, 'dd/mm/yyyy HH24:mi')";
+            sql = sql + " ORDER BY wms.created_at DESC";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, startDate);
             if (endDate != null)
@@ -333,6 +335,34 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             if (preparedStatement != null)
                 preparedStatement.close();
         }
-        return null;
+        return notificationToDayDTOList;
+    }
+
+    @Override
+    public NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException {
+        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id FROM warning_manage_stations wms JOIN stations st ON wms.station_id = st.station_id WHERE wms.id = ?";
+        NotificationToDayDTO notificationToDayDTO = null;
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setLong(1, warningManagerStationId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                notificationToDayDTO = NotificationToDayDTO.builder()
+                        .id(resultSet.getLong("id"))
+                        .code(resultSet.getString("code"))
+                        .name(resultSet.getString("name"))
+                        .description(resultSet.getString("description"))
+                        .content(resultSet.getString("content"))
+                        .color(resultSet.getString("color"))
+                        .icon(resultSet.getString("icon"))
+                        .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
+                        .stationName(resultSet.getString("station_name"))
+                        .stationId(resultSet.getString("station_id"))
+                        .build();
+            }
+        }
+        return notificationToDayDTO;
     }
 }
