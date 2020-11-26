@@ -4,6 +4,7 @@ import com.neo.nbdapi.dao.ParameterChartMappingDAO;
 import com.neo.nbdapi.dao.StationDAO;
 import com.neo.nbdapi.dao.StationTimeSeriesDAO;
 import com.neo.nbdapi.dto.ParameterChartMappingAndDataDTO;
+import com.neo.nbdapi.dto.ParameterDisplayChartDTO;
 import com.neo.nbdapi.dto.TimeSeriesDataDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
@@ -21,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author thanglv on 11/14/2020
@@ -88,47 +86,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<TimeSeriesDataDTO> getStationDataReport(GetStationDataReportVM request) throws BusinessException, SQLException {
-        // check xem yếu tố này có phải của trạm không và user có được cấp quyền cho trạm hay không
-        // step 1: check trạm có tồn tại hay không
-        Station station = stationDAO.findStationByStationCodeAndActiveAndIsdel(request.getStationCode());
-        if (station == null || station.getIsDel() == Constants.STATION.IS_DEL_TRUE)
-            throw new BusinessException("Trạm không tồn tại trong hệ thống");
-
-        // step 2: check tram co thuoc quyen so huu cua user hay khong
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!stationDAO.isStationOwnedByUser(station.getStationId(), userId))
-            throw new BusinessException("User không có quyền điều khiển trạm");
-
-        // step 3, lay toan bo du lieu report cua cac yeu to cua tram
-        String listParameterTypeId = config.getString(station.getStationCode());
-        // get time 7 ngay ve truoc de lay du lieu
-        Calendar calendar = Calendar.getInstance();
-        String endDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
-        calendar.add(Calendar.DAY_OF_YEAR, -7);
-        String startDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
-
-        //danh sách dữ liệu các yếu tố cần hiển thị ở biểu đồ
-        List<TimeSeriesDataDTO> dataChart = new ArrayList<>();
-        if (listParameterTypeId != null) {
-            List<StationTimeSeries> stationTimeSeriesList = stationTimeSeriesDAO.findByStationIdAndListParameterTypeId(station.getStationId(), listParameterTypeId);
-            for (StationTimeSeries timeSeries : stationTimeSeriesList) {
-                // timeSeries chính là thông tin của yếu tố
-                ParameterChartMapping parameterChartMapping = parameterChartMappingDAO.getParameterChartMappingByParameterTypeId(timeSeries.getParameterTypeId());
-                // trả về dữ liệu thông tin time series + data
-                TimeSeriesDataDTO timeSeriesDataDTO = TimeSeriesDataDTO.builder()
-                        .parameterChartMapping(parameterChartMapping)
-                        .stationTimeSeries(timeSeries)
-                        .data(stationTimeSeriesDAO.getStorageData(timeSeries.getStorage(), timeSeries.getTsId(), null, startDate, endDate)) // dữ liệu 7 ngày
-                        .build();
-                dataChart.add(timeSeriesDataDTO);
-            }
-        }
-        return dataChart;
-    }
-
-    @Override
-    public String[] getListParameterDisplayChartOfStation(GetStationDataReportVM request) throws SQLException, BusinessException {
+    public List<ParameterDisplayChartDTO> getListParameterDisplayChartOfStation(GetStationDataReportVM request) throws SQLException, BusinessException {
         // check xem yếu tố này có phải của trạm không và user có được cấp quyền cho trạm hay không
         // step 1: check trạm có tồn tại hay không
         Station station = stationDAO.findStationByStationCodeAndActiveAndIsdel(request.getStationCode());
@@ -142,11 +100,26 @@ public class ReportServiceImpl implements ReportService {
 
         // step 3: lay ra danh sach parameter type id hien thi cua station
         String listParameterTypeId = config.getString(station.getStationCode());
-        String[] arrParameterTypeId = null;
+        List<ParameterDisplayChartDTO> resposne = new ArrayList<>();
+        Date now = new Date();
         if (listParameterTypeId != null) {
-            arrParameterTypeId = listParameterTypeId.split(",");
+            String[] arrParameterTypeId = listParameterTypeId.split(",");
+            for (String item : arrParameterTypeId) {
+                String[] arrData = item.split("_");
+                int amountDate = Integer.parseInt(arrData[2]);
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_YEAR, -amountDate);
+                ParameterDisplayChartDTO displayChartDTO = ParameterDisplayChartDTO.builder()
+                        .parameterTypeId(arrData[0])
+                        .type(arrData[1])
+                        .amountDate(arrData[2])
+                        .startDate(DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm"))
+                        .endDate(DateUtils.getStringFromDateFormat(now, "dd/MM/yyyy HH:mm"))
+                        .build();
+                resposne.add(displayChartDTO);
+            }
         }
-        return arrParameterTypeId;
+        return resposne;
     }
 
     private void validateRequest(GetParameterChartMappingAndDataVM request) throws BusinessException {
