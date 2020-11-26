@@ -11,12 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import com.neo.nbdapi.entity.*;
+import com.neo.nbdapi.utils.ExcelUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
+import org.dhatim.fastexcel.Workbook;
+import org.dhatim.fastexcel.Worksheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
@@ -42,7 +46,6 @@ import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.StationManagementService;
-import com.neo.nbdapi.services.impl.MailConfigServiceImpl;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -102,114 +105,16 @@ public class StationTypeController {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
-
-            StringBuilder sql = new StringBuilder("select a.*,b1.AREA_NAME, b.PROVINCE_NAME, c.DISTRICT_NAME, e.RIVER_NAME, d.WARD_NAME, g.* from stations a ,AREAS b1, PROVINCES b, DISTRICTS c, WARDS d, rivers e , stations_object_type f , OBJECT_TYPE g\r\n" +
-                    "where a.AREA_ID = b1.AREA_ID(+) and a.PROVINCE_ID = b.PROVINCE_ID(+) and a.DISTRICT_ID = c.DISTRICT_ID(+) and a.WARD_ID = d.WARD_ID(+) and a.RIVER_ID = e.RIVER_ID(+) and a.STATION_ID = f.STATION_ID and f.OBJECT_TYPE_ID = g.OBJECT_TYPE_ID");
             List<Object> paramSearch = new ArrayList<>();
-            if (Strings.isNotEmpty(search)) {
-                try {
-                    Map<String, String> params = objectMapper.readValue(search, Map.class);
-                    if (Strings.isNotEmpty(params.get("s_objectType"))) {
-                        sql.append(" and g.OBJECT_TYPE = ? ");
-                        paramSearch.add(params.get("s_objectType"));
-                    }
-                    if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
-                        sql.append(" and lower(g.OBJECT_TYPE_SHORTNAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_objectTypeName") + "%");
-                    }
-                    if (Strings.isNotEmpty(params.get("s_stationId"))) {
-                        sql.append(" and a.station_id = ? ");
-                        paramSearch.add(params.get("s_stationId"));
-                    }
-                    if (Strings.isNotEmpty(params.get("s_stationCode"))) {
-                        sql.append(" and a.station_code = ? ");
-                        paramSearch.add(params.get("s_stationCode"));
-                    }
-                    if (Strings.isNotEmpty(params.get("s_stationName"))) {
-                        sql.append(" and lower(a.STATION_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_stationName") + "%");
-                    }
-                    if (Strings.isNotEmpty(params.get("s_longtitude"))) {
-                        sql.append(" and a.LONGTITUDE = ? ");
-                        paramSearch.add(params.get("s_longtitude"));
-                    }
-                    if (Strings.isNotEmpty(params.get("s_latitude"))) {
-                        sql.append(" and a.LATITUDE = ? ");
-                        paramSearch.add(params.get("s_latitude"));
-                    }
-                    if (Strings.isNotEmpty(params.get("s_provinceName"))) {
-                        sql.append(" and lower(b.PROVINCE_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_provinceName") + "%");
-                    }
-                    if (Strings.isNotEmpty(params.get("s_districtName"))) {
-                        sql.append(" and lower(c.DISTRICT_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_districtName") + "%");
-                    }
-                    if (Strings.isNotEmpty(params.get("s_wardName"))) {
-                        sql.append(" and lower(d.WARD_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_wardName") + "%");
-                    }
-
-                    if (Strings.isNotEmpty(params.get("s_address"))) {
-                        sql.append(" and lower(a.address) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_address") + "%");
-                    }
-
-                    if (Strings.isNotEmpty(params.get("s_riverName"))) {
-                        sql.append(" and lower(e.RIVER_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_riverName") + "%");
-                    }
-
-                    if (Strings.isNotEmpty(params.get("s_status"))) {
-                        sql.append(" and a.is_active = ? ");
-                        paramSearch.add(params.get("s_status"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            sql.append(" order by a.CREATED_AT desc ");
-            log.info(sql.toString());
+            String sql = stationManagementService.getStringStationPagination(search,paramSearch);
+            log.info(sql);
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
-            ResultSet rs = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
-            List<Station> list = new ArrayList<>();
-
-            while (rs.next()) {
-                Station bo = Station.builder()
-                        .stationId(rs.getString("STATION_ID"))
-                        .stationCode(rs.getString("STATION_CODE"))
-                        .elevation(rs.getFloat("ELEVATION"))
-                        .stationName(rs.getString("STATION_NAME"))
-                        .latitude(rs.getFloat("LATITUDE"))
-                        .longtitude(rs.getFloat("LONGTITUDE"))
-                        .trans_miss(rs.getInt("TRANS_MISS"))
-                        .address(rs.getString("ADDRESS"))
-                        .is_active(rs.getInt("IS_ACTIVE"))
-                        .riverId(rs.getLong("RIVER_ID"))
-                        .riverName(rs.getString("RIVER_NAME"))
-                        .provinceId(rs.getLong("PROVINCE_ID"))
-                        .provinceName(rs.getString("PROVINCE_NAME"))
-                        .districtId(rs.getLong("DISTRICT_ID"))
-                        .districtName(rs.getString("DISTRICT_NAME"))
-                        .countryId(rs.getInt("COUNTRY_ID"))
-//                        .countryName(rs.getString("COUNTRY_NAME"))
-                        .wardId(rs.getLong("WARD_ID"))
-                        .wardName(rs.getString("WARD_NAME"))
-                        .projectId(rs.getInt("PROJECT_ID"))
-                        .modeStationType(rs.getInt("MODE_CONTROL"))
-                        .areaId(rs.getLong("AREA_ID"))
-                        .areaName(rs.getString("AREA_NAME"))
-                        .stationTypeId(rs.getLong("STATION_TYPE_ID"))
-                        .objectTypeId(rs.getInt("OBJECT_TYPE_ID"))
-                        .objectType(rs.getString("OBJECT_TYPE"))
-                        .objectTypeName(rs.getString("OBJECT_TYPE_SHORTNAME"))
-                        .build();
-                list.add(bo);
-            }
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql, pageNumber + 1, recordPerPage, paramSearch);
+            List<Station> list = stationManagementService.getRsListStationPagination(rs);
 
             rs.close();
             // count result
-            long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
+            long total = paginationDAO.countResultQuery(sql, paramSearch);
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
@@ -241,7 +146,7 @@ public class StationTypeController {
                         .longtitude(rs.getFloat("LONGTITUDE"))
                         .trans_miss(rs.getInt("TRANS_MISS"))
                         .address(rs.getString("ADDRESS"))
-                        .status(rs.getInt("STATUS"))
+                        .is_active(rs.getInt("IS_ACTIVE"))
                         .riverId(rs.getLong("RIVER_ID"))
                         .riverName(rs.getString("RIVER_NAME"))
                         .provinceId(rs.getLong("PROVINCE_ID"))
@@ -277,7 +182,7 @@ public class StationTypeController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.status, e.UNIT_NAME from station_time_series a,stations b, stations_object_type c, PARAMETER_TYPE d, unit e\r\n" +
+            StringBuilder sql = new StringBuilder("select a.*,b.is_active, e.UNIT_NAME from station_time_series a,stations b, stations_object_type c, PARAMETER_TYPE d, unit e\r\n" +
                     " where 1=1 and a.station_id = b.station_id(+) and b.station_id = c.station_id(+) and a.PARAMETERTYPE_ID = d.PARAMETER_TYPE_ID(+) and d.UNIT_ID = e.UNIT_ID ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
@@ -356,7 +261,7 @@ public class StationTypeController {
                         .projectId(rs.getInt("PROJECT_ID"))
                         .projectName(rs.getString("PROJECT_NAME"))
                         .storage(rs.getString("STORAGE"))
-                        .status(rs.getInt("STATUS"))
+                        .status(rs.getInt("IS_ACTIVE"))
                         .unitName(rs.getString("UNIT_NAME"))
                         .build();
                 list.add(bo);
@@ -585,7 +490,10 @@ public class StationTypeController {
                         sql.append(" and b.PARAMETER_TYPE_ID = ? ");
                         paramSearch.add(params.get("s_stationId"));
                     }
-
+                    if(params.get("s_storage") != null  && !"".equals(params.get("s_storage"))){
+                        sql.append(" and lower(b.storage) = lower(?) ");
+                        paramSearch.add(params.get("s_storage"));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error(e.getMessage());
@@ -872,12 +780,29 @@ public class StationTypeController {
     }
 
     @PostMapping("/export")
-    public ResponseEntity<Resource> export(@RequestBody Map<String, String> params) {
-        String filename = "tutorials.xlsx";
-        InputStreamResource file = new InputStreamResource(stationManagementService.export());
+    public ResponseEntity<Resource> export(HttpServletRequest request) {
+        String search = request.getParameter("search");
+        String fileName = "station_vi.xlsx";
+        //String fileIn = request.getRealPath("") + "/templates/" + fileName;
+        String fileIn = "templates/" + fileName;
+        InputStreamResource file = null;
+        List<Object> paramSearch = new ArrayList<>();
+        try(Connection connection = ds.getConnection()) {
+            String sql = stationManagementService.getStringStationPagination(search, paramSearch);
+
+            PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            for (int i = 0; i < paramSearch.size(); i++) {
+                statement.setObject(i + 1, paramSearch.get(i));
+            }
+            ResultSet rs =  statement.executeQuery();
+            List<Map> list = stationManagementService.getRsListMapStationPagination(rs);
+            file = new InputStreamResource(ExcelUtils.write2File(list,fileIn,0,3));
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, filename)
+                .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(file);
     }
@@ -948,7 +873,7 @@ public class StationTypeController {
                         .longtitude(rs.getFloat("LONGTITUDE"))
                         .trans_miss(rs.getInt("TRANS_MISS"))
                         .address(rs.getString("ADDRESS"))
-                        .status(rs.getInt("STATUS"))
+                        .is_active(rs.getInt("IS_ACTIVE"))
                         .riverId(rs.getLong("RIVER_ID"))
                         .riverName(rs.getString("RIVER_NAME"))
                         .provinceId(rs.getLong("PROVINCE_ID"))
@@ -969,6 +894,7 @@ public class StationTypeController {
                         .objectTypeName(rs.getString("OBJECT_TYPE_SHORTNAME"))
                         .createdAt(rs.getDate("CREATED_AT"))
                         .createById(rs.getString("CREATED_BY_ID"))
+                        .isAuto(rs.getInt("IS_AUTO"))
                         .build();
                 list.add(bo);
             }

@@ -27,8 +27,8 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
     private HikariDataSource ds;
 
     @Override
-    public StationTimeSeries findByStationIdAndParameterTypeId(String stationId, Long parameterTypeId) throws SQLException {
-        String sql = "SELECT sts.ts_id, sts.ts_name, sts.station_id, sts.ts_type_id, sts.parametertype_id, sts.parametertype_name, sts.storage, un.unit_id, un.unit_name,un.unit_code FROM station_time_series sts JOIN parameter_type pt ON sts.parametertype_id = pt.parameter_type_id JOIN unit un ON pt.unit_id = un.unit_id WHERE sts.station_id = ? AND sts.parametertype_id = ?";
+    public StationTimeSeries findByStationIdAndParameterTypeId(String stationId, Long parameterTypeId, int curTsTypeId) throws SQLException {
+        String sql = "SELECT sts.ts_id, sts.ts_name, sts.station_id, sts.ts_type_id, sts.parametertype_id, sts.parametertype_name, sts.storage, un.unit_id, un.unit_name,un.unit_code FROM station_time_series sts JOIN parameter_type pt ON sts.parametertype_id = pt.parameter_type_id JOIN unit un ON pt.unit_id = un.unit_id WHERE sts.station_id = ? AND sts.parametertype_id = ? AND sts.ts_type_id = ?";
         StationTimeSeries stationTimeSeries = null;
         try (
                 Connection connection = ds.getConnection();
@@ -36,6 +36,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
         ) {
             statement.setString(1, stationId);
             statement.setLong(2, parameterTypeId);
+            statement.setInt(3, curTsTypeId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 stationTimeSeries = StationTimeSeries.builder()
@@ -56,25 +57,27 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
     }
 
     @Override
-    public List<ObjectValue> getStorageData(String storage, String type, String startDate, String endDate) throws SQLException {
+    public List<ObjectValue> getStorageData(String storage, Integer tsId, String type, String startDate, String endDate) throws SQLException {
+        logger.debug("parameter query storage: {}, type : {}, startDate: {}, endDate : {}", storage, type, startDate, endDate);
         List<ObjectValue> objectValues = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
         ) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            String tableNameRequest = Strings.isEmpty(type)? storage : storage + type;
+            String tableNameRequest = Strings.isEmpty(type)? storage : storage + "_" + type;
             ResultSet table = databaseMetaData.getTables(null, null, tableNameRequest.toUpperCase(), new String[]{"TABLE"});
             if (table.next()) {
-                String sql = "SELECT ts_id, value, timestamp, status, manual, warning, create_user FROM %s WHERE timestamp >= to_date(?, 'dd/mm/yyyy HH24:mi')";
+                String sql = "SELECT ts_id, value, timestamp, status, manual, warning, create_user FROM %s WHERE ts_id = ? AND timestamp >= to_date(?, 'dd/mm/yyyy HH24:mi')";
                 if (endDate != null) {
                     sql = sql + " AND timestamp <= to_date(?, 'dd/mm/yyyy HH24:mi')";
                 }
                 sql = String.format(sql, table.getString("TABLE_NAME"));
-                logger.debug("sql query station timeseries: {}", sql);
+                logger.debug("sql query get data from storage: {}", sql);
                 PreparedStatement statement = connection.prepareStatement(sql);
-                statement.setString(1, startDate);
+                statement.setInt(1, tsId);
+                statement.setString(2, startDate);
                 if (endDate != null)
-                    statement.setString(2, endDate);
+                    statement.setString(3, endDate);
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     ObjectValue objectValue = ObjectValue.builder()
@@ -88,6 +91,8 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                             .build();
                     objectValues.add(objectValue);
                 }
+            } else {
+                logger.debug("table storage : {} not exists" , tableNameRequest );
             }
         }
         return objectValues;

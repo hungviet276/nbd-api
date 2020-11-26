@@ -19,6 +19,4 @@ public interface WaterLevelDAO {
  List<WaterLevel> getListWaterLevelByTime(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, BusinessException;
 
  List<WaterLevelExecute> executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException;
-
- List<Object> getInfoEdit(Long id) throws  SQLException;
 }
