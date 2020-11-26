@@ -7,7 +7,11 @@ import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author thanglv on 11/26/2020
@@ -22,7 +26,12 @@ public class NotificationController {
     private WarningMangerStationService warningMangerStationService;
 
     @GetMapping("/get-notification-to-day")
-    public NotificationToDayDTO getNotificationToDay() {
-        return null;
+    public List<NotificationToDayDTO> getNotificationToDay() throws SQLException {
+        return warningMangerStationService.getListNotificationToday();
+    }
+
+    @GetMapping("/detail")
+    public NotificationToDayDTO getNotificationToDayById(@RequestParam Long warningManagerStationId) throws SQLException {
+        return warningMangerStationService.getNotificationById(warningManagerStationId);
     }
 }

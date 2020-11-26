@@ -35,7 +35,7 @@ public class NotificationToDayDTO implements Serializable {
 
     private String createdAt;
 
-    private Long stationId;
+    private String stationId;
 
     private String stationName;
 }
