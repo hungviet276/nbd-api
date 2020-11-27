@@ -481,7 +481,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             Map<String, Object> map = new HashMap<>();
             map.put("execute", command);
-            map.put("fileName", "/"+fileNameConf.toUpperCase()+ ".tab");
+            map.put("fileName", ("/"+fileNameConf.toUpperCase()+ ".tab"));
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
