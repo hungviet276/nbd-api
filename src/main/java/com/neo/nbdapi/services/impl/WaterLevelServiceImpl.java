@@ -457,6 +457,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             writeConfig.println(fileNameConf.toUpperCase()+ ".log");
             writeConfig.println(fileNameConf.toUpperCase()+ ".tab");
+            writeConfig.println(fileNameConf.toUpperCase());
             writeConfig.println(start);
             writeConfig.println(end);
             writeConfig.println(type);
