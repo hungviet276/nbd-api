@@ -32,6 +32,7 @@ public interface Constants {
             // module report
             public static final String URI_REPORT = "/report";
             public static final String URI_CASSBIN_RULE = "/casbin-rule";
+            public static final String URI_NOTIFICATION = "/notification";
         }
     }
 
@@ -109,6 +110,9 @@ public interface Constants {
 
         public static final int IS_DELETE_FALSE = 0;
         public static final int STATUS_ACTIVE = 1;
+        public static final int CHECK_ROLE_NOT_FOUNT = -1;
+        public static final int CHECK_ROLE_OK= 1;
+        public static final int CHECK_ROLE_NOT_OK = 0;
     }
     class URI_RESTEMPLATE {
         public static final String URI_WATER_LEVEL = "http://192.168.1.20/:8082/";

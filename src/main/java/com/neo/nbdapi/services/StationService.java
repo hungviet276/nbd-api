@@ -12,4 +12,6 @@ public interface StationService {
     List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException;
 
     String getAllStationCsv() throws SQLException;
+
+    String getStationWithObjectType(String objectType) throws SQLException;
 }

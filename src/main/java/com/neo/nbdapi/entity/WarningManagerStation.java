@@ -33,5 +33,7 @@ public class WarningManagerStation  implements Serializable {
 
     private String content;
 
+    private String rawTextContent;
+
     private String color;
 }
