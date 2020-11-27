@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +24,6 @@ public class MenuDTO {
     private String pictureFile;
 
     private int level;
+
+    private List<String> listAct;
 }
