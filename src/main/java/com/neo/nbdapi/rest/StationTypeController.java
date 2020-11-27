@@ -916,13 +916,18 @@ public class StationTypeController {
     public List<ComboBoxStr> getListSelectStation(@RequestParam Map<String,String> params) throws SQLException, BusinessException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-        StringBuilder sql = new StringBuilder("select STATION_ID, station_code || ' - ' || STATION_NAME STATION_NAME, RIVER_ID from stations where ISDEL = 0 ");
+        StringBuilder sql = new StringBuilder("select a.STATION_ID, a.station_code || ' - ' || a.STATION_NAME STATION_NAME, RIVER_ID from stations a, stations_object_type b, object_type c where  a.station_id = b.STATION_ID and b.OBJECT_TYPE_ID = c.OBJECT_TYPE_ID and ISDEL = 0 and \n" +
+                " exists(select 1 from group_detail gd,group_user_info gui where gd.group_id = gui.id and gd.user_info_id =? and gui.STATION_ID = a.STATION_ID)");
+
         if(params.get("stationType") != null){
-            sql.append(" STATION_TYPE_ID in (?)");
+            sql.append(" and OBJECT_TYPE in (?)");
         }
         try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            int i = 1;
+            st.setString(i++, userLogin.getUsername());
+
             if(params.get("stationType") != null){
-                st.setString(1,params.get("stationType").toString());
+                st.setString(i++,params.get("stationType"));
             }
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
