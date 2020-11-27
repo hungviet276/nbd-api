@@ -93,11 +93,10 @@ public interface Constants {
         public static final String FILE_GANH_HAO = "ganh_hao";
         public static final String FILE_HA_TIEN = "ha_tien";
 
-//        public static final  String GHENH_HAO = "ganh_hao";
-//        public static final  String HA_TIEN = "ha_tien";
-//        public static final  String PHU_QUOC = "phu_quoc";
+        public static final String  FILE_EXECUTE_GUESS = "stations.dat";
 
-
+        public static final  String REGEX_FILE_UPLOAD = ".*.dat$";
+        public static final String FILE_CONFIG = "tides.cfg";
     }
 
     class STATION {

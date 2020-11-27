@@ -2,7 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.NameUserDTO;
 import com.neo.nbdapi.dto.SelectGroupDTO;
-import com.neo.nbdapi.services.UserInFoExpandService;
+import com.neo.nbdapi.services.UserInfoExpandService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ import java.util.List;
 public class UserInFoExpandController {
 
     @Autowired
-    private UserInFoExpandService userInFoExpandService;
+    private UserInfoExpandService userInFoExpandService;
 
     @PostMapping("/get-name-user-out-site")
     public List<NameUserDTO> getUserInfo(SelectGroupDTO selectGroupDTO) throws SQLException {

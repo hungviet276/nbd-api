@@ -34,3 +34,7 @@ casbin:
 logging:
   config: classpath:logback.xml
 sysId: 1
+water:
+  level:
+    file:
+      out: /water_level/
