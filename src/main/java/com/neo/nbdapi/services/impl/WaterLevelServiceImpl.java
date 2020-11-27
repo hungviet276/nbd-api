@@ -476,8 +476,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             String command = "./tt_dubao_v2";
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED));
 
             Map<String, Object> map = new HashMap<>();
             map.put("execute", command);
