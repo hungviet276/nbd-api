@@ -166,8 +166,8 @@ public class MenuDAOImpl implements MenuDAO {
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
         String sqlGetCheckRole = "SELECT check_role FROM user_info ui WHERE id = ?";
-        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND act = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
-        String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM menu mn JOIN menu_access_act mac ON mn.id = mac.menu_id JOIN role_user_info rui ON rui.role_id = mac.role_id WHERE rui.user_id = ? AND mac.act = ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND mac.act LIKE ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN menu_access_act mac ON mn.id = mac.menu_id JOIN role_user_info rui ON rui.role_id = mac.role_id WHERE rui.user_id = ? AND mac.act LIKE ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -184,35 +184,59 @@ public class MenuDAOImpl implements MenuDAO {
             if (checkRole == Constants.USER_INFO.CHECK_ROLE_NOT_OK) {
                 statementNotCheckRole.setString(1, username);
                 statementNotCheckRole.setInt(2, sysId);
-                statementNotCheckRole.setString(3, Constants.MENU.ACTION_VIEW_MENU);
+                statementNotCheckRole.setString(3, Constants.MENU.ACTION_VIEW_MENU + "%");
                 ResultSet resultSet = statementNotCheckRole.executeQuery();
+                long currentMenuId = -1;
                 while (resultSet.next()) {
-                    MenuDTO menu = MenuDTO
-                            .builder()
-                            .id(resultSet.getLong("menu_id"))
-                            .name(resultSet.getString("menu_name"))
-                            .detailFile(resultSet.getString("detail_file"))
-                            .parentId(resultSet.getLong("parent_id"))
-                            .pictureFile(resultSet.getString("picture_file"))
-                            .level(resultSet.getInt("menu_level"))
-                            .build();
-                    menuList.add(menu);
+                    long menuId = resultSet.getLong("menu_id");
+                    String act = resultSet.getString("act");
+                    if (currentMenuId != menuId) {
+                        List<String> listAct = new ArrayList<>();
+                        listAct.add(act);
+                        MenuDTO menu = MenuDTO
+                                .builder()
+                                .id(menuId)
+                                .name(resultSet.getString("menu_name"))
+                                .detailFile(resultSet.getString("detail_file"))
+                                .parentId(resultSet.getLong("parent_id"))
+                                .pictureFile(resultSet.getString("picture_file"))
+                                .level(resultSet.getInt("menu_level"))
+                                .listAct(listAct)
+                                .build();
+                        menuList.add(menu);
+                    } else {
+                        MenuDTO menuDTO = menuList.get(menuList.size() - 1);
+                        menuDTO.getListAct().add(act);
+                    }
+                    currentMenuId = menuId;
                 }
             } else if (checkRole == Constants.USER_INFO.CHECK_ROLE_OK) {
                 statementCheckRoleOk.setString(1, username);
-                statementCheckRoleOk.setString(2, Constants.MENU.ACTION_VIEW_MENU);
+                statementCheckRoleOk.setString(2, Constants.MENU.ACTION_VIEW_MENU + "%");
                 ResultSet resultSet = statementCheckRoleOk.executeQuery();
+                long currentMenuId = -1;
                 while (resultSet.next()) {
-                    MenuDTO menu = MenuDTO
-                            .builder()
-                            .id(resultSet.getLong("menu_id"))
-                            .name(resultSet.getString("menu_name"))
-                            .detailFile(resultSet.getString("detail_file"))
-                            .parentId(resultSet.getLong("parent_id"))
-                            .pictureFile(resultSet.getString("picture_file"))
-                            .level(resultSet.getInt("menu_level"))
-                            .build();
-                    menuList.add(menu);
+                    long menuId = resultSet.getLong("menu_id");
+                    String act = resultSet.getString("act");
+                    if (currentMenuId != menuId) {
+                        List<String> listAct = new ArrayList<>();
+                        listAct.add(act);
+                        MenuDTO menu = MenuDTO
+                                .builder()
+                                .id(menuId)
+                                .name(resultSet.getString("menu_name"))
+                                .detailFile(resultSet.getString("detail_file"))
+                                .parentId(resultSet.getLong("parent_id"))
+                                .pictureFile(resultSet.getString("picture_file"))
+                                .level(resultSet.getInt("menu_level"))
+                                .listAct(listAct)
+                                .build();
+                        menuList.add(menu);
+                    } else {
+                        MenuDTO menuDTO = menuList.get(menuList.size() - 1);
+                        menuDTO.getListAct().add(act);
+                    }
+                    currentMenuId = menuId;
                 }
             }
 
