@@ -15,6 +15,7 @@ import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
 import com.neo.nbdapi.services.WarningMangerStationService;
 import com.neo.nbdapi.services.objsearch.WarningManagerStationSearch;
+import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +27,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -209,5 +212,21 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
     @Override
     public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException {
         return warningManagerStationDAO.getWarningComboBox(selectVM);
+    }
+
+    // get list notification today
+    @Override
+    public List<NotificationToDayDTO> getListNotificationToday() throws SQLException {
+        Calendar calendar = Calendar.getInstance();
+        String endDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
+        calendar.add(Calendar.DAY_OF_YEAR, -2);
+        String startDate = DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy HH:mm");
+
+        return warningManagerStationDAO.getListWarningManagerStationByDate(startDate, endDate);
+    }
+
+    @Override
+    public NotificationToDayDTO getNotificationById(Long warningManagerStationId) throws SQLException {
+        return warningManagerStationDAO.getWarningManagerStationById(warningManagerStationId);
     }
 }

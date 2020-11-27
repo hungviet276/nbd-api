@@ -71,6 +71,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                 if (endDate != null) {
                     sql = sql + " AND timestamp <= to_date(?, 'dd/mm/yyyy HH24:mi')";
                 }
+                sql = sql + " ORDER BY timestamp ASC";
                 sql = String.format(sql, table.getString("TABLE_NAME"));
                 logger.debug("sql query get data from storage: {}", sql);
                 PreparedStatement statement = connection.prepareStatement(sql);

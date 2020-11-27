@@ -1,9 +1,6 @@
 package com.neo.nbdapi.dao;
 
-import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.dto.WarningManagerDetailDTO;
-import com.neo.nbdapi.dto.WarningManagerStationDTO;
-import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
@@ -24,4 +21,9 @@ public interface WarningManagerStationDAO {
     DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO, List<WarningManagerDetailDTO> deletes, List<WarningManagerDetailDTO> creates) throws SQLException;
     DefaultResponseDTO deleteWarningManagerStation(List<Long> id) throws SQLException;
     List<ComboBoxStr> getWarningComboBox( SelectWarningManagerStrVM selectVM) throws SQLException;
+
+    // thanglv
+    List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException;
+
+    NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException;
 }
