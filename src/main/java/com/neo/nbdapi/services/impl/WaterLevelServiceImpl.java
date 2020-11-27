@@ -27,6 +27,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -477,15 +479,13 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED));
+            MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+            map.add("execute", command);
+            map.add("fileName", ("/"+fileNameConf.toUpperCase()+ ".tab"));
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("execute", command);
-            map.put("fileName", ("/"+fileNameConf.toUpperCase()+ ".tab"));
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-            // build the request
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/guess", entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity( "http://192.168.1.20:8082/water-level/guess", request , String.class );
             String dataResponse = response.getBody();
             logger.info("===================================>");
             logger.info(dataResponse);
