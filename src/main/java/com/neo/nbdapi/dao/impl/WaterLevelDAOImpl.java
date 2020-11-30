@@ -279,7 +279,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         return waterLevels;
     }
     public DefaultResponseDTO insertTidalPrediction(List<GuessDataDTO> GuessDataDTOs, String stationId) throws SQLException{
-        String sql = "insert into tidal_prediction (STATION_ID, TIME_STAMP, VALUE, PREDICTION_TIME) values (?,sysdate,?,TO_DATE(?, 'DD/MM/YYYY HH24:MI')";
+        String sql = "insert into tidal_prediction (STATION_ID, TIME_STAMP, VALUE, PREDICTION_TIME) values (?,sysdate,?,TO_DATE(?, 'DD/MM/YYYY HH24:MI'))";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
