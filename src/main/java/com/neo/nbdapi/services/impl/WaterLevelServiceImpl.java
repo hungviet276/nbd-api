@@ -1,5 +1,6 @@
 package com.neo.nbdapi.services.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.TidalHarmonicConstantsDAO;
@@ -7,6 +8,7 @@ import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.FileWaterLevelInfo;
+import com.neo.nbdapi.dto.GuessDataDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -27,6 +29,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -476,27 +480,23 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             String command = "./tt_dubao_v2";
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+            map.add("execute", command);
+            map.add("fileName", ("/"+fileNameConf.toUpperCase()+ ".tab"));
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("execute", command);
-            map.put("fileName", ("/"+fileNameConf.toUpperCase()+ ".tab"));
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-            // build the request
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/guess", entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity( "http://192.168.1.20:8082/water-level/guess", request , String.class );
             String dataResponse = response.getBody();
-            logger.info("===================================>");
-            logger.info(dataResponse);
-            logger.info("<===================================");
+            List<GuessDataDTO> guessDataDTOs = objectMapper.readValue(dataResponse, new TypeReference<List<GuessDataDTO>>(){});
+            return  waterLevelDAO.insertTidalPrediction(guessDataDTOs, stationId);
         }catch (Exception e){
             e.printStackTrace();
             return  DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         } finally {
             writeConfig.close();
         }
-        return DefaultResponseDTO.builder().status(1).message("thành công").build();
 
     }
 
