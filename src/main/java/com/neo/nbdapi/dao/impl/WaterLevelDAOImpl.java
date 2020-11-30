@@ -303,7 +303,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         } catch (Exception e){
             e.printStackTrace();
             connection.rollback();
-            return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+            return DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         } finally {
             if(preparedStatement!= null){
                 preparedStatement.close();
