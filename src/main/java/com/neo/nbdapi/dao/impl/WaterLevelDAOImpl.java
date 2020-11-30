@@ -284,6 +284,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         PreparedStatement preparedStatement = null;
         try{
             connection = ds.getConnection();
+            connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(sql);
 
             int i =0;
@@ -298,6 +299,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                 i++;
             }
             preparedStatement.executeBatch();
+            connection.commit();
         } catch (Exception e){
             e.printStackTrace();
             connection.rollback();
