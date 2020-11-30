@@ -468,6 +468,7 @@ public class StationTypeController {
                     connection.commit();
                     return defaultResponseDTO;
                 }
+                rs.next();
                 BigDecimal b = rs.getBigDecimal(1);
                 if(b.intValue() > 0){
                     defaultResponseDTO.setStatus(0);
