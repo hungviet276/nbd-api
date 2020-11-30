@@ -1,5 +1,6 @@
 package com.neo.nbdapi.services.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.TidalHarmonicConstantsDAO;
@@ -7,6 +8,7 @@ import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.dto.FileWaterLevelInfo;
+import com.neo.nbdapi.dto.GuessDataDTO;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -487,16 +489,14 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             ResponseEntity<String> response = restTemplate.postForEntity( "http://192.168.1.20:8082/water-level/guess", request , String.class );
             String dataResponse = response.getBody();
-            logger.info("===================================>");
-            logger.info(dataResponse);
-            logger.info("<===================================");
+            List<GuessDataDTO> guessDataDTOs = objectMapper.readValue(dataResponse, new TypeReference<List<GuessDataDTO>>(){});
+            return  waterLevelDAO.insertTidalPrediction(guessDataDTOs, stationId);
         }catch (Exception e){
             e.printStackTrace();
             return  DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         } finally {
             writeConfig.close();
         }
-        return DefaultResponseDTO.builder().status(1).message("thành công").build();
 
     }
 

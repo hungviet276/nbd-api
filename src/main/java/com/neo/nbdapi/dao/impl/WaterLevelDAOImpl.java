@@ -3,6 +3,7 @@ package com.neo.nbdapi.dao.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.WaterLevelDAO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.GuessDataDTO;
 import com.neo.nbdapi.entity.VariableTime;
 import com.neo.nbdapi.entity.VariablesSpatial;
 import com.neo.nbdapi.entity.WaterLevel;
@@ -277,5 +278,38 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         }
         return waterLevels;
     }
+    public DefaultResponseDTO insertTidalPrediction(List<GuessDataDTO> GuessDataDTOs, String stationId) throws SQLException{
+        String sql = "insert into tidal_prediction (STATION_ID, TIME_STAMP, VALUE, PREDICTION_TIME) values (?,sysdate,?,TO_DATE(?, 'DD/MM/YYYY HH24:MI')";
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try{
+            connection = ds.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
 
+            int i =0;
+            for(GuessDataDTO guessDataDTO : GuessDataDTOs){
+                preparedStatement.setString(1, stationId);
+                preparedStatement.setFloat(2, guessDataDTO.getValue());
+                preparedStatement.setString(3, guessDataDTO.getPredictionTime());
+                preparedStatement.addBatch();
+                if(i%100==0){
+                    preparedStatement.executeBatch();
+                }
+                i++;
+            }
+            preparedStatement.executeBatch();
+        } catch (Exception e){
+            e.printStackTrace();
+            connection.rollback();
+            return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+        } finally {
+            if(preparedStatement!= null){
+                preparedStatement.close();
+            }
+            if(connection!= null){
+                connection.close();
+            }
+        }
+        return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+    }
 }
