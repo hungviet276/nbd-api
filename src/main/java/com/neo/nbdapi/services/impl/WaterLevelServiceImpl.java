@@ -72,6 +72,8 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
     private static Long timeTmp;
 
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+
     @Override
     public DefaultPaginationDTO getListWaterLevel(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -380,17 +382,6 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         return calendarFirst;
 
     }
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
-        File directory = new File(pathDirectory);
-        File[] fileList = directory.listFiles(new FileFilter("*.hg"));
-        List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
-        for (File f : fileList) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
-            fileWaterLevelInfos.add(fileWaterLevelInfo);
-        }
-        return fileWaterLevelInfos;
-    }
 
     @Override
     public DefaultResponseDTO executeGuess(String stationId, Integer end, Integer start, MultipartFile file, String type) throws IOException {
@@ -519,5 +510,30 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             throw new BusinessException("File dữ liệu không tồn tại");
         }
     }
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
+        File directory = new File(pathDirectory);
+        File[] fileList = directory.listFiles(new FileFilter("*.hg"));
+        List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
+        for (File f : fileList) {
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            fileWaterLevelInfos.add(fileWaterLevelInfo);
+        }
+        return fileWaterLevelInfos;
+    }
 
+    public List<FileWaterLevelInfo> getInfoFileGuess(){
+        File directory = new File(pathDirectory);
+        File[] fileList = directory.listFiles(new FileFilter("*.tsr"));
+        File[] fileListTab = directory.listFiles(new FileFilter("*.tab"));
+        List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
+        for (File f : fileList) {
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            fileWaterLevelInfos.add(fileWaterLevelInfo);
+        }
+        for (File f : fileListTab) {
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            fileWaterLevelInfos.add(fileWaterLevelInfo);
+        }
+        return fileWaterLevelInfos;
+    }
 }

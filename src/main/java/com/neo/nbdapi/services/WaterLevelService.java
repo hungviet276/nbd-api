@@ -23,6 +23,7 @@ public interface WaterLevelService {
     DefaultResponseDTO updateWaterLevel(WaterLevelVM waterLevelVM) throws SQLException;
     DefaultResponseDTO executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, FileNotFoundException, ParseException;
     List<FileWaterLevelInfo> getInfoFileWaterLevelInfo();
+    List<FileWaterLevelInfo> getInfoFileGuess();
     DefaultResponseDTO executeGuess( String stationId ,  Integer end, Integer start, MultipartFile file, String type) throws IOException;
     ResponseEntity<InputStreamResource> downloadTemplate(HttpServletRequest request) throws IOException, BusinessException;
 
