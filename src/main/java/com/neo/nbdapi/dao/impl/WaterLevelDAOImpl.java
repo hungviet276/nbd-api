@@ -279,11 +279,12 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         return waterLevels;
     }
     public DefaultResponseDTO insertTidalPrediction(List<GuessDataDTO> GuessDataDTOs, String stationId) throws SQLException{
-        String sql = "insert into tidal_prediction (STATION_ID, TIME_STAMP, VALUE, PREDICTION_TIME) values (?,sysdate,?,TO_DATE(?, 'DD/MM/YYYY HH24:MI')";
+        String sql = "insert into tidal_prediction (STATION_ID, TIME_STAMP, VALUE, PREDICTION_TIME) values (?,sysdate,?,TO_DATE(?, 'DD/MM/YYYY HH24:MI'))";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
             connection = ds.getConnection();
+            connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(sql);
 
             int i =0;
@@ -298,10 +299,11 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                 i++;
             }
             preparedStatement.executeBatch();
+            connection.commit();
         } catch (Exception e){
             e.printStackTrace();
             connection.rollback();
-            return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+            return DefaultResponseDTO.builder().status(0).message(e.getMessage()).build();
         } finally {
             if(preparedStatement!= null){
                 preparedStatement.close();

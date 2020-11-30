@@ -41,5 +41,9 @@ public class WaterLevelController {
     public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
         return waterLevelService.getInfoFileWaterLevelInfo();
     }
+    @GetMapping("/file-guess-info")
+    public List<FileWaterLevelInfo> getInfoFileWaterGuess(){
+        return waterLevelService.getInfoFileGuess();
+    }
 
 }
