@@ -1,6 +1,7 @@
 package com.neo.nbdapi.rest;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -433,13 +434,55 @@ public class StationTypeController {
     @PostMapping("/delete-time-series")
     public DefaultResponseDTO deleteTimeSeries(@RequestParam(name = "stationParamterId") String stationParamterId) throws SQLException, JsonProcessingException {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql1 = "select STORAGE from STATION_TIME_SERIES where TS_ID = ?";
+        String sql2 = "select count(1) from %s where TS_ID = ?";
         String sql = "delete from TIME_SERIES where TS_ID = ? ";
-        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
-            statement.setString(1, stationParamterId);
-            statement.execute();
+        try (Connection connection = ds.getConnection();
+             PreparedStatement st1 = connection.prepareStatement(sql1);
+             PreparedStatement statement = connection.prepareStatement(sql);) {
+            connection.setAutoCommit(false);
+            st1.setString(1,stationParamterId);
+            ResultSet rs =  st1.executeQuery();
+            if (!rs.isBeforeFirst() ) {
+                statement.setString(1, stationParamterId);
+                statement.execute();
 
-            defaultResponseDTO.setStatus(1);
-            defaultResponseDTO.setMessage("Xóa thành công");
+                defaultResponseDTO.setStatus(1);
+                defaultResponseDTO.setMessage("Xóa thành công");
+                connection.commit();
+                return defaultResponseDTO;
+            }
+            rs.next();
+            String storage = rs.getString(1);
+            if(storage != null){
+                sql2 = String.format(sql2,storage);
+                PreparedStatement st2 = connection.prepareStatement(sql2);
+                st2.setString(1,stationParamterId);
+                rs = st2.executeQuery();
+                if (!rs.isBeforeFirst() ) {
+                    statement.setString(1, stationParamterId);
+                    statement.execute();
+
+                    defaultResponseDTO.setStatus(1);
+                    defaultResponseDTO.setMessage("Xóa thành công");
+                    connection.commit();
+                    return defaultResponseDTO;
+                }
+                BigDecimal b = rs.getBigDecimal(1);
+                if(b.intValue() > 0){
+                    defaultResponseDTO.setStatus(0);
+                    defaultResponseDTO.setMessage("Không thể xóa yếu tố đã tồn tại dữ liệu trạm đo");
+                }else{
+                    statement.setString(1, stationParamterId);
+                    statement.execute();
+
+                    defaultResponseDTO.setStatus(1);
+                    defaultResponseDTO.setMessage("Xóa thành công");
+                }
+                rs.close();
+                st2.close();
+            }
+            connection.commit();
             return defaultResponseDTO;
         } catch (Exception e) {
             defaultResponseDTO.setStatus(0);
