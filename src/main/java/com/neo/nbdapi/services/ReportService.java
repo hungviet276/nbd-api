@@ -1,6 +1,7 @@
 package com.neo.nbdapi.services;
 
 import com.neo.nbdapi.dto.ParameterChartMappingAndDataDTO;
+import com.neo.nbdapi.dto.ParameterDisplayChartDTO;
 import com.neo.nbdapi.dto.TimeSeriesDataDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.GetParameterChartMappingAndDataVM;
@@ -16,7 +17,7 @@ import java.util.List;
 public interface ReportService {
     ParameterChartMappingAndDataDTO getParameterChartMappingAndData(GetParameterChartMappingAndDataVM request) throws SQLException, BusinessException;
 
-    List<TimeSeriesDataDTO> getStationDataReport(GetStationDataReportVM request) throws BusinessException, SQLException;
+    //List<TimeSeriesDataDTO> getStationDataReport(GetStationDataReportVM request) throws BusinessException, SQLException;
 
-    String[] getListParameterDisplayChartOfStation(GetStationDataReportVM request) throws SQLException, BusinessException;
+    List<ParameterDisplayChartDTO> getListParameterDisplayChartOfStation(GetStationDataReportVM request) throws SQLException, BusinessException;
 }

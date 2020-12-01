@@ -61,8 +61,8 @@ public class ADCPController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from adcp a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
-                    "where a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
+            StringBuilder sql = new StringBuilder("select a.*,liss.TOTAL_TURB, b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from adcp a, liss , stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
+                    "where a.STATION_ID = liss.STATION_ID(+) and a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -131,6 +131,8 @@ public class ADCPController {
                         .note(rs.getString("NOTE"))
                         .linkFile(rs.getString("LINK_FILE"))
                         .createdAt(rs.getDate("CREATED_AT"))
+                        .totalTurb(rs.getFloat("TOTAL_TURB"))
+                        .suspendedMaterial(rs.getFloat("SUSPENDED_MATERIAL"))
                         .build();
                 list.add(bo);
             }
@@ -242,7 +244,7 @@ public class ADCPController {
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "update adcp set TIME_START = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_END = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_AVG = to_date(?,'DD/MM/YYYY HH24:MI'),WATER_LEVEL_START = ?,WATER_LEVEL_END = ?," +
-                "WATER_LEVEL_AVG = ?,SPEED_AVG = ?,SPEED_MAX = ?,DEEP_AVG = ?,DEEP_MAX = ?,SQUARE_RIVER = ?,WIDTH_RIVER = ?,WATER_FLOW = ?,NOTE = ?,CREATED_BY = ?,LINK_FILE = ?\n" +
+                "WATER_LEVEL_AVG = ?,SPEED_AVG = ?,SPEED_MAX = ?,DEEP_AVG = ?,DEEP_MAX = ?,SQUARE_RIVER = ?,WIDTH_RIVER = ?,WATER_FLOW = ?,NOTE = ?,UPDATED_BY = ?, UPDATED_AT = sysdate,LINK_FILE = ?\n" +
                 "where id =?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
@@ -268,7 +270,11 @@ public class ADCPController {
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
             }else{
-                statement.setString(i++, null);
+                if(params.get("linkFileName") != null){
+                    statement.setString(i++, params.get("linkFileName"));
+                }else {
+                    statement.setString(i++, null);
+                }
             }
             statement.setString(i++, params.get("id"));
             statement.execute();

@@ -15,11 +15,12 @@ public interface StationDAO {
 
     List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException;
 
-    List<Object[]> getAllStationOwnedByUser() throws SQLException;
+    List<Object[]> getAllStationOwnedByUser(String username) throws SQLException;
 
     Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException;
 
     boolean isStationOwnedByUser(String stationId, String userId) throws SQLException;
 
+    List<Object[]> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException;
     List<ComboBoxStr> getStationByUser();
 }

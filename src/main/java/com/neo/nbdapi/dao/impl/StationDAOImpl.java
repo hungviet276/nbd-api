@@ -53,15 +53,13 @@ public class StationDAOImpl implements StationDAO {
     }
 
     @Override
-    public List<Object[]> getAllStationOwnedByUser() throws SQLException {
+    public List<Object[]> getAllStationOwnedByUser(String username) throws SQLException {
         String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ?";
         List<Object[]> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ) {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            logger.debug("username: {}", username);
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -116,6 +114,27 @@ public class StationDAOImpl implements StationDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public List<Object[]> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
+        List<Object[]> stationList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Object[] data = new Object[resultSet.getMetaData().getColumnCount()];
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = resultSet.getObject(i + 1);
+                }
+                stationList.add(data);
+            }
+        }
+        return stationList;
     }
 
     @Override

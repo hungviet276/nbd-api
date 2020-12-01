@@ -61,39 +61,40 @@ public class LISSController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from liss a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
-                    "where a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
+            StringBuilder sql = new StringBuilder("select a.*, adcp.WATER_FLOW, adcp.SUSPENDED_MATERIAL ,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from liss a, adcp, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
+                    "where a.STATION_ID = adcp.STATION_ID(+) and a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
                     Map<String, String> params = objectMapper.readValue(search, Map.class);
-                    if (Strings.isNotEmpty(params.get("s_objectType"))) {
+                    if (Strings.isNotEmpty(params.get("s_objectTypeLISS"))) {
                         sql.append(" and d.OBJECT_TYPE = ? ");
-                        paramSearch.add(params.get("s_objectType"));
+                        paramSearch.add(params.get("s_objectTypeLISS"));
                     }
-                    if (Strings.isNotEmpty(params.get("s_objectTypeName"))) {
+                    if (Strings.isNotEmpty(params.get("s_objectTypeNameLISS"))) {
                         sql.append(" and lower(d.OBJECT_TYPE_SHORTNAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_objectTypeName") + "%");
+                        paramSearch.add("%" + params.get("s_objectTypeNameLISS") + "%");
                     }
-                    if (Strings.isNotEmpty(params.get("s_stationCode"))) {
+                    if (Strings.isNotEmpty(params.get("s_stationCodeLISS"))) {
                         sql.append(" and b.station_code = ? ");
-                        paramSearch.add(params.get("s_stationCode"));
+                        paramSearch.add(params.get("s_stationCodeLISS"));
                     }
-                    if (Strings.isNotEmpty(params.get("s_stationName"))) {
+
+                    if (Strings.isNotEmpty(params.get("s_stationNameLISS"))) {
                         sql.append(" and lower(b.STATION_NAME) like lower(?) ");
-                        paramSearch.add("%" + params.get("s_stationName") + "%");
+                        paramSearch.add("%" + params.get("s_stationNameLISS") + "%");
                     }
-                    if (Strings.isNotEmpty(params.get("s_riverName"))) {
+                    if (Strings.isNotEmpty(params.get("s_riverNameLISS"))) {
                         sql.append(" and r.river_name like ? ");
-                        paramSearch.add("%" + params.get("s_riverName") + "%");
+                        paramSearch.add("%" + params.get("s_riverNameLISS") + "%");
                     }
-                    if (Strings.isNotEmpty(params.get("s_timeStart"))) {
+                    if (Strings.isNotEmpty(params.get("s_timeStartLISS"))) {
                         sql.append(" and a.TIME_START >= to_date(?,'DD/MM/YYYY HH24:MI') ");
-                        paramSearch.add(params.get("s_timeStart"));
+                        paramSearch.add(params.get("s_timeStartLISS"));
                     }
-                    if (Strings.isNotEmpty(params.get("s_timeEnd"))) {
+                    if (Strings.isNotEmpty(params.get("s_timeEndLISS"))) {
                         sql.append(" and a.time_end <= to_date(?,'DD/MM/YYYY HH24:MI') ");
-                        paramSearch.add(params.get("s_timeEnd"));
+                        paramSearch.add(params.get("s_timeEndLISS"));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -120,16 +121,16 @@ public class LISSController {
                         .data(rs.getString("DATA"))
                         .dataAvg(rs.getString("DATA_AVG"))
                         .totalTurb(rs.getFloat("TOTAL_TURB"))
-//                        .waterLevelAvg(rs.getLong("WATER_LEVEL_AVG"))
-//                        .speedAvg(rs.getLong("SPEED_AVG"))
+                        .dataTotalDeep(rs.getString("DATA_TOTAL_DEEP"))
+                        .dataDistance(rs.getString("DATA_DISTANCE"))
 //                        .speedMax(rs.getLong("SPEED_MAX"))
 //                        .deepAvg(rs.getLong("DEEP_AVG"))
 //                        .deepMax(rs.getLong("DEEP_MAX"))
 //                        .squareRiver(rs.getLong("SQUARE_RIVER"))
 //                        .widthRiver(rs.getLong("WIDTH_RIVER"))
-//                        .waterFlow(rs.getLong("WATER_FLOW"))
-//                        .note(rs.getString("NOTE"))
-//                        .linkFile(rs.getString("LINK_FILE"))
+                        .waterFlow(rs.getFloat("WATER_FLOW"))
+                        .suspendedMaterial(rs.getFloat("SUSPENDED_MATERIAL"))
+                        .linkFile(rs.getString("LINK_FILE"))
                         .createdAt(rs.getDate("CREATED_AT"))
                         .build();
                 list.add(bo);
@@ -173,7 +174,7 @@ public class LISSController {
         }
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
+        String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,DATA_TOTAL_DEEP,DATA_DISTANCE,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
                 "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,sysdate,?,?)";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
@@ -184,18 +185,9 @@ public class LISSController {
 
             statement.setString(i++, params.get("data"));
             statement.setString(i++, params.get("dataAvg"));
+            statement.setString(i++, params.get("dataTotalDeep"));
+            statement.setString(i++, params.get("dataDistance"));
             statement.setString(i++, params.get("totalTurb"));
-//            statement.setString(i++, params.get("waterLevelAvg"));
-//            statement.setString(i++, params.get("speedAvg"));
-//            statement.setString(i++, params.get("speedMax"));
-//
-//            statement.setString(i++, params.get("deepAvg"));
-//            statement.setString(i++, params.get("deepMax"));
-//            statement.setString(i++, params.get("squareRiver"));
-//            statement.setString(i++, params.get("widthRiver"));
-//
-//            statement.setString(i++, params.get("waterFlow"));
-//            statement.setString(i++, params.get("note"));
             statement.setString(i++, params.get("username"));
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
@@ -240,21 +232,30 @@ public class LISSController {
 
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "UPDATE liss SET TIME_START = ?, TIME_END = ?, total_turb = ?, data = ?, data_avg = ? where id = ?";
+        String sql = "update liss set TIME_START = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_END = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_AVG = to_date(?,'DD/MM/YYYY HH24:MI')" +
+                ",DATA = ?,DATA_AVG = ?,DATA_TOTAL_DEEP = ?, DATA_DISTANCE = ?,TOTAL_TURB = ?,UPDATED_BY = ?,UPDATED_AT = sysdate,LINK_FILE = ?\n" +
+                "where id =?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
 //            statement.setString(i++, params.get("stationId"));
             statement.setString(i++, params.get("timeStart"));
             statement.setString(i++, params.get("timeEnd"));
-            statement.setString(i++, params.get("totalTurb"));
+            statement.setString(i++, params.get("timeAvg"));
+
             statement.setString(i++, params.get("data"));
             statement.setString(i++, params.get("dataAvg"));
-            statement.setString(i++, params.get("id"));
-
+            statement.setString(i++, params.get("dataTotalDeep"));
+            statement.setString(i++, params.get("dataDistance"));
+            statement.setString(i++, params.get("totalTurb"));
+            statement.setString(i++, params.get("username"));
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
             }else{
-                statement.setString(i++, null);
+                if(params.get("linkFileName") != null){
+                    statement.setString(i++, params.get("linkFileName"));
+                }else {
+                    statement.setString(i++, null);
+                }
             }
             statement.setString(i++, params.get("id"));
             statement.execute();

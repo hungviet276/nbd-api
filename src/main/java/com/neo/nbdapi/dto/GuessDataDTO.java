@@ -3,14 +3,17 @@ package com.neo.nbdapi.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
-
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FileWaterLevelInfo implements Serializable {
-    private String fileName;
-    private String modifyDate;
+public class GuessDataDTO implements Serializable {
+
+    private Float value;
+
+    private String predictionTime;
+
 }

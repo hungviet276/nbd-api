@@ -14,4 +14,6 @@ public interface StationService {
     String getAllStationCsv() throws SQLException;
 
     List<ComboBoxStr> getStationByUser();
+
+    String getStationWithObjectType(String objectType) throws SQLException;
 }
