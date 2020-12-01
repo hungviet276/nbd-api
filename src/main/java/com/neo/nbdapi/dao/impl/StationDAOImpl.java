@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.StationDAO;
+import com.neo.nbdapi.dto.StationMapDTO;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.rest.vm.SelectVM;
@@ -49,26 +50,28 @@ public class StationDAOImpl implements StationDAO {
         }
     }
 
-    @Override
-    public List<Object[]> getAllStationOwnedByUser(String username) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ?";
-        List<Object[]> stationList = new ArrayList<>();
-        try (
-                Connection connection = ds.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        ) {
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Object[] data = new Object[resultSet.getMetaData().getColumnCount()];
-                for (int i = 0; i < data.length; i++) {
-                    data[i] = resultSet.getObject(i + 1);
-                }
-                stationList.add(data);
-            }
-        }
-        return stationList;
-    }
+    // method lay csv data station cua user
+    // method cu tam thoi chua dung
+//    @Override
+//    public List<Object[]> getCSVAllStationOwnedByUser(String username) throws SQLException {
+//        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ?";
+//        List<Object[]> stationList = new ArrayList<>();
+//        try (
+//                Connection connection = ds.getConnection();
+//                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//        ) {
+//            statement.setString(1, username);
+//            ResultSet resultSet = statement.executeQuery();
+//            while (resultSet.next()) {
+//                Object[] data = new Object[resultSet.getMetaData().getColumnCount()];
+//                for (int i = 0; i < data.length; i++) {
+//                    data[i] = resultSet.getObject(i + 1);
+//                }
+//                stationList.add(data);
+//            }
+//        }
+//        return stationList;
+//    }
 
     @Override
     public Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException {
@@ -113,26 +116,28 @@ public class StationDAOImpl implements StationDAO {
         return false;
     }
 
-    @Override
-    public List<Object[]> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
-        List<Object[]> stationList = new ArrayList<>();
-        try (
-                Connection connection = ds.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        ) {
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Object[] data = new Object[resultSet.getMetaData().getColumnCount()];
-                for (int i = 0; i < data.length; i++) {
-                    data[i] = resultSet.getObject(i + 1);
-                }
-                stationList.add(data);
-            }
-        }
-        return stationList;
-    }
+    // method lay csv data station cua user theo object type
+    // method cu tam thoi chua dung
+//    @Override
+//    public List<Object[]> getCSVAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
+//        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.address, ar.area_name, st.is_active, ot.object_type_shortname FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN stations st ON st.station_id = gui.station_id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id JOIN areas ar ON st.area_id = ar.area_id WHERE gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
+//        List<Object[]> stationList = new ArrayList<>();
+//        try (
+//                Connection connection = ds.getConnection();
+//                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//        ) {
+//            statement.setString(1, username);
+//            ResultSet resultSet = statement.executeQuery();
+//            while (resultSet.next()) {
+//                Object[] data = new Object[resultSet.getMetaData().getColumnCount()];
+//                for (int i = 0; i < data.length; i++) {
+//                    data[i] = resultSet.getObject(i + 1);
+//                }
+//                stationList.add(data);
+//            }
+//        }
+//        return stationList;
+//    }
 
     @Override
     public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException {
@@ -155,5 +160,71 @@ public class StationDAOImpl implements StationDAO {
             statement.close();
             return comboBoxes;
         }
+    }
+
+    @Override
+    public List<StationMapDTO> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
+        List<StationMapDTO> stationList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                StationMapDTO stationMapDTO = StationMapDTO
+                        .builder()
+                        .stationId(resultSet.getString("station_id"))
+                        .stationCode(resultSet.getString("station_code"))
+                        .stationName(resultSet.getString("station_name"))
+                        .image(resultSet.getString("image"))
+                        .longtitude(resultSet.getFloat("longtitude"))
+                        .latitude(resultSet.getFloat("latitude"))
+                        .transMiss(resultSet.getInt("trans_miss"))
+                        .isActive(resultSet.getInt("is_active"))
+                        .objectTypeShortName(resultSet.getString("object_type_shortname"))
+                        .areaName(resultSet.getString("area_name"))
+                        .districtName(resultSet.getString("district_name"))
+                        .provinceName(resultSet.getString("province_name"))
+                        .address(resultSet.getString("address"))
+                        .build();
+                        stationList.add(stationMapDTO);
+            }
+        }
+        return stationList;
+    }
+
+    @Override
+    public List<StationMapDTO> getAllStationOwnedByUser(String username) throws SQLException {
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ?";
+        List<StationMapDTO> stationList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        ) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                StationMapDTO stationMapDTO = StationMapDTO
+                        .builder()
+                        .stationId(resultSet.getString("station_id"))
+                        .stationCode(resultSet.getString("station_code"))
+                        .stationName(resultSet.getString("station_name"))
+                        .image(resultSet.getString("image"))
+                        .longtitude(resultSet.getFloat("longtitude"))
+                        .latitude(resultSet.getFloat("latitude"))
+                        .transMiss(resultSet.getInt("trans_miss"))
+                        .isActive(resultSet.getInt("is_active"))
+                        .objectTypeShortName(resultSet.getString("object_type_shortname"))
+                        .areaName(resultSet.getString("area_name"))
+                        .districtName(resultSet.getString("district_name"))
+                        .provinceName(resultSet.getString("province_name"))
+                        .address(resultSet.getString("address"))
+                        .build();
+                stationList.add(stationMapDTO);
+            }
+        }
+        return stationList;
     }
 }
