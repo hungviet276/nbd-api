@@ -196,7 +196,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         // sánh sách các cảnh báo được insert   List<WarningRecipentReceiveMail> warningRecipentReceiveMails
 
         for(String warning : mailGroupConFigVM.getWarningConfig()){
-           boolean insert = true;
+            boolean insert = true;
             for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
                 if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
                     insert = false;
