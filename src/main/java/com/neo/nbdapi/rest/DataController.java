@@ -1,13 +1,11 @@
 package com.neo.nbdapi.rest;
 
+import com.neo.nbdapi.dto.StationTimeSeriesDTO;
 import com.neo.nbdapi.entity.StationTimeSeries;
 import com.neo.nbdapi.services.NormalizedDataService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,6 +20,11 @@ public class DataController {
     @PostMapping("/get-station-time-by-station")
     public List<StationTimeSeries> getStationByUser(@RequestParam String stationId) throws SQLException {
         return normalizedData.findByStationId(stationId);
+    }
+
+    @PostMapping("/get-value-by-station")
+    public List<StationTimeSeriesDTO> getValueOfStationTimeSeries(@RequestBody StationTimeSeriesDTO seriesDTO) {
+        return normalizedData.getValueOfStationTimeSeries(seriesDTO);
     }
 
 }

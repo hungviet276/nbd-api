@@ -146,18 +146,17 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
-                "        from group_user_info gui ,group_detail gd ,stations s\n" +
-                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
-                "        and gd.user_info_id =?";
+//        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+//                "        from group_user_info gui ,group_detail gd ,stations s\n" +
+//                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
+//                "        and gd.user_info_id =?";
+        String sql = "SELECT station_id, station_name " +
+                "FROM stations " +
+                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
         try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
-            st.setString(1, userLogin.getUsername());
+//            st.setString(1, userLogin.getUsername());
             ResultSet rs = st.executeQuery();
-            ComboBoxStr stationType = ComboBoxStr.builder()
-                    .id("-1")
-                    .text("Lựa chọn")
-                    .build();
-            list.add(stationType);
+            ComboBoxStr stationType;
             while (rs.next()) {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("STATION_ID"))
