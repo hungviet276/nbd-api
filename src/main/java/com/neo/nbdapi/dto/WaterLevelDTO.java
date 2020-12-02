@@ -19,7 +19,7 @@ public class WaterLevelDTO implements Serializable {
         this.comandExcute = comandExcute;
         this.tsId = tsId;
         this.fileName = fileName;
-        
+
 
     }
 
