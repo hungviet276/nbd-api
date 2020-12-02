@@ -31,7 +31,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Override
     public List<Menu> findAll() throws SQLException {
-        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ";
+        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ORDER BY created_date DESC, display_order DESC";
         List<Menu> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();

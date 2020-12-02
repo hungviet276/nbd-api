@@ -99,6 +99,8 @@ public class MenuServiceImpl implements MenuService {
                     e.printStackTrace();
                 }
             }
+
+            sql.append(" ORDER BY created_date DESC, display_order DESC");
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             // get result query by paging
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
