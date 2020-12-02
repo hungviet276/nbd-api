@@ -121,5 +121,7 @@ public interface Constants {
 
     class MENU {
         public static final String ACTION_VIEW_MENU = "xem";
+        public static final int PUBLISH_OK = 1;
+        public static final int PUBLISH_NOT_OK = 0;
     }
 }

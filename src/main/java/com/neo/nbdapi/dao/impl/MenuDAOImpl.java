@@ -31,7 +31,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Override
     public List<Menu> findAll() throws SQLException {
-        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ";
+        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ORDER BY created_date DESC, display_order DESC";
         List<Menu> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -166,8 +166,8 @@ public class MenuDAOImpl implements MenuDAO {
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
         String sqlGetCheckRole = "SELECT check_role FROM user_info ui WHERE id = ?";
-        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, uma.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND uma.act LIKE ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
-        String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, uma.act FROM menu mn JOIN menu_access_act uma ON mn.id = uma.menu_id JOIN role_user_info rui ON rui.role_id = uma.role_id WHERE rui.user_id = ? AND uma.act LIKE ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN menu_access_act mac ON mn.id = mac.menu_id JOIN role_user_info rui ON rui.role_id = mac.role_id WHERE rui.user_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -185,6 +185,7 @@ public class MenuDAOImpl implements MenuDAO {
                 statementNotCheckRole.setString(1, username);
                 statementNotCheckRole.setInt(2, sysId);
                 statementNotCheckRole.setString(3, Constants.MENU.ACTION_VIEW_MENU + "%");
+                statementNotCheckRole.setInt(4, Constants.MENU.PUBLISH_OK);
                 ResultSet resultSet = statementNotCheckRole.executeQuery();
                 long currentMenuId = -1;
                 while (resultSet.next()) {
@@ -213,6 +214,7 @@ public class MenuDAOImpl implements MenuDAO {
             } else if (checkRole == Constants.USER_INFO.CHECK_ROLE_OK) {
                 statementCheckRoleOk.setString(1, username);
                 statementCheckRoleOk.setString(2, Constants.MENU.ACTION_VIEW_MENU + "%");
+                statementCheckRoleOk.setInt(3, Constants.MENU.PUBLISH_OK);
                 ResultSet resultSet = statementCheckRoleOk.executeQuery();
                 long currentMenuId = -1;
                 while (resultSet.next()) {
