@@ -1,5 +1,6 @@
 package com.neo.nbdapi.services.objsearch;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,9 +41,11 @@ public class ConfigValueTypeSearch  implements Serializable {
     private Float variableSpatial;
 
     @JsonProperty("s_start_apply_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss",timezone = "Asia/Ho_Chi_Minh")
     private String startDate;
 
     @JsonProperty("s_end_apply_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss",timezone = "Asia/Ho_Chi_Minh")
     private String endDate;
 
     @JsonProperty("s_code")
