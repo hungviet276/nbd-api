@@ -58,13 +58,13 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private NotificationHistory notificationHistory;
+    private NotificationHistory noficationHistory;
 
     @Override
     public DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         System.out.println("getListOutpust---------------");
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
-        List<NotificationHistory> notificationHistoryList = new ArrayList<>();
+        List<NotificationHistory> noficationHistoryList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
@@ -77,7 +77,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                 try {
                     SearchSendMailHistory objectSearch = objectMapper.readValue(search, SearchSendMailHistory.class);
                     if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-                        sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+                        sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
                         if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                             sql.append(" and station_code  like ?");
                             paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -120,7 +120,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         }
                         sql.append(" order by push_timestap desc");
                     }else{
-                        sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+                        sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
                     }
 
                 } catch (Exception e) {
@@ -133,7 +133,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
-                notificationHistory = NotificationHistory.builder()
+                noficationHistory = NotificationHistory.builder()
                         .stationNo(resultSetListData.getString("station_code"))
                         .stationName(resultSetListData.getString("station_name"))
                         .warningNo(resultSetListData.getString("code"))
@@ -142,18 +142,18 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         .pushTimestampStr(resultSetListData.getString("timestampChar"))
                         .groupReMailName(resultSetListData.getString("gr_mail_name"))
                         .build();
-                notificationHistoryList.add(notificationHistory);
+                noficationHistoryList.add(noficationHistory);
 
             }
-            logger.debug("noficationHistoryList", notificationHistoryList);
+            logger.debug("noficationHistoryList", noficationHistoryList);
             // count result
             long total = paginationDAO.countResultQuery(sql.toString(), paramSearch);
             return DefaultPaginationDTO
                     .builder()
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
-                    .recordsFiltered(notificationHistoryList.size())
+                    .recordsFiltered(noficationHistoryList.size())
                     .recordsTotal(total)
-                    .content(notificationHistoryList)
+                    .content(noficationHistoryList)
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -162,7 +162,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                     .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
                     .recordsFiltered(0)
                     .recordsTotal(0)
-                    .content(notificationHistoryList)
+                    .content(noficationHistoryList)
                     .build();
         }
     }
@@ -224,7 +224,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         List<Object> paramSearch = new ArrayList<>();
         // set param query to sql
         if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
             if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                 sql.append(" and station_code  like ?");
                 paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -268,7 +268,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             }
             sql.append(" order by push_timestap desc");
         }else{
-            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
         }
         System.out.println("sql sendmail history Export =" +sql);
         try (
@@ -281,10 +281,10 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             }
 
             ResultSet resultSet = statement.executeQuery();
-            List<NotificationHistory> notificationHistoryList = new ArrayList<>();
+            List<NotificationHistory> noficationHistoryList = new ArrayList<>();
 
             while (resultSet.next()) {
-                notificationHistory = NotificationHistory.builder()
+                noficationHistory = NotificationHistory.builder()
                         .stationNo(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .warningNo(resultSet.getString("code"))
@@ -293,14 +293,14 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         .description(resultSet.getString("description"))
                         .pushTimestampStr(resultSet.getString("timestampChar"))
                         .build();
-                notificationHistoryList.add(notificationHistory);
+                noficationHistoryList.add(noficationHistory);
             }
-            return notificationHistoryList;
+            return noficationHistoryList;
         }
     }
     public SXSSFWorkbook export(SearchSendMailHistory objectSearch) throws SQLException {
-        List<NotificationHistory> notificationHistoryList = getListOutpust2(objectSearch);
-        System.out.println("noficationHistoryList =========" + notificationHistoryList);
+        List<NotificationHistory> noficationHistoryList = getListOutpust2(objectSearch);
+        System.out.println("noficationHistoryList =========" +noficationHistoryList);
         System.out.println("export SEND_MAIL_HISTORY running");
         // create streaming workbook optimize memory of apache poi
         int cellNum = 11;
@@ -346,7 +346,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         header.getCell((short)6).setCellValue("Thời gian gửi mail");
         //end create header
 //create content
-        notificationHistoryList.forEach(logMail -> {
+        noficationHistoryList.forEach(logMail -> {
             SXSSFRow row = sheet.createRow(3);
             SXSSFCell cell0 = row.createCell(0, CellType.STRING);
             cell0.setCellValue(logMail.getStationNo());
