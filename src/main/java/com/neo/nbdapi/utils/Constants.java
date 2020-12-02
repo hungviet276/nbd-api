@@ -27,10 +27,13 @@ public interface Constants {
             public static final String URI_SEND_MAIL_HISTORY = "/send-mail-history";
             public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
             public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
+            public static final String URI_CONFIG_EMAIL = "/email";
+            public static final String URI_USER_EXPAND = "/user-expand";
 
             // module report
             public static final String URI_REPORT = "/report";
             public static final String URI_CASSBIN_RULE = "/casbin-rule";
+            public static final String URI_NOTIFICATION = "/notification";
         }
     }
 
@@ -91,11 +94,10 @@ public interface Constants {
         public static final String FILE_GANH_HAO = "ganh_hao";
         public static final String FILE_HA_TIEN = "ha_tien";
 
-//        public static final  String GHENH_HAO = "ganh_hao";
-//        public static final  String HA_TIEN = "ha_tien";
-//        public static final  String PHU_QUOC = "phu_quoc";
+        public static final String  FILE_EXECUTE_GUESS = "stations.dat";
 
-
+        public static final  String REGEX_FILE_UPLOAD = ".*.dat$";
+        public static final String FILE_CONFIG = "tides.cfg";
     }
 
     class STATION {
@@ -109,6 +111,9 @@ public interface Constants {
 
         public static final int IS_DELETE_FALSE = 0;
         public static final int STATUS_ACTIVE = 1;
+        public static final int CHECK_ROLE_NOT_FOUNT = -1;
+        public static final int CHECK_ROLE_OK= 1;
+        public static final int CHECK_ROLE_NOT_OK = 0;
     }
     class URI_RESTEMPLATE {
         public static final String URI_WATER_LEVEL = "http://192.168.1.20/:8082/";
@@ -116,5 +121,7 @@ public interface Constants {
 
     class MENU {
         public static final String ACTION_VIEW_MENU = "xem";
+        public static final int PUBLISH_OK = 1;
+        public static final int PUBLISH_NOT_OK = 0;
     }
 }

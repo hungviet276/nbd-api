@@ -2,6 +2,7 @@ package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.FileWaterLevelInfo;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.rest.vm.WaterLevelExecutedVM;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_CONFIG_WATER_LEVEL)
@@ -34,6 +37,14 @@ public class WaterLevelController {
     @PostMapping("/execute-water-level")
     public DefaultResponseDTO executeWaterLevel (@RequestBody WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException, FileNotFoundException, ParseException {
         return waterLevelService.executeWaterLevel(waterLevelExecutedVM);
+    }
+    @GetMapping("/file-out-put-info")
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo() throws IOException {
+        return waterLevelService.getInfoFileWaterLevelInfo();
+    }
+    @GetMapping("/file-guess-info")
+    public List<FileWaterLevelInfo> getInfoFileWaterGuess() throws IOException {
+        return waterLevelService.getInfoFileGuess();
     }
 
 }

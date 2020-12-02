@@ -47,7 +47,7 @@ public class Station {
     private Integer isDel;
 
     //	@DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss",timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
 
     private Date updatedAt;
@@ -95,6 +95,8 @@ public class Station {
     private String objectType;
 
     private String objectTypeName;
+
+    private Integer isAuto;
 
     private Integer modeStationType;
 

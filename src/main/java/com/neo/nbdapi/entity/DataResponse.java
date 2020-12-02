@@ -9,20 +9,28 @@ public class DataResponse implements Serializable {
 
     private String response;
 
+
+
     public DataResponse() {
     }
 
-    public DataResponse(List<TidalHarmonicConstants> tidalHarmonicConstantesl, String response) {
-        TidalHarmonicConstantes = tidalHarmonicConstantesl;
+
+
+    public DataResponse(List<TidalHarmonicConstants> tidalHarmonicConstantes, String response) {
+        this.TidalHarmonicConstantes = tidalHarmonicConstantes;
         this.response = response;
     }
+
+
 
     public List<TidalHarmonicConstants> getTidalHarmonicConstantes() {
         return TidalHarmonicConstantes;
     }
 
+
+
     public void setTidalHarmonicConstantes(List<TidalHarmonicConstants> tidalHarmonicConstantes) {
-        TidalHarmonicConstantes = tidalHarmonicConstantes;
+        this.TidalHarmonicConstantes = tidalHarmonicConstantes;
     }
 
 
@@ -35,5 +43,6 @@ public class DataResponse implements Serializable {
 
     public void setResponse(String response) {
         this.response = response;
-}
+    }
+
 }

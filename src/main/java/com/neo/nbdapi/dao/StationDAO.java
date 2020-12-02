@@ -15,10 +15,19 @@ public interface StationDAO {
 
     List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException;
 
-    List<Object[]> getAllStationOwnedByUser() throws SQLException;
+    // method cũ tạm thời chưa dùng
+//    List<Object[]> getCSVAllStationOwnedByUser(String username) throws SQLException;
+
+    // lay danh sach loai tram theo user va object type
+    List<StationMapDTO> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException;
+    // lay danh sach loai tram theo user
+    List<StationMapDTO> getAllStationOwnedByUser(String username) throws SQLException;
 
     Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException;
 
     boolean isStationOwnedByUser(String stationId, String userId) throws SQLException;
 
+    // lấy danh sách loại trạm theo user và object type tra ve csv
+    // method cu tam thoi khong dung
+//    List<Object[]> getCSVAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException;
 }

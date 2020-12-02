@@ -76,52 +76,52 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             if (Strings.isNotEmpty(search)) {
                 try {
                     SearchSendMailHistory objectSearch = objectMapper.readValue(search, SearchSendMailHistory.class);
-                        if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-                            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
-                            if (Strings.isNotEmpty(objectSearch.getStation_no())) {
-                                sql.append(" and station_code  like ?");
-                                paramSearch.add("%" +objectSearch.getStation_no()+ "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getStation_name())) {
-                                sql.append(" and station_name like ?");
-                                paramSearch.add("%" +objectSearch.getStation_name() + "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getNote())) {
-                                sql.append(" AND description like ? ");
-                                paramSearch.add("%" + objectSearch.getNote() + "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getWarningCode())) {
-                                sql.append(" AND code LIKE ? ");
-                                paramSearch.add("%" + objectSearch.getWarningCode() + "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getWarningName())) {
-                                sql.append(" AND warning_name like ? ");
-                                paramSearch.add("%" + objectSearch.getWarningName() + "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getStationId())) {
-                                sql.append(" AND station_id = ? ");
-                                paramSearch.add(objectSearch.getStationId());
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getWarningId())) {
-                                sql.append(" AND id = ? ");
-                                paramSearch.add(objectSearch.getWarningId());
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getGroupMail())) {
-                                sql.append(" and gr_mail_name like ?");
-                                paramSearch.add("%" + objectSearch.getGroupMail() + "%");
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getFromDate())) {
-                                sql.append(" and push_timestap >= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
-                                paramSearch.add(objectSearch.getFromDate());
-                            }
-                            if (Strings.isNotEmpty(objectSearch.getToDate())) {
-                                sql.append(" and push_timestap <= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
-                                paramSearch.add(objectSearch.getToDate());
-                            }
-                            sql.append(" order by push_timestap desc");
-                        }else{
-                            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+                    if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
+                        sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+                        if (Strings.isNotEmpty(objectSearch.getStation_no())) {
+                            sql.append(" and station_code  like ?");
+                            paramSearch.add("%" +objectSearch.getStation_no()+ "%");
                         }
+                        if (Strings.isNotEmpty(objectSearch.getStation_name())) {
+                            sql.append(" and station_name like ?");
+                            paramSearch.add("%" +objectSearch.getStation_name() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getNote())) {
+                            sql.append(" AND description like ? ");
+                            paramSearch.add("%" + objectSearch.getNote() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getWarningCode())) {
+                            sql.append(" AND code LIKE ? ");
+                            paramSearch.add("%" + objectSearch.getWarningCode() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getWarningName())) {
+                            sql.append(" AND warning_name like ? ");
+                            paramSearch.add("%" + objectSearch.getWarningName() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getStationId())) {
+                            sql.append(" AND station_id = ? ");
+                            paramSearch.add(objectSearch.getStationId());
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getWarningId())) {
+                            sql.append(" AND id = ? ");
+                            paramSearch.add(objectSearch.getWarningId());
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getGroupMail())) {
+                            sql.append(" and gr_mail_name like ?");
+                            paramSearch.add("%" + objectSearch.getGroupMail() + "%");
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getFromDate())) {
+                            sql.append(" and push_timestap >= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
+                            paramSearch.add(objectSearch.getFromDate());
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getToDate())) {
+                            sql.append(" and push_timestap <= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
+                            paramSearch.add(objectSearch.getToDate());
+                        }
+                        sql.append(" order by push_timestap desc");
+                    }else{
+                        sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from NOTIFICATION_HISTORY nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -197,12 +197,12 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         StringBuilder sql = new StringBuilder(" select id,code,name from warning_manage_stations where station_id = ?");
         try (Connection connection = ds.getConnection();
              PreparedStatement st = connection.prepareStatement(sql.toString());) {
-             List<Object> paramSearch = new ArrayList<>();
-             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
-             st.setString(1, stationId);
-             ResultSet rs = st.executeQuery();
-             List<ComboBox> list = new ArrayList<>();
-             ComboBox stationType = ComboBox.builder()
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            st.setString(1, stationId);
+            ResultSet rs = st.executeQuery();
+            List<ComboBox> list = new ArrayList<>();
+            ComboBox stationType = ComboBox.builder()
                     .id(-1L)
                     .text("Lựa chọn")
                     .build();
