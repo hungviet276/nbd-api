@@ -28,6 +28,7 @@ public interface Constants {
             public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
             public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
             public static final String URI_CONFIG_EMAIL = "/email";
+            public static final String URI_USER_EXPAND = "/user-expand";
 
             // module report
             public static final String URI_REPORT = "/report";
@@ -120,5 +121,7 @@ public interface Constants {
 
     class MENU {
         public static final String ACTION_VIEW_MENU = "xem";
+        public static final int PUBLISH_OK = 1;
+        public static final int PUBLISH_NOT_OK = 0;
     }
 }

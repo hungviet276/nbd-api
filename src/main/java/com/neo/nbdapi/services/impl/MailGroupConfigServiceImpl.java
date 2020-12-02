@@ -1,7 +1,6 @@
 package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.neo.nbdapi.dao.GroupMailReceiveDetailDAO;
 import com.neo.nbdapi.dao.MailGroupConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
@@ -196,7 +195,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
         // sánh sách các cảnh báo được insert   List<WarningRecipentReceiveMail> warningRecipentReceiveMails
 
         for(String warning : mailGroupConFigVM.getWarningConfig()){
-           boolean insert = true;
+            boolean insert = true;
             for(WarningRecipentReceiveMail  warningRecipentReceiveMail :  warningRecipentReceiveMails){
                 if(warningRecipentReceiveMail.getWarningManagerId() == Long.parseLong(warning)){
                     insert = false;

@@ -312,6 +312,6 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                 connection.close();
             }
         }
-        return DefaultResponseDTO.builder().status(0).message("Thành công").build();
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 }

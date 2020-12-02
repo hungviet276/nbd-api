@@ -34,7 +34,7 @@ public class StationDAOImpl implements StationDAO {
             if (query != null && !query.equals("")) {
                 sql = sql + " and station_name like ?";
             }
-            sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1";
+            sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1 order by station_code";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
                 statement.setString(1, "%" + query + "%");

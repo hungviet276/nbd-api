@@ -45,6 +45,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
 @Service
 public class WaterLevelServiceImpl implements WaterLevelService {
@@ -186,7 +191,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     public DefaultResponseDTO updateWaterLevel(WaterLevelVM waterLevelVM) throws SQLException {
         List<Object> datas = waterLevelDAO.queryInformation(waterLevelVM);
         if(datas == null){
-            return  DefaultResponseDTO.builder().status(-1).message("Lỗi lấy ra các thông số được cài đặt").build();
+            return  DefaultResponseDTO.builder().status(0).message("Lỗi lấy ra các thông số được cài đặt").build();
         }
         VariableTime variableTime = null;
         List<VariablesSpatial> variablesSpatials = null;
@@ -510,30 +515,37 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             throw new BusinessException("File dữ liệu không tồn tại");
         }
     }
-    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo() throws IOException {
         File directory = new File(pathDirectory);
         File[] fileList = directory.listFiles(new FileFilter("*.hg"));
         List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
         for (File f : fileList) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            Path file = Paths.get(f.getPath());
+            BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;
     }
 
-    public List<FileWaterLevelInfo> getInfoFileGuess(){
+    public List<FileWaterLevelInfo> getInfoFileGuess() throws IOException {
         File directory = new File(pathDirectory);
         File[] fileList = directory.listFiles(new FileFilter("*.tsr"));
         File[] fileListTab = directory.listFiles(new FileFilter("*.tab"));
         List<FileWaterLevelInfo> fileWaterLevelInfos = new ArrayList<>();
         for (File f : fileList) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            Path file = Paths.get(f.getPath());
+            BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         for (File f : fileListTab) {
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate( dateFormat.format(new Date(f.lastModified()))).build();
+            Path file = Paths.get(f.getPath());
+            BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;
+
     }
 }
