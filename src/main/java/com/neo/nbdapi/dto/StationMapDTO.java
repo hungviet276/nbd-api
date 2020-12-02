@@ -18,9 +18,9 @@ import java.io.Serializable;
 @Builder
 public class StationMapDTO implements Serializable {
 
-    private float longtitude;
+    private Float longtitude;
 
-    private float latitude;
+    private Float latitude;
 
     private String stationId;
 
@@ -28,17 +28,21 @@ public class StationMapDTO implements Serializable {
 
     private String stationName;
 
-    private float elevation;
+    private Float elevation;
 
     private String image;
 
-    private float transMiss;
+    private Integer transMiss;
 
-    private String address;
+    private Integer isActive;
+
+    private String objectTypeShortName;
 
     private String areaName;
 
-    private int isActive;
+    private String provinceName;
 
-    private String stationTypeName;
+    private String districtName;
+
+    private String address;
 }
