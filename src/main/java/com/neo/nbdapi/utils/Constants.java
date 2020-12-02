@@ -28,6 +28,7 @@ public interface Constants {
             public static final String URI_CONFIG_WATER_LEVEL = "/water-level";
             public static final String URI_CONFIG_USER_EXPAND = "/user-expand";
             public static final String URI_CONFIG_EMAIL = "/email";
+            public static final String URI_USER_EXPAND = "/user-expand";
 
             // module report
             public static final String URI_REPORT = "/report";
