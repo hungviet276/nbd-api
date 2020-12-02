@@ -6,7 +6,6 @@ import com.neo.nbdapi.dto.SelectGroupDTO;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.UserExpandService;
-import com.neo.nbdapi.services.UserInfoExpandService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,7 +1,6 @@
 package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.neo.nbdapi.dao.GroupMailReceiveDetailDAO;
 import com.neo.nbdapi.dao.MailGroupConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;

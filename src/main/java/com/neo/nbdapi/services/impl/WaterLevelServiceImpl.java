@@ -186,7 +186,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
     public DefaultResponseDTO updateWaterLevel(WaterLevelVM waterLevelVM) throws SQLException {
         List<Object> datas = waterLevelDAO.queryInformation(waterLevelVM);
         if(datas == null){
-            return  DefaultResponseDTO.builder().status(-1).message("Lỗi lấy ra các thông số được cài đặt").build();
+            return  DefaultResponseDTO.builder().status(0).message("Lỗi lấy ra các thông số được cài đặt").build();
         }
         VariableTime variableTime = null;
         List<VariablesSpatial> variablesSpatials = null;
