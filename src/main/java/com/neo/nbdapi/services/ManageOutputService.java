@@ -5,6 +5,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.ManageOutPutVM;
 import com.neo.nbdapi.rest.vm.UsersManagerVM;
 
 import java.sql.SQLException;
@@ -20,4 +21,6 @@ public interface ManageOutputService {
     List<ComboBox> getListParameterByStations(String stationId) throws SQLException, BusinessException;
 
     String getSqlStatement(String stationId,String parameterTypeId,String fromDate,String toDate) throws SQLException, BusinessException;
+
+    String editValueProd(ManageOutPutVM manageOutPutVM) throws SQLException, BusinessException;
 }

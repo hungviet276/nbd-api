@@ -5,6 +5,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.ManageOutPutVM;
 import com.neo.nbdapi.rest.vm.UsersManagerVM;
 import com.neo.nbdapi.services.ManageCDHService;
 import com.neo.nbdapi.services.ManageOutputService;
@@ -52,5 +53,10 @@ public class ManagerOfOutputController {
     @GetMapping("/get_sqlStatement")
     public String  getSqlStatement(@RequestParam("stationId") String stationId,@RequestParam("parameterTypeId") String parameterTypeId,@RequestParam("fromDate") String fromDate,@RequestParam("toDate") String toDate) throws SQLException, BusinessException {
         return manageOutputService.getSqlStatement(stationId,parameterTypeId,fromDate,toDate);
+    }
+
+    @PostMapping("/editValueProd")
+    public String editValueProd(@RequestBody @Valid ManageOutPutVM manageOutPutVM) throws SQLException, BusinessException {
+        return manageOutputService.editValueProd(manageOutPutVM);
     }
 }

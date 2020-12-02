@@ -10,6 +10,7 @@ import com.neo.nbdapi.entity.StationTimeSeries;
 import com.neo.nbdapi.entity.UserInfo;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.ManageOutPutVM;
 import com.neo.nbdapi.rest.vm.UsersManagerVM;
 import com.neo.nbdapi.services.ManageOutputService;
 import com.neo.nbdapi.services.UsersManagerService;
@@ -69,10 +70,19 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                     SearchOutputsManger objectSearch = objectMapper.readValue(search, SearchOutputsManger.class);
                     System.out.println("objectSearch.getTableproductName()---------------" +objectSearch.getTableproductName());
                     if (Strings.isNotEmpty(objectSearch.getTableproductName())) {
-                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI') timestampChar,pr.status,pr.timestamp,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
+                        sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH24:MI:ss') timestampChar,pr.status,pr.timestamp,pr.value,pr.value ||' ' || u.unit_code valuestr,pr.warning,pr.manual,pr.create_user,u.unit_code,(select count(1) from prod_edit_history where st.ts_id = ts_id and pr.ID = id_prod and rownum = 1) history_show from station_time_series st join parameter_type pt on st.parametertype_id = pt.parameter_type_id join unit u on u.unit_id = pt.unit_id");
                         sql.append(" join " + objectSearch.getTableproductName() + " pr on st.ts_id = pr.ts_id join stations_object_type sot on st.station_id = sot.station_id");
                         sql.append(" join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1");
 
+
+                        if (Strings.isNotEmpty(objectSearch.getStation_id())) {
+                            sql.append(" AND station_id = ? ");
+                            paramSearch.add(objectSearch.getStation_id());
+                        }
+                        if (Strings.isNotEmpty(objectSearch.getParameter_type_id())) {
+                            sql.append(" AND parametertype_id = ? ");
+                            paramSearch.add(objectSearch.getParameter_type_id());
+                        }
                         if (Strings.isNotEmpty(objectSearch.getStation_type_name())) {
                             sql.append(" AND object_type_shortname like ? ");
                             paramSearch.add("%" + objectSearch.getStation_type_name() + "%");
@@ -117,6 +127,11 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                             sql.append(" and timestamp <= to_date(?, 'DD/MM/YYYY HH24:MI:SS')");
                             paramSearch.add(objectSearch.getToDate());
                         }
+                        System.out.println("objectSearch.getShowHistory())=====" +objectSearch.getShowHistory());
+                        if (Strings.isNotEmpty(objectSearch.getShowHistory())) {
+                            sql.append(" and history_show = ?");
+                            paramSearch.add(objectSearch.getShowHistory());
+                        }
                         sql.append(" order by timestamp desc");
                     }else{
                         sql.append("select * from (select st.*,ot.object_type_shortname,pr.ID PRODUCT_ID,to_char(pr.timestamp,'DD/MM/YYYY HH:MI') timestampChar,pr.timestamp,pr.status,pr.value,pr.warning,pr.manual,pr.create_user from station_time_series st");
@@ -141,13 +156,16 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                         .stationName(resultSetListData.getString("station_name"))
                         .parameterTypeId(resultSetListData.getInt("PARAMETERTYPE_ID"))
                         .parameterTypeName(resultSetListData.getString("parametertype_name"))
-                        .PrValue(resultSetListData.getInt("value"))
+                        .prValueStr(resultSetListData.getString("valuestr"))
+                        .prValue(resultSetListData.getFloat("value"))
                         .prTimestamp(resultSetListData.getString("timestampChar"))
                         .siteName(resultSetListData.getString("site_name"))
                         .PrWarning(resultSetListData.getInt("warning"))
                         .PrCreatedUser(resultSetListData.getString("create_user"))
                         .status(resultSetListData.getInt("STATUS"))
                         .productId(resultSetListData.getLong("PRODUCT_ID"))
+                        .unitCode(resultSetListData.getString("unit_code"))
+                        .showHistory(resultSetListData.getString("history_show"))
                         .build();
                 stationTimeSeriesList.add(stationTimeSeries);
 
@@ -243,6 +261,58 @@ public class ManageOutputServiceImpl implements ManageOutputService {
             ps.setString(3, parameterTypeId);
             ps.setString(4, fromDate);
             ps.setString(5, toDate);
+            ps.execute();
+            String result = ps.getString(1);
+            return result;
+        } catch (Exception e) {
+            logger.info("exception {} ExtendDao get list Customer_reg", e);
+            return "false";
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    logger.error("resultSet.close Exception : {}", e);
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    logger.error("preparedStatement.close Exception : {}", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    logger.error("connection.close Exception : {}", e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public String editValueProd(ManageOutPutVM manageOutPutVM) throws SQLException, BusinessException {
+        System.out.println("-editValueProd-----------------" + manageOutPutVM.getValue());
+        String proc = "begin ?:= MANAGER_OUTPUTS.edit_outputs(?,?,?,?,?,?,?) ;end;";
+        long startTime = System.nanoTime();
+        List<Map<String, String>> list = new ArrayList<>();
+        Connection conn = null;
+        CallableStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = ds.getConnection();
+            Long valueId = new Date().getTime();
+            ps = conn.prepareCall(proc);
+            ps.registerOutParameter(1, OracleTypes.VARCHAR);
+            ps.setString(2, manageOutPutVM.getProdTableName());
+            ps.setString(3, manageOutPutVM.getStationId());
+            ps.setString(4, manageOutPutVM.getParameterTypeId());
+            ps.setString(5, manageOutPutVM.getPustTimeOld());
+            ps.setString(6, manageOutPutVM.getProdId());
+            ps.setString(7, manageOutPutVM.getValue());
+            ps.setString(8, manageOutPutVM.getUserLogin());
             ps.execute();
             String result = ps.getString(1);
             return result;
