@@ -16,7 +16,7 @@ public class ConfigValueTypeSearch  implements Serializable {
     private Long id;
 
     @JsonProperty("s_station_id")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("s_value_type_id")
     private Long valueTypeId;
