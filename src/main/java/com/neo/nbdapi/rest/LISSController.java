@@ -175,7 +175,7 @@ public class LISSController {
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,DATA_TOTAL_DEEP,DATA_DISTANCE,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
-                "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,sysdate,?,?)";
+                "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,?,?,sysdate,?,?)";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("stationId"));
@@ -200,6 +200,7 @@ public class LISSController {
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -264,6 +265,7 @@ public class LISSController {
             defaultResponseDTO.setMessage("Cập nhật thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Cập nhật thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -284,6 +286,7 @@ public class LISSController {
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
