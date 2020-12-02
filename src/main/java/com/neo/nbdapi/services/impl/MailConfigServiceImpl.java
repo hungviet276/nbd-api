@@ -181,7 +181,7 @@ public class MailConfigServiceImpl implements MailConfigService, Constants {
     /**
      * method edit mail config
      * @param editMailConfigVM
-     * @return
+     * @return DefaultResponseDTO
      * @throws SQLException
      * @throws BusinessException
      */
