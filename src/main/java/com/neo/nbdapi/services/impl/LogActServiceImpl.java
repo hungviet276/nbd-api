@@ -175,7 +175,7 @@ public class LogActServiceImpl implements LogActService, Constants {
         // create streaming workbook optimize memory of apache poi
         final SXSSFWorkbook workbook = new SXSSFWorkbook();
         final SXSSFSheet sheet = workbook.createSheet();
-        System.out.println("export running");
+        logger.debug("LogAct export running");
 
         final AtomicInteger automicInteger = new AtomicInteger(0);
 

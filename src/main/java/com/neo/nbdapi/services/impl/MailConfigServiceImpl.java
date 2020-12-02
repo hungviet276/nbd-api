@@ -162,14 +162,14 @@ public class MailConfigServiceImpl implements MailConfigService, Constants {
     public DefaultResponseDTO createMailConfig(CreateMailConfigVM createMailConfigVM) throws SQLException {
         // do insert mailConfig
             MailConfig mailConfig = MailConfig.builder()
-                    .ip(createMailConfigVM.getIp())
+                    .ip(createMailConfigVM.getIp().trim())
                     .port(createMailConfigVM.getPort())
-                    .username(createMailConfigVM.getUsername())
-                    .password(createMailConfigVM.getPassword())
-                    .domain(createMailConfigVM.getDomain())
-                    .senderName(createMailConfigVM.getSenderName())
-                    .emailAddress(createMailConfigVM.getEmail())
-                    .protocol(createMailConfigVM.getProtocol())
+                    .username(createMailConfigVM.getUsername().trim())
+                    .password(createMailConfigVM.getPassword().trim())
+                    .domain(createMailConfigVM.getDomain().trim())
+                    .senderName(createMailConfigVM.getSenderName().trim())
+                    .emailAddress(createMailConfigVM.getEmail().trim())
+                    .protocol(createMailConfigVM.getProtocol().trim())
                     .build();
             mailConfigDAO.createMailConfig(mailConfig);
             DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
