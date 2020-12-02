@@ -61,8 +61,8 @@ public class LISSController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*, adcp.WATER_FLOW, adcp.SUSPENDED_MATERIAL ,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from liss a, adcp, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
-                    "where a.STATION_ID = adcp.STATION_ID(+) and a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
+            StringBuilder sql = new StringBuilder("select a.* ,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from liss a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
+                    "    where a.STATION_ID = b.STATION_ID and b.river_id = r.river_id and a.STATION_ID = c.STATION_ID and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -174,8 +174,8 @@ public class LISSController {
         }
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,DATA_TOTAL_DEEP,DATA_DISTANCE,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
-                "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,sysdate,?,?)";
+        String sql = "insert into liss(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,DATA,DATA_AVG,DATA_TOTAL_DEEP,DATA_DISTANCE,TOTAL_TURB,CREATED_AT,CREATED_BY,LINK_FILE,SUSPENDED_MATERIAL,WATER_FLOW)\n" +
+                "values(liss_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,?,?,sysdate,?,?,?,?)";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
             statement.setString(i++, params.get("stationId"));
@@ -194,12 +194,15 @@ public class LISSController {
             }else{
                 statement.setString(i++, null);
             }
+            statement.setString(i++, params.get("suspendedMaterial"));
+            statement.setString(i++, params.get("waterFlow"));
             statement.execute();
 
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -233,7 +236,7 @@ public class LISSController {
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "update liss set TIME_START = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_END = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_AVG = to_date(?,'DD/MM/YYYY HH24:MI')" +
-                ",DATA = ?,DATA_AVG = ?,DATA_TOTAL_DEEP = ?, DATA_DISTANCE = ?,TOTAL_TURB = ?,UPDATED_BY = ?,UPDATED_AT = sysdate,LINK_FILE = ?\n" +
+                ",DATA = ?,DATA_AVG = ?,DATA_TOTAL_DEEP = ?, DATA_DISTANCE = ?,TOTAL_TURB = ?,UPDATED_BY = ?,UPDATED_AT = sysdate,LINK_FILE = ?, SUSPENDED_MATERIAL= ?, WATER_FLOW = ?\n" +
                 "where id =?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
@@ -257,6 +260,8 @@ public class LISSController {
                     statement.setString(i++, null);
                 }
             }
+            statement.setString(i++, params.get("suspendedMaterial"));
+            statement.setString(i++, params.get("waterFlow"));
             statement.setString(i++, params.get("id"));
             statement.execute();
 
@@ -264,6 +269,7 @@ public class LISSController {
             defaultResponseDTO.setMessage("Cập nhật thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Cập nhật thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -284,6 +290,7 @@ public class LISSController {
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
