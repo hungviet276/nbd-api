@@ -47,7 +47,7 @@ public class StationController {
 
     @PostMapping("/station-select-water-level")
     public List<ComboBoxStr> getStationComboBoxWaterLevel(@RequestBody SelectVM selectVM) throws SQLException {
-        return stationService.getStationComboBox(selectVM.getTerm());
+        return stationService.getStationComboBoxWaterLevel(selectVM.getTerm());
     }
 
     @GetMapping("/get-station-user")
