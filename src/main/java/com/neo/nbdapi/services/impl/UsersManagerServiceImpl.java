@@ -552,58 +552,73 @@ public class UsersManagerServiceImpl implements UsersManagerService {
     @Override
     public String editUsers(UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
         String proc = "begin ?:= users_manage.edit_user_info(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ;end;";
-        long startTime = System.nanoTime();
-        List<Map<String, String>> list = new ArrayList<>();
-        Connection conn = null;
-        CallableStatement ps = null;
+        String casbinDelete ="delete casbin_rule where v0 =  trim(?)";
+        String casbinSql = "select DISTINCT mad.URL_API,mad.ptype,trim(?) username,mad.method from" +
+                " user_menu_act_pro utp,menu_act_detail mad where utp.menu_id = mad.menu_id" +
+                " and utp.act = mad.act and thread_id = ? ";
+        if(usersManagerVM.getCheck_roke() == 1){
+            casbinSql = "select ptype,trim(?) username,method,url_api from (select DISTINCT a.menu_id,a.act,mad.ptype,mad.url_api,mad.METHOD from " +
+                    "   (select  mac.menu_id,mac.act from permission_group_temp u,menu_access_act mac" +
+                    "   where u.role_id = mac.role_id and u.thread_id = ? ) a,menu_act_detail mad where a.menu_id = mad.menu_id and a.act = mad.act)";
+        }
         ResultSet rs = null;
-        try {
-            conn = ds.getConnection();
+        List<CasbinRule> casbinRules = new ArrayList<>();
+        try(Connection conn = ds.getConnection();
+            CallableStatement cs = conn.prepareCall(proc);
+            PreparedStatement st1 = conn.prepareStatement(casbinDelete);
+            PreparedStatement st = conn.prepareStatement(casbinSql);) {
             Long valueId = new Date().getTime();
-            ps = conn.prepareCall(proc);
-            ps.registerOutParameter(1, OracleTypes.VARCHAR);
-            ps.setString(2, usersManagerVM.getId());
-            ps.setString(3, passwordEncoder.encode(usersManagerVM.getPassword()));
-            ps.setString(4, usersManagerVM.getName());
-            ps.setString(5, usersManagerVM.getMobile());
-            ps.setString(6, usersManagerVM.getEmail());
-            ps.setInt(7, usersManagerVM.getGender());
-            ps.setInt(8, usersManagerVM.getStatus_id());
-            ps.setInt(9, usersManagerVM.getCheck_roke());
-            ps.setString(10, usersManagerVM.getCard_number());
-            ps.setInt(11, usersManagerVM.getGroup_user_id());
-            ps.setString(12, usersManagerVM.getCheck_download_time());
-            ps.setString(13, usersManagerVM.getThread_id());
-            ps.setString(14, usersManagerVM.getUser_login());
-            ps.setString(15, usersManagerVM.getCheck_edit_pass());
-            ps.execute();
-            String result = ps.getString(1);
+            int i = 1;
+            cs.registerOutParameter(i++, OracleTypes.VARCHAR);
+            cs.setString(i++, usersManagerVM.getId());
+            cs.setString(i++, passwordEncoder.encode(usersManagerVM.getPassword()));
+            cs.setString(i++, usersManagerVM.getName());
+            cs.setString(i++, usersManagerVM.getMobile());
+            cs.setString(i++, usersManagerVM.getEmail());
+            cs.setInt(i++, usersManagerVM.getGender());
+            cs.setInt(i++, usersManagerVM.getStatus_id());
+            cs.setInt(i++, usersManagerVM.getCheck_roke());
+            cs.setString(i++, usersManagerVM.getCard_number());
+            cs.setInt(i++, usersManagerVM.getGroup_user_id());
+            cs.setString(i++, usersManagerVM.getCheck_download_time());
+            cs.setString(i++, usersManagerVM.getThread_id());
+            cs.setString(i++, usersManagerVM.getUser_login());
+            cs.setString(i++, usersManagerVM.getCheck_edit_pass());
+            cs.execute();
+            String result = cs.getString(1);
+
+            if("true".equals(result)){
+                st1.setString(1,usersManagerVM.getId());
+                st1.execute();
+                //cap nhat vao casbin rule
+                st.setString(1,usersManagerVM.getId());
+                st.setString(2,usersManagerVM.getThread_id());
+                rs = st.executeQuery();
+                while (rs.next()){
+                    CasbinRule bo = CasbinRule.builder()
+                            .pType(rs.getString("PTYPE"))
+                            .v0(rs.getString("username"))
+                            .v1(rs.getString("URL_API"))
+                            .v2(rs.getString("method"))
+                            .v3(null)
+                            .v4(null)
+                            .v5(null)
+                            .build();
+                    casbinRules.add(bo);
+                }
+                boolean isSuccess = false;
+                for (CasbinRule casbinRule : casbinRules) {
+                    isSuccess = enforcer.addPolicy(casbinRule.getV0(), casbinRule.getV1(), casbinRule.getV2());
+                    if (isSuccess) enforcer.savePolicy();
+                }
+                rs.close();
+                logger.info("add casbin : " + isSuccess);
+            }
+
             return result;
         } catch (Exception e) {
             logger.info("exception {} ExtendDao get list Customer_reg", e);
             return "false";
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.error("resultSet.close Exception : {}", e);
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    logger.error("preparedStatement.close Exception : {}", e);
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    logger.error("connection.close Exception : {}", e);
-                }
-            }
         }
     }
 
