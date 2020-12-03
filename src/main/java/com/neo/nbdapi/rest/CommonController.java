@@ -161,7 +161,7 @@ public class CommonController {
     
     @GetMapping("/get-select-list-rivers")
     public List<ComboBox> getListRiversCombobox() throws SQLException, BusinessException {
-    	StringBuilder sql = new StringBuilder("select * from RIVERS WHERE 1 = 1 ");
+    	StringBuilder sql = new StringBuilder("select * from RIVERS WHERE 1 = 1 order by RIVER_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -186,6 +186,7 @@ public class CommonController {
     	if(!Strings.isEmpty(areaId) && !"null".equals(areaId)) {
     		sql.append(" and AREA_ID = ? ");
     	}
+    	sql.append(" order by PROVINCE_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
         	if(!Strings.isEmpty(areaId) && !"null".equals(areaId)) {
         		st.setString(1, areaId);
@@ -211,6 +212,7 @@ public class CommonController {
     	if(!Strings.isEmpty(provinceId) && !"null".equals(provinceId)) {
     		sql.append(" and PROVINCE_ID = ? ");
     	}
+    	sql.append(" order by DISTRICT_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
         	if(!Strings.isEmpty(provinceId) && !"null".equals(provinceId)) {
         		st.setString(1, provinceId);
@@ -232,13 +234,14 @@ public class CommonController {
     
     @GetMapping("/get-select-list-ward")
     public List<ComboBox> getListWardCombobox(@RequestParam(name = "provinceId") String provinceId,@RequestParam(name = "districtId") String districtId) throws SQLException, BusinessException {
-    	StringBuilder sql = new StringBuilder("select * from WARDS WHERE 1 = 1 ");
+    	StringBuilder sql = new StringBuilder("select * from WARDS WHERE 1 = 1");
     	if(!Strings.isEmpty(provinceId) && !"null".equals(provinceId)) {
     		sql.append(" and PROVINCE_ID = ? ");
     	}
     	if(!Strings.isEmpty(districtId) && !"null".equals(districtId)) {
     		sql.append(" and DISTRICT_ID = ? ");
     	}
+    	sql.append(" order by WARD_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
         	if(!Strings.isEmpty(provinceId) && !"null".equals(provinceId)) {
         		st.setString(1, provinceId);
@@ -284,7 +287,7 @@ public class CommonController {
     
     @GetMapping("/get-select-list-unit")
     public List<ComboBox> getListUnitCombobox() throws SQLException, BusinessException {
-    	StringBuilder sql = new StringBuilder("select * from unit WHERE 1 = 1 ");
+    	StringBuilder sql = new StringBuilder("select * from unit WHERE 1 = 1 order by UNIT_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
             ResultSet rs = st.executeQuery();
             List<ComboBox> list = new ArrayList<>();
@@ -351,7 +354,7 @@ public class CommonController {
     
     @GetMapping("/get-select-list-parameter") 
     public List<ComboBox> getListParameterCombobox() throws SQLException, BusinessException {
-    	StringBuilder sql = new StringBuilder("select * from PARAMETER_TYPE WHERE 1 = 1 ");
+    	StringBuilder sql = new StringBuilder("select * from PARAMETER_TYPE WHERE 1 = 1  order by PARAMETER_TYPE_NAME");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
             ResultSet rs = st.executeQuery();
             List<ComboBox> list = new ArrayList<>();
