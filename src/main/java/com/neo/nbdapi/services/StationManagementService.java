@@ -442,7 +442,7 @@ public class StationManagementService {
             st.registerOutParameter(1, Types.VARCHAR);
             st.execute();
             String result = st.getString(1);
-            if (Objects.equals(result, "OK")) {
+            if (result.startsWith("OK")) {
                 defaultResponseDTO.setStatus(1);
                 if (isNew) {
                     defaultResponseDTO.setMessage("Thêm mới thành công");
