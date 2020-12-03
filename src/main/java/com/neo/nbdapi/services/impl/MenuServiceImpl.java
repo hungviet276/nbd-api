@@ -95,6 +95,10 @@ public class MenuServiceImpl implements MenuService {
                         sql.append(" AND menu_level = ? ");
                         paramSearch.add(objectSearch.getMenuLevel());
                     }
+                    if (Strings.isNotEmpty(objectSearch.getPublish())) {
+                        sql.append(" AND publish = ?");
+                        paramSearch.add(objectSearch.getPublish());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
