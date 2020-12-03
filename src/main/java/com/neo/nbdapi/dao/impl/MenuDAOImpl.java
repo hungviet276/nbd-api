@@ -166,7 +166,7 @@ public class MenuDAOImpl implements MenuDAO {
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
         String sqlGetCheckRole = "SELECT check_role FROM user_info ui WHERE id = ?";
-        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id WHERE ui.id = ? AND uma.sys_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id JOIN menu_access_act mac ON mn.id = mac.menu_id WHERE ui.id = ? AND uma.sys_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
         String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN menu_access_act mac ON mn.id = mac.menu_id JOIN role_user_info rui ON rui.role_id = mac.role_id WHERE rui.user_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
