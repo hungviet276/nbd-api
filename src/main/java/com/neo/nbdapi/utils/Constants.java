@@ -34,6 +34,7 @@ public interface Constants {
             public static final String URI_REPORT = "/report";
             public static final String URI_CASSBIN_RULE = "/casbin-rule";
             public static final String URI_NOTIFICATION = "/notification";
+            public static final String URI_DATA = "/data";
         }
     }
 

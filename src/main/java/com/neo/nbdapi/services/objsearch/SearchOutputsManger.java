@@ -68,7 +68,7 @@ public class SearchOutputsManger implements Serializable {
     @JsonProperty("s_status")
     String status;
 
-    @JsonProperty("s_station_id")
+    @JsonProperty("s_stationId")
     String station_id;
 
     @JsonProperty("s_note")
@@ -76,4 +76,10 @@ public class SearchOutputsManger implements Serializable {
 
     @JsonProperty("s_userCreate")
     String userCreate;
+
+    @JsonProperty("s_parameter_type_id")
+    String parameter_type_id;
+
+    @JsonProperty("s_showHistory")
+    String showHistory;
 }

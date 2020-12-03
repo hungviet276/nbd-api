@@ -109,8 +109,8 @@ public class UserGroupController {
         List<UserGroupDTO> uGroups = new ArrayList<>();
         if (StringUtils.isEmpty(stationId)) return uGroups;
         try (Connection connection = ds.getConnection()) {
-//            StringBuilder sql = new StringBuilder("select id, name, group_level from group_user_info where status=1 and station_id=? order by name");
-            StringBuilder sql = new StringBuilder("select id, name, group_level from(select id, name, group_level from group_user_info where status=1 and station_id=? union select id, name, group_level from group_user_info where status=1 and station_id='000') order by name");
+            StringBuilder sql = new StringBuilder("select id, name, group_level from group_user_info where status=1 and station_id=? order by name");
+//            StringBuilder sql = new StringBuilder("select id, name, group_level from(select id, name, group_level from group_user_info where status=1 and station_id=? union select id, name, group_level from group_user_info where status=1 and station_id='000') order by name");
             PreparedStatement ps = connection.prepareStatement(sql.toString());
             ps.setString(1, stationId);
             ResultSet rs = ps.executeQuery();
@@ -267,7 +267,8 @@ public class UserGroupController {
 
     @GetMapping("/get-user")
     public List<UserInfo> getUserGroup() throws SQLException, BusinessException{
-        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 and id not in (select user_info_id from group_detail) and rownum < 100 order by id, name");
+//        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 and id not in (select user_info_id from group_detail) and rownum < 100 order by id, name");
+        StringBuilder sql = new StringBuilder(" select id, name from user_info where status_id=1 order by id, name");
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
 //            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());

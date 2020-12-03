@@ -12,6 +12,8 @@ public interface StationService {
 
 //    String getAllStationCsv() throws SQLException;
 
+    List<ComboBoxStr> getStationByUser();
+
     // lấy danh sách các trạm theo loại trạm (objectType) hoặc là lấy tất cả theo csv
     // api cũ tạm thời không dùng
 //    String getCSVStationWithObjectType(String objectType) throws SQLException;

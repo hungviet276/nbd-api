@@ -5,7 +5,11 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
+import com.neo.nbdapi.rest.vm.ManageOutPutVM;
+import com.neo.nbdapi.rest.vm.UsersManagerVM;
+import com.neo.nbdapi.services.ManageCDHService;
 import com.neo.nbdapi.services.ManageOutputService;
+import com.neo.nbdapi.services.UsersManagerService;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_MANAGER_OUTPUTS)
@@ -48,5 +53,10 @@ public class ManagerOfOutputController {
     @GetMapping("/get_sqlStatement")
     public String  getSqlStatement(@RequestParam("stationId") String stationId,@RequestParam("parameterTypeId") String parameterTypeId,@RequestParam("fromDate") String fromDate,@RequestParam("toDate") String toDate) throws SQLException, BusinessException {
         return manageOutputService.getSqlStatement(stationId,parameterTypeId,fromDate,toDate);
+    }
+
+    @PostMapping("/editValueProd")
+    public String editValueProd(@RequestBody @Valid ManageOutPutVM manageOutPutVM) throws SQLException, BusinessException {
+        return manageOutputService.editValueProd(manageOutPutVM);
     }
 }

@@ -67,7 +67,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     sql.append(" AND c.id = ? ");
                     paramSearch.add(objectSearch.getId());
                 }
-                if (objectSearch.getStationId() != null) {
+                if (Strings.isNotEmpty(objectSearch.getStationId())) {
                     sql.append(" AND c.station_id = ? ");
                     paramSearch.add(objectSearch.getStationId());
                 }
