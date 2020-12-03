@@ -1,24 +1,13 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.StationMapDTO;
-import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.services.StationService;
 import com.neo.nbdapi.utils.Constants;
-import com.neo.nbdapi.utils.CsvUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -34,14 +23,26 @@ public class StationController {
     }
 
     /**
-     * API lấy danh sách các trạm dựa vào loại trạm (ObjectType)
+     * API lấy danh sách các trạm dựa vào loại trạm (ObjectType) hoac là lấy tất cả
+     * API cũ tạm thời không dùng
      * @param objectType
-     * @return
+     * @return CSV
      * @throws SQLException
      */
-    @GetMapping(value = "/get-all-station-csv", produces = {"text/plain"})
-    public String geAllStation(@RequestParam(required = false, name = "type") String objectType) throws SQLException {
-         return stationService.getStationWithObjectType(objectType);
+//    @GetMapping(value = "/get-all-station-csv", produces = {"text/plain"})
+//    public String geAllStation(@RequestParam(required = false, name = "type") String objectType) throws SQLException {
+//         return stationService.getCSVStationWithObjectType(objectType);
+//    }
+
+    /**
+     * API lấy danh sách các trạm dựa vào loại trạm (ObjectType) hoặc là lấy tất cả
+     * @param objectType
+     * @return JSON DATA
+     * @throws SQLException
+     */
+    @GetMapping(value = "/get-station-owned")
+    public List<StationMapDTO> getStationByObjectType(@RequestParam(required = false, name = "type") String objectType) throws SQLException {
+        return stationService.getAllStationOwnedByUserAndObjectType(objectType);
     }
 
     @PostMapping("/station-select-water-level")

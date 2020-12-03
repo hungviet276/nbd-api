@@ -34,9 +34,7 @@ public class MailGroupConfigController {
     public List<Object> getListMailConfigPagination(@RequestParam  Long id) throws SQLException {
         return mailGroupConfigService.getInfoMailReceive(id);
     }
-
-
-   @PutMapping
+    @PutMapping
     public DefaultResponseDTO editListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException {
         return mailGroupConfigService.editMailGroupConfig(mailGroupConFigVM);
     }

@@ -31,7 +31,6 @@ public class SearchLogAct {
     private String fromDate;
 
     @JsonProperty("s_to_date")
-
     @ValidDate(message = "Ngày kết thúc không hợp lệ")
     private String toDate;
 }
