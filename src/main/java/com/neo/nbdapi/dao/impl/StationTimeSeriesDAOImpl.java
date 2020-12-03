@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.StationTimeSeriesDAO;
+import com.neo.nbdapi.dto.StationTimeSeriesDTO;
 import com.neo.nbdapi.entity.ObjectValue;
 import com.neo.nbdapi.entity.StationTimeSeries;
 import com.zaxxer.hikari.HikariDataSource;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,7 +67,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                 Connection connection = ds.getConnection();
         ) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            String tableNameRequest = Strings.isEmpty(type)? storage : storage + "_" + type;
+            String tableNameRequest = Strings.isEmpty(type) ? storage : storage + "_" + type;
             ResultSet table = databaseMetaData.getTables(null, null, tableNameRequest.toUpperCase(), new String[]{"TABLE"});
             if (table.next()) {
                 String sql = "SELECT ts_id, value, timestamp, status, manual, warning, create_user FROM %s WHERE ts_id = ? AND timestamp >= to_date(?, 'dd/mm/yyyy HH24:mi')";
@@ -93,7 +96,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                     objectValues.add(objectValue);
                 }
             } else {
-                logger.debug("table storage : {} not exists" , tableNameRequest );
+                logger.debug("table storage : {} not exists", tableNameRequest);
             }
         }
         return objectValues;
@@ -101,7 +104,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
 
     @Override
     public List<StationTimeSeries> findByStationIdAndListParameterTypeId(String stationId, String listParameterTypeId) throws SQLException {
-        String sql = "SELECT ts_id, ts_name, station_id, ts_type_id, parametertype_id, parametertype_name, storage FROM station_time_series WHERE station_id = ? AND parametertype_id IN ("+ listParameterTypeId +")";
+        String sql = "SELECT ts_id, ts_name, station_id, ts_type_id, parametertype_id, parametertype_name, storage FROM station_time_series WHERE station_id = ? AND parametertype_id IN (" + listParameterTypeId + ")";
         List<StationTimeSeries> listStationTimeSeries = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -110,7 +113,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
             statement.setString(1, stationId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                 StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
                         .tsId(resultSet.getInt("ts_id"))
                         .tsName(resultSet.getString("ts_name"))
                         .stationId(resultSet.getString("station_id"))
@@ -119,9 +122,82 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                         .parameterTypeName(resultSet.getString("parametertype_name"))
                         .storage(resultSet.getString("storage"))
                         .build();
-                 listStationTimeSeries.add(stationTimeSeries);
+                listStationTimeSeries.add(stationTimeSeries);
             }
         }
         return listStationTimeSeries;
+    }
+
+    @Override
+    public List<StationTimeSeries> findByStationId(String stationId) {
+        String sql = "SELECT station_id, ts_id, ts_name, parametertype_name,ts_type_id, parametertype_id,  parametertype_description\n" +
+                "    , storage, station_no from station_time_series where station_id =?";
+        List<StationTimeSeries> listStationTimeSeries = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setString(1, stationId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                StationTimeSeries stationTimeSeries = StationTimeSeries.builder()
+                        .stationId(resultSet.getString("station_id"))
+                        .tsId(resultSet.getInt("ts_id"))
+                        .tsName(resultSet.getString("ts_name"))
+                        .parameterTypeName(resultSet.getString("parametertype_name"))
+                        .tsTypeId(resultSet.getInt("ts_type_id"))
+                        .parameterTypeId(resultSet.getInt("parametertype_id"))
+                        .parameterTypeDescription(resultSet.getString("parametertype_description"))
+                        .storage(resultSet.getString("storage"))
+                        .stationNo(resultSet.getString("station_no"))
+                        .build();
+                listStationTimeSeries.add(stationTimeSeries);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return listStationTimeSeries;
+    }
+
+    @Override
+    public List<StationTimeSeriesDTO> getValueOfStationTimeSeries(StationTimeSeriesDTO seriesDTO) {
+        List<StationTimeSeriesDTO> listStationTimeSeries = new ArrayList<>();
+        String sql = "SELECT * FROM " + seriesDTO.getStorage()
+                + " where ts_id = ? and TIMESTAMP >= to_date(?,\'DD/MM/YYYY HH24:MI:SS\') "
+                + " and TIMESTAMP <= to_date(?,\'DD/MM/YYYY HH24:MI:SS\') ";
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+        ) {
+            statement.setInt(1, seriesDTO.getTsId());
+            statement.setString(2, seriesDTO.getStartDate());
+            statement.setString(3, seriesDTO.getStopDate());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                StationTimeSeriesDTO stationTimeSeries = StationTimeSeriesDTO.builder()
+                        .id(resultSet.getInt("id"))
+                        .tsId(resultSet.getInt("ts_id"))
+                        .value(resultSet.getFloat("value"))
+                        .timeStamp(convertDate(resultSet.getDate("TIMESTAMP")))
+                        .status(resultSet.getInt("status"))
+                        .manual(resultSet.getInt("manual"))
+                        .warning(resultSet.getString("warning"))
+                        .createUser("")
+                        .build();
+                listStationTimeSeries.add(stationTimeSeries);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return listStationTimeSeries;
+    }
+
+    private String convertDate(Date input) {
+        if (input != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+            String strDate = dateFormat.format(input);
+            return strDate;
+        }
+        return "";
     }
 }

@@ -30,4 +30,8 @@ public interface StationDAO {
     // lấy danh sách loại trạm theo user và object type tra ve csv
     // method cu tam thoi khong dung
 //    List<Object[]> getCSVAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException;
+
+    List<ComboBoxStr> getStationByUser();
+
+    Station getStationById(String stationId);
 }

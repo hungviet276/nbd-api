@@ -2,6 +2,7 @@ package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.StationDAO;
 import com.neo.nbdapi.dto.StationMapDTO;
+import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.rest.vm.SelectVM;
@@ -12,7 +13,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Repository;
 
 import javax.xml.transform.Result;
@@ -98,7 +101,7 @@ public class StationDAOImpl implements StationDAO {
     }
 
     @Override
-    public boolean isStationOwnedByUser(String stationId, String userId)  {
+    public boolean isStationOwnedByUser(String stationId, String userId) {
         String sql = "SELECT COUNT(1) AS total FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN user_info ui ON ui.id = gd.user_info_id JOIN stations st ON st.station_id = gui.station_id WHERE gd.user_info_id = ? AND st.station_id = ?";
         try (
                 Connection connection = ds.getConnection();
@@ -161,6 +164,63 @@ public class StationDAOImpl implements StationDAO {
             return comboBoxes;
         }
     }
+
+    @Override
+    public List<ComboBoxStr> getStationByUser() {
+        List<ComboBoxStr> list = new ArrayList<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+//        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+//                "        from group_user_info gui ,group_detail gd ,stations s\n" +
+//                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
+//                "        and gd.user_info_id =?";
+        String sql = "SELECT station_id, station_name " +
+                "FROM stations " +
+                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
+        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
+//            st.setString(1, userLogin.getUsername());
+            ResultSet rs = st.executeQuery();
+            ComboBoxStr stationType;
+            while (rs.next()) {
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("STATION_ID"))
+                        .text(rs.getString("STATION_NAME"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Station getStationById(String stationId) {
+        String sql = "SELECT station_id, station_code, station_name FROM stations where station_id = ?";
+        Station station = null;
+        try (Connection connection = ds.getConnection();
+             PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, stationId);
+            ResultSet rs = st.executeQuery();
+            ComboBoxStr stationType;
+            while (rs.next()) {
+                station = Station
+                        .builder()
+                        .stationId(rs.getString("station_id"))
+                        .stationName(rs.getString("station_name"))
+                        .stationCode(rs.getString("station_code"))
+                        .build();
+            }
+            rs.close();
+            return station;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
 
     @Override
     public List<StationMapDTO> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
