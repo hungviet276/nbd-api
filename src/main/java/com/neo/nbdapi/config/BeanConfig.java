@@ -32,4 +32,15 @@ public class BeanConfig {
         prop.setReloadingStrategy(new FileChangedReloadingStrategy());
         return prop;
     }
+
+    @Bean("configCdh")
+    public PropertiesConfiguration initBeanConfigCdh() throws ConfigurationException {
+        PropertiesConfiguration prop = new PropertiesConfiguration();
+        prop.setDelimiterParsingDisabled(true);
+        prop.setEncoding("UTF8");
+        prop.setPath("cdh-config.properties");
+        prop.load();
+        prop.setReloadingStrategy(new FileChangedReloadingStrategy());
+        return prop;
+    }
 }

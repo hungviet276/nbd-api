@@ -169,14 +169,14 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
         ) {
-            statement.setString(1, seriesDTO.getTsId());
+            statement.setInt(1, seriesDTO.getTsId());
             statement.setString(2, seriesDTO.getStartDate());
             statement.setString(3, seriesDTO.getStopDate());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 StationTimeSeriesDTO stationTimeSeries = StationTimeSeriesDTO.builder()
                         .id(resultSet.getInt("id"))
-                        .tsId(resultSet.getString("ts_id"))
+                        .tsId(resultSet.getInt("ts_id"))
                         .value(resultSet.getFloat("value"))
                         .timeStamp(convertDate(resultSet.getDate("TIMESTAMP")))
                         .status(resultSet.getInt("status"))
@@ -194,7 +194,7 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
 
     private String convertDate(Date input) {
         if (input != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
             String strDate = dateFormat.format(input);
             return strDate;
         }

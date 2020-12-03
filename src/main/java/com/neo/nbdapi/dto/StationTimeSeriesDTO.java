@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class StationTimeSeriesDTO {
-    private String tsId;
+    private int tsId;
     private float value;
     private String timeStamp;
     private long id;
@@ -18,7 +18,9 @@ public class StationTimeSeriesDTO {
     private int manual;
     private String warning;
     private String createUser;
-    String startDate;
-    String stopDate;
-    String storage;
+    private String startDate;
+    private String stopDate;
+    private String storage;
+    private String stationId;
+    private String stationCode;
 }

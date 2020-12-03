@@ -98,7 +98,7 @@ public class StationDAOImpl implements StationDAO {
     }
 
     @Override
-    public boolean isStationOwnedByUser(String stationId, String userId)  {
+    public boolean isStationOwnedByUser(String stationId, String userId) {
         String sql = "SELECT COUNT(1) AS total FROM group_user_info gui JOIN group_detail gd ON gd.group_id = gui.id JOIN user_info ui ON ui.id = gd.user_info_id JOIN stations st ON st.station_id = gui.station_id WHERE gd.user_info_id = ? AND st.station_id = ?";
         try (
                 Connection connection = ds.getConnection();
@@ -189,6 +189,31 @@ public class StationDAOImpl implements StationDAO {
             throwables.printStackTrace();
         }
         return list;
+    }
+
+    @Override
+    public Station getStationById(String stationId) {
+        String sql = "SELECT station_id, station_code, station_name FROM stations where station_id = ?";
+        Station station = null;
+        try (Connection connection = ds.getConnection();
+             PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, stationId);
+            ResultSet rs = st.executeQuery();
+            ComboBoxStr stationType;
+            while (rs.next()) {
+                station = Station
+                        .builder()
+                        .stationId(rs.getString("station_id"))
+                        .stationName(rs.getString("station_name"))
+                        .stationCode(rs.getString("station_code"))
+                        .build();
+            }
+            rs.close();
+            return station;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
     }
 
 }

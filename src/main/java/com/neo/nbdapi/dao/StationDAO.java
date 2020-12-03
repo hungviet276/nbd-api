@@ -22,5 +22,8 @@ public interface StationDAO {
     boolean isStationOwnedByUser(String stationId, String userId) throws SQLException;
 
     List<Object[]> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException;
+
     List<ComboBoxStr> getStationByUser();
+
+    Station getStationById(String stationId);
 }
