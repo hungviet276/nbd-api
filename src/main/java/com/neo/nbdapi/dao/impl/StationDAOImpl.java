@@ -6,6 +6,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.rest.vm.SelectVM;
+import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Repository;
 import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -224,13 +227,17 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public List<StationMapDTO> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
         List<StationMapDTO> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ) {
-            statement.setString(1, username);
+            statement.setString(1, DateUtils.getStringFromDateFormat(new Date(), "dd/MM/yyyy"));
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            statement.setString(2, DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy"));
+            statement.setString(3, username);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 StationMapDTO stationMapDTO = StationMapDTO
@@ -248,6 +255,7 @@ public class StationDAOImpl implements StationDAO {
                         .districtName(resultSet.getString("district_name"))
                         .provinceName(resultSet.getString("province_name"))
                         .address(resultSet.getString("address"))
+                        .countWarning(resultSet.getInt("count_warning"))
                         .build();
                         stationList.add(stationMapDTO);
             }
@@ -257,13 +265,17 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public List<StationMapDTO> getAllStationOwnedByUser(String username) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ?";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ?";
         List<StationMapDTO> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ) {
-            statement.setString(1, username);
+            statement.setString(1, DateUtils.getStringFromDateFormat(new Date(), "dd/MM/yyyy"));
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            statement.setString(2, DateUtils.getStringFromDateFormat(calendar.getTime(), "dd/MM/yyyy"));
+            statement.setString(3, username);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 StationMapDTO stationMapDTO = StationMapDTO
@@ -281,6 +293,7 @@ public class StationDAOImpl implements StationDAO {
                         .districtName(resultSet.getString("district_name"))
                         .provinceName(resultSet.getString("province_name"))
                         .address(resultSet.getString("address"))
+                        .countWarning(resultSet.getInt("count_warning"))
                         .build();
                 stationList.add(stationMapDTO);
             }
