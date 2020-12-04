@@ -6,6 +6,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.rest.vm.SelectVM;
+import com.neo.nbdapi.utils.Constants;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -148,14 +149,14 @@ public class StationDAOImpl implements StationDAO {
     @Override
     public List<ComboBoxStr> getStationComboBoxWaterLevel(String query) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1 and station_id in ('9_59_482_403', '9_63_-1_404', '9_59_492_402')";
+            String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1 and station_id in ('"+ Constants.WATER_LEVEL.ID_PHU_QUOC +"', '"+Constants.WATER_LEVEL.ID_HA_TIEN+"', '"+Constants.WATER_LEVEL.ID_GANH_HAO+"')";
             if (query != null && !query.equals("")) {
-                sql = sql + " and station_name like ?";
+                sql = sql + " and UPPER(station_name) like ?";
             }
             sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
-                statement.setString(1, "%" + query + "%");
+                statement.setString(1, "%" + query.toUpperCase() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
@@ -173,15 +174,15 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-//        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
-//                "        from group_user_info gui ,group_detail gd ,stations s\n" +
-//                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
-//                "        and gd.user_info_id =?";
-        String sql = "SELECT station_id, station_name " +
-                "FROM stations " +
-                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
+        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+                "        from group_user_info gui ,group_detail gd ,stations s\n" +
+                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
+                "        and gd.user_info_id =?";
+//        String sql = "SELECT station_id, station_name " +
+//                "FROM stations " +
+//                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
         try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
-//            st.setString(1, userLogin.getUsername());
+            st.setString(1, userLogin.getUsername());
             ResultSet rs = st.executeQuery();
             ComboBoxStr stationType;
             while (rs.next()) {

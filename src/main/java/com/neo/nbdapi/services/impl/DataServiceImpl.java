@@ -58,29 +58,56 @@ public class DataServiceImpl implements DataService {
         Station station = stationDAO.getStationById(stationId);
         if (station == null)
             return DefaultResponseDTO.builder().status(-2).message("Không tìm thấy trạm").build();
-//        List<StationTimeSeriesDTO> seriesDTOS = stationTimeSeriesDAO.getValueOfStationTimeSeries(seriesDTOs);
         if (seriesDTOs.size() <= 0)
             return DefaultResponseDTO.builder().status(-3).message("Không tìm thấy giá trị phù hợp").build();
 
-        String fileContent = createFileContent(station, seriesDTOs);
+        String fileContent = createFileContent(station, seriesDTOs, 1);
         File file = writeFile(fileContent, station);
         if (file.exists()) {
             boolean resultSendFile = sendFile(file);
-            if (!resultSendFile) return DefaultResponseDTO.builder().status(-4).message("Không connect được server").build();
+            if (!resultSendFile)
+                return DefaultResponseDTO.builder().status(-4).message("Không connect được server").build();
             file.delete();
             if (resultSendFile) return DefaultResponseDTO.builder().status(1).message("Thành công").build();
         }
         return DefaultResponseDTO.builder().status(-1).message("failed").build();
     }
 
-    private String createFileContent(Station station, List<StationTimeSeriesDTO> seriesDTOS) {
-
+    private String createFileContent(Station station, List<StationTimeSeriesDTO> seriesDTOS, int type) {
         StringBuilder s = new StringBuilder();
-        s.append("##station: " + seriesDTOS.get(0).getStationCode() + " \n");
-        s.append("#ZRXPVERSION3014.03|*|ZRXPCREATORKiIOSystem.Manual|*| \n");
-        s.append("#REXCHANGE" + station.getStationCode() + "|*|CUNITmm|*|RIVAL-777|*| \n");
-        s.append("#LAYOUT(timestamp,value,primary_status)|*| \n\"");
-        seriesDTOS.forEach(seriesDTO1 -> s.append(seriesDTO1.getTimeStamp() + " " + seriesDTO1.getValue() + " 0 \n"));
+        switch (type) {
+            case 1:
+                s.append(station.getStationCode() + ".Manual|*|\n");
+                s.append("#REXCHANGE0001");
+                s.append("#|*|TZUTC+7|*|CUNITmm\\n\");");
+                s.append("#LAYOUT(timestamp, value, primary_status)|*|\n");
+                break;
+            case 2:
+                s.append(station.getStationCode() + ".Manual|*|\n");
+                s.append("#TZAsia/Ho_Chi_Minh|*|");
+                s.append("#REXCHANGE0001" + station.getStationCode() + "|*|TZUTC+7|*|CUNITmm \n");
+                s.append("#LAYOUT(timestamp, value, primary_status, remark)|*|\n");
+            case 3:
+                s.append(station.getStationCode() + " " + station.getStationName());
+                break;
+        }
+
+
+        seriesDTOS.forEach(seriesDTO -> {
+            String timeStamps = seriesDTO.getTimeStamp()
+                    .replace("/", "")
+                    .replace(" ", "")
+                    .replace(":", "");
+            switch (type) {
+                case 1:
+                    s.append(timeStamps + " " + seriesDTO.getValue() + " 0 \n");
+                    break;
+                case 2:
+                    s.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::good\"\n");
+                    break;
+                case 3:
+            }
+        });
         return s.toString();
     }
 
