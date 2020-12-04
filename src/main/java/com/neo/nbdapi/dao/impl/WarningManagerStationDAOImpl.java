@@ -8,6 +8,7 @@ import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
+import com.neo.nbdapi.rest.vm.WarningStationHistoryVM;
 import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -306,7 +307,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     @Override
     public List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException {
         logger.debug("START_DATE: {}, END_DATE: {}", startDate, endDate);
-        String sql = "SELECT DISTINCT wms.id, wms.name, wms.description, wms.color, wms.icon, wms.created_at, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
+        String sql = "SELECT DISTINCT wms.id, nh.id AS notification_history_id, wms.name, wms.description, wms.color, wms.icon, wms.created_at, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
         PreparedStatement preparedStatement = null;
         List<NotificationToDayDTO> notificationToDayDTOList = new ArrayList<>();
         try (
@@ -322,7 +323,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 NotificationToDayDTO notificationToDayDTO = NotificationToDayDTO.builder()
-                        .id(resultSet.getLong("id"))
+                        .id(resultSet.getLong("notification_history_id"))
                         .name(resultSet.getString("name"))
                         .description(resultSet.getString("description"))
                         .color(resultSet.getString("color"))
@@ -340,14 +341,14 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     }
 
     @Override
-    public NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException {
-        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE wms.id = ?";
+    public NotificationToDayDTO getWarningManagerStationById(Long notificationHistoryId) throws SQLException {
+        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE nh.id = ?";
         NotificationToDayDTO notificationToDayDTO = null;
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ) {
-            preparedStatement.setLong(1, warningManagerStationId);
+            preparedStatement.setLong(1, notificationHistoryId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 notificationToDayDTO = NotificationToDayDTO.builder()
@@ -366,5 +367,18 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             }
         }
         return notificationToDayDTO;
+    }
+
+    @Override
+    public List<WarningStationHistoryDTO> getWarningStationHistory(WarningStationHistoryVM warningStationHistoryVM) throws SQLException {
+        String sql = "SELECT * ";
+        NotificationToDayDTO notificationToDayDTO = null;
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+
+        }
+        return null;
     }
 }

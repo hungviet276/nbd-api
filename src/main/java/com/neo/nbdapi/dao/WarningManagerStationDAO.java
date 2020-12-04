@@ -7,6 +7,7 @@ import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
+import com.neo.nbdapi.rest.vm.WarningStationHistoryVM;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
@@ -25,5 +26,7 @@ public interface WarningManagerStationDAO {
     // thanglv
     List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException;
 
-    NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException;
+    NotificationToDayDTO getWarningManagerStationById(Long notificationHistoryId) throws SQLException;
+
+    List<WarningStationHistoryDTO> getWarningStationHistory(WarningStationHistoryVM warningStationHistoryVM) throws SQLException;
 }
