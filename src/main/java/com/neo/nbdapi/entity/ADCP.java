@@ -41,11 +41,11 @@ public class ADCP implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm",timezone = "Asia/Ho_Chi_Minh")
     private Date timeAvg;
 
-    private Long waterLevelStart;
+    private Float waterLevelStart;
 
-    private Long waterLevelEnd;
+    private Float waterLevelEnd;
 
-    private Long waterLevelAvg;
+    private Float waterLevelAvg;
 
     private Float speedAvg;
 

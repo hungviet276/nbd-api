@@ -45,4 +45,6 @@ public class StationMapDTO implements Serializable {
     private String districtName;
 
     private String address;
+
+    private int countWarning;
 }

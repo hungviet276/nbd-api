@@ -522,7 +522,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         for (File f : fileList) {
             Path file = Paths.get(f.getPath());
             BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(new Date(attr.creationTime().toMillis())).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;
@@ -536,13 +536,13 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         for (File f : fileList) {
             Path file = Paths.get(f.getPath());
             BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(new Date(attr.creationTime().toMillis())).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         for (File f : fileListTab) {
             Path file = Paths.get(f.getPath());
             BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(attr.creationTime().toString()).build();
+            FileWaterLevelInfo fileWaterLevelInfo = FileWaterLevelInfo.builder().fileName(f.getName().trim()).modifyDate(new Date(attr.creationTime().toMillis())).build();
             fileWaterLevelInfos.add(fileWaterLevelInfo);
         }
         return fileWaterLevelInfos;

@@ -306,7 +306,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     @Override
     public List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException {
         logger.debug("START_DATE: {}, END_DATE: {}", startDate, endDate);
-        String sql = "SELECT DISTINCT wms.id, wms.name, wms.description, wms.color, wms.icon, wms.created_at FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
+        String sql = "SELECT DISTINCT wms.id, wms.name, wms.description, wms.color, wms.icon, wms.created_at, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
         PreparedStatement preparedStatement = null;
         List<NotificationToDayDTO> notificationToDayDTOList = new ArrayList<>();
         try (
@@ -314,7 +314,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         ) {
             if (endDate != null)
                 sql = sql + " AND nh.push_timestap <= to_date(?, 'dd/mm/yyyy HH24:mi')";
-            sql = sql + " ORDER BY wms.created_at DESC";
+            sql = sql + " ORDER BY nh.push_timestap DESC";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, startDate);
             if (endDate != null)
@@ -328,6 +328,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
                         .color(resultSet.getString("color"))
                         .icon(resultSet.getString("icon"))
                         .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
+                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
                         .build();
                 notificationToDayDTOList.add(notificationToDayDTO);
             }
@@ -340,7 +341,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
     @Override
     public NotificationToDayDTO getWarningManagerStationById(Long warningManagerStationId) throws SQLException {
-        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id FROM warning_manage_stations wms JOIN stations st ON wms.station_id = st.station_id WHERE wms.id = ?";
+        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE wms.id = ?";
         NotificationToDayDTO notificationToDayDTO = null;
         try (
                 Connection connection = ds.getConnection();
@@ -360,6 +361,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
                         .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
                         .stationName(resultSet.getString("station_name"))
                         .stationId(resultSet.getString("station_id"))
+                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
                         .build();
             }
         }
