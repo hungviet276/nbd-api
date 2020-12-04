@@ -38,4 +38,6 @@ public class NotificationToDayDTO implements Serializable {
     private String stationId;
 
     private String stationName;
+
+    private String pushTimestamp;
 }
