@@ -1,5 +1,6 @@
 package com.neo.nbdapi.services.objsearch;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ public class ConfigValueTypeSearch  implements Serializable {
     private Long id;
 
     @JsonProperty("s_station_id")
-    private Long stationId;
+    private String stationId;
 
     @JsonProperty("s_value_type_id")
     private Long valueTypeId;

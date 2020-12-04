@@ -1,16 +1,12 @@
 package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.neo.nbdapi.dao.MailConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.dto.EmailBuilder;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
-import com.neo.nbdapi.entity.NoficationHistory;
-import com.neo.nbdapi.entity.WarningManagerStation;
+import com.neo.nbdapi.entity.NotificationHistory;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.SendMailHistoryService;
@@ -29,26 +25,17 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 @Service
 public class SendMailHistoryServiceImpl implements SendMailHistoryService {
@@ -69,15 +56,15 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private MailConfigDAO mailConfigDAO;
+    private PasswordEncoder passwordEncoder;
 
-    private NoficationHistory noficationHistory;
+    private NotificationHistory noficationHistory;
 
     @Override
     public DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         System.out.println("getListOutpust---------------");
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
-        List<NoficationHistory> noficationHistoryList = new ArrayList<>();
+        List<NotificationHistory> noficationHistoryList = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
@@ -93,11 +80,11 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
                         if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                             sql.append(" and station_code  like ?");
-                            paramSearch.add("%" + objectSearch.getStation_no() + "%");
+                            paramSearch.add("%" +objectSearch.getStation_no()+ "%");
                         }
                         if (Strings.isNotEmpty(objectSearch.getStation_name())) {
                             sql.append(" and station_name like ?");
-                            paramSearch.add("%" + objectSearch.getStation_name() + "%");
+                            paramSearch.add("%" +objectSearch.getStation_name() + "%");
                         }
                         if (Strings.isNotEmpty(objectSearch.getNote())) {
                             sql.append(" AND description like ? ");
@@ -132,7 +119,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                             paramSearch.add(objectSearch.getToDate());
                         }
                         sql.append(" order by push_timestap desc");
-                    } else {
+                    }else{
                         sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
                     }
 
@@ -140,13 +127,13 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                     e.printStackTrace();
                 }
 
-                System.out.println("sql---------------" + sql);
+                System.out.println("sql---------------" +sql);
             }
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {
-                noficationHistory = NoficationHistory.builder()
+                noficationHistory = NotificationHistory.builder()
                         .stationNo(resultSetListData.getString("station_code"))
                         .stationName(resultSetListData.getString("station_name"))
                         .warningNo(resultSetListData.getString("code"))
@@ -183,7 +170,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
     @Override
     public List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where status = 1 and rownum < 100 ");
-        try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql.toString());) {
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
@@ -231,9 +218,8 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             return list;
         }
     }
-
     @Override
-    public List<NoficationHistory> getListOutpust2(SearchSendMailHistory objectSearch) throws SQLException {
+    public List<NotificationHistory> getListOutpust2(SearchSendMailHistory objectSearch) throws SQLException {
         StringBuilder sql = new StringBuilder("");
         List<Object> paramSearch = new ArrayList<>();
         // set param query to sql
@@ -241,11 +227,11 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
             if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                 sql.append(" and station_code  like ?");
-                paramSearch.add("%" + objectSearch.getStation_no() + "%");
+                paramSearch.add("%" +objectSearch.getStation_no()+ "%");
             }
             if (Strings.isNotEmpty(objectSearch.getStation_name())) {
                 sql.append(" and station_name like ?");
-                paramSearch.add("%" + objectSearch.getStation_name() + "%");
+                paramSearch.add("%" +objectSearch.getStation_name() + "%");
             }
             if (Strings.isNotEmpty(objectSearch.getNote())) {
                 sql.append(" AND description like ? ");
@@ -281,24 +267,24 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                 paramSearch.add(objectSearch.getToDate());
             }
             sql.append(" order by push_timestap desc");
-        } else {
+        }else{
             sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
         }
-        System.out.println("sql sendmail history Export =" + sql);
+        System.out.println("sql sendmail history Export =" +sql);
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql.toString(), ResultSet.TYPE_SCROLL_INSENSITIVE,
                         ResultSet.CONCUR_READ_ONLY);
         ) {
-            for (int i = 0; i < paramSearch.size(); i++) {
+            for(int i = 0; i < paramSearch.size(); i++) {
                 statement.setObject(i + 1, paramSearch.get(i));
             }
 
             ResultSet resultSet = statement.executeQuery();
-            List<NoficationHistory> noficationHistoryList = new ArrayList<>();
+            List<NotificationHistory> noficationHistoryList = new ArrayList<>();
 
             while (resultSet.next()) {
-                noficationHistory = NoficationHistory.builder()
+                noficationHistory = NotificationHistory.builder()
                         .stationNo(resultSet.getString("station_code"))
                         .stationName(resultSet.getString("station_name"))
                         .warningNo(resultSet.getString("code"))
@@ -312,10 +298,9 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             return noficationHistoryList;
         }
     }
-
     public SXSSFWorkbook export(SearchSendMailHistory objectSearch) throws SQLException {
-        List<NoficationHistory> noficationHistoryList = getListOutpust2(objectSearch);
-        System.out.println("noficationHistoryList =========" + noficationHistoryList);
+        List<NotificationHistory> noficationHistoryList = getListOutpust2(objectSearch);
+        System.out.println("noficationHistoryList =========" +noficationHistoryList);
         System.out.println("export SEND_MAIL_HISTORY running");
         // create streaming workbook optimize memory of apache poi
         int cellNum = 11;
@@ -329,36 +314,36 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
         Font font = workbook.createFont();
         font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 15);
-        font.setBold(true);
+        font.setFontHeightInPoints((short)15);
+        font.setBold (true);
         style.setFont(font);
         //-----------------
         XSSFCellStyle style_column = (XSSFCellStyle) workbook.createCellStyle();
         style_column.setAlignment(HorizontalAlignment.CENTER);
         Font font_column = workbook.createFont();
         font_column.setFontName("Arial");
-        font_column.setFontHeightInPoints((short) 10);
-        font_column.setBold(true);
+        font_column.setFontHeightInPoints((short)10);
+        font_column.setBold (true);
         style_column.setFont(font_column);
         //create title
         SXSSFRow titleHeadRow = sheet.createRow(0);
         titleHeadRow.createCell(0);
-        titleHeadRow.getCell((short) 0).setCellValue("Lịch sử gửi mail cảnh báo");
-        titleHeadRow.getCell((short) 0).setCellStyle(style);
+        titleHeadRow.getCell((short)0).setCellValue("Lịch sử gửi mail cảnh báo");
+        titleHeadRow.getCell((short)0).setCellStyle(style);
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
 
         SXSSFRow header = sheet.createRow(2);
-        for (int i = 0; i <= cellNum; i++) {
-            header.createCell((short) i);
-            header.getCell((short) i).setCellStyle(style_column);
+        for (int i = 0; i <=  cellNum; i++) {
+            header.createCell((short)i);
+            header.getCell((short)i).setCellStyle(style_column);
         }
-        header.getCell((short) 0).setCellValue("Mã trạm");
-        header.getCell((short) 1).setCellValue("Tên trạm");
-        header.getCell((short) 2).setCellValue("Mã loại cảnh báo");
-        header.getCell((short) 3).setCellValue("Tên loại cảnh báo");
-        header.getCell((short) 4).setCellValue("Nhóm nhận cảnh báo");
-        header.getCell((short) 5).setCellValue("Tiêu đề mail");
-        header.getCell((short) 6).setCellValue("Thời gian gửi mail");
+        header.getCell((short)0).setCellValue("Mã trạm");
+        header.getCell((short)1).setCellValue("Tên trạm");
+        header.getCell((short)2).setCellValue("Mã loại cảnh báo");
+        header.getCell((short)3).setCellValue("Tên loại cảnh báo");
+        header.getCell((short)4).setCellValue("Nhóm nhận cảnh báo");
+        header.getCell((short)5).setCellValue("Tiêu đề mail");
+        header.getCell((short)6).setCellValue("Thời gian gửi mail");
         //end create header
 //create content
         noficationHistoryList.forEach(logMail -> {
@@ -385,98 +370,17 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             cell6.setCellValue(logMail.getPushTimestampStr());
 
         });
-        sheet.autoSizeColumn((short) 0);
-        sheet.autoSizeColumn((short) 1);
-        sheet.autoSizeColumn((short) 2);
-        sheet.autoSizeColumn((short) 3);
-        sheet.autoSizeColumn((short) 4);
-        sheet.autoSizeColumn((short) 5);
-        sheet.autoSizeColumn((short) 6);
+        sheet.autoSizeColumn((short)0);
+        sheet.autoSizeColumn((short)1);
+        sheet.autoSizeColumn((short)2);
+        sheet.autoSizeColumn((short)3);
+        sheet.autoSizeColumn((short)4);
+        sheet.autoSizeColumn((short)5);
+        sheet.autoSizeColumn((short)6);
 
         return workbook;
     }
 
-    @Override
-    public DefaultResponseDTO sendEmail(List<Long> groupEmailid, Long warningStationId) throws MessagingException, SQLException {
-        MimeMessage message = createMailMessage(groupEmailid, warningStationId);
-        System.out.println("sending...");
-        Transport.send(message);
-        System.out.println("Sent message successfully....");
-        return null;
-    }
-
-    private MimeMessage createMailMessage(List<Long> groupEmailid, Long warningStationId) throws MessagingException {
-        String bccRecipient = getBccEmail(groupEmailid);
-        EmailBuilder mail = createMail(warningStationId);
-        Session session = createSession(mail);
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mail.getMailFrom()));
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(mail.getMailFrom()));
-        if (!bccRecipient.isEmpty())
-            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipient));
-        Multipart multipart = new MimeMultipart();
-        MimeBodyPart textPart = new MimeBodyPart();
-        textPart.setContent(mail.getContent(), "text/html; charset=utf-8");
-        multipart.addBodyPart(textPart);
-        message.setSubject(mail.getSubject(), "UTF-8");
-        message.setContent(multipart);
-
-        return message;
-    }
-
-    private EmailBuilder createMail(Long warningStationId) {
-        EmailBuilder mail = mailConfigDAO.getEmailConfig();
-        WarningManagerStation warningManagerStation = mailConfigDAO.getMailContent(warningStationId);
-        mail.setSubject(warningManagerStation.getDescription());
-        mail.setContent(warningManagerStation.getContent());
-        configEmailHtml(mail);
-        return mail;
-    }
-
-    private void configEmailHtml(EmailBuilder emailBuilder) {
-        Properties properties = new Properties();
-        properties.setProperty("input.encoding", "UTF-8");
-        properties.setProperty("output.encoding", "UTF-8");
-        properties.setProperty("resource.loader", "file, class, jar");
-        properties.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        VelocityContext velocityContext = new VelocityContext();
-        velocityContext.put("subject", emailBuilder.getSubject());
-        velocityContext.put("content", emailBuilder.getContent());
-        VelocityEngine velocityEngine = new VelocityEngine(properties);
-
-        Template templateEngine = velocityEngine.getTemplate(EmailBuilder.TEMPLATE);
-        StringWriter stringWriter = new StringWriter();
-        templateEngine.merge(velocityContext, stringWriter);
-        emailBuilder.setContent(stringWriter.toString());
-    }
-
-    private Session createSession(EmailBuilder mailConfig) {
-        Properties properties = System.getProperties();
-        // Setup mail server
-        properties.put("mail.smtp.host", mailConfig.getIp());
-        properties.put("mail.smtp.port", mailConfig.getPort());
-        properties.put("mail.smtp.**ssl.enable", true);
-        properties.put("mail.smtp.auth", true);
-        // Get the Session object.// and pass
-        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailConfig.getUsername(), mailConfig.getPassword());
-            }
-        });
-        session.setDebug(true);
-        return session;
-    }
-
-    private String getBccEmail(List<Long> groupEmailid) {
-        List<String> mailRiecieve = mailConfigDAO.getGroupRieveMail(groupEmailid);
-        String bccRecipient = "";
-        int size = mailRiecieve.size();
-        for (int i = 0; i < size; i++) {
-            bccRecipient += mailRiecieve.get(i);
-            if (i < size - 1) bccRecipient += ",";
-        }
-        return bccRecipient;
-    }
 
 }
 

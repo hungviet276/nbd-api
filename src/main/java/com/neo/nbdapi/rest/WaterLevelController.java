@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
@@ -38,8 +39,12 @@ public class WaterLevelController {
         return waterLevelService.executeWaterLevel(waterLevelExecutedVM);
     }
     @GetMapping("/file-out-put-info")
-    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo(){
+    public List<FileWaterLevelInfo> getInfoFileWaterLevelInfo() throws IOException {
         return waterLevelService.getInfoFileWaterLevelInfo();
+    }
+    @GetMapping("/file-guess-info")
+    public List<FileWaterLevelInfo> getInfoFileWaterGuess() throws IOException {
+        return waterLevelService.getInfoFileGuess();
     }
 
 }

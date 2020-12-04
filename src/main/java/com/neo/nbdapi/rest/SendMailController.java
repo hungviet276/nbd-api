@@ -39,7 +39,7 @@ public class SendMailController {
             @RequestParam("warningStationId") Long warningStationId
             , @RequestBody List<Long> groupEmailid
     ) throws MessagingException, SQLException {
-        return sendMailHistoryService.sendEmail(groupEmailid, warningStationId);
+        return null;
     }
 
     @PostMapping("/get_list_outputs")

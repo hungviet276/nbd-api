@@ -1,5 +1,6 @@
 package com.neo.nbdapi.dao;
 
+import com.neo.nbdapi.dto.StationTimeSeriesDTO;
 import com.neo.nbdapi.entity.ObjectValue;
 import com.neo.nbdapi.entity.StationTimeSeries;
 
@@ -16,4 +17,8 @@ public interface StationTimeSeriesDAO {
     List<ObjectValue> getStorageData(String storage, Integer tsId, String type, String startDate, String endDate) throws SQLException;
 
     List<StationTimeSeries> findByStationIdAndListParameterTypeId(String stationId, String listParameterTypeId) throws SQLException;
+
+    List<StationTimeSeries> findByStationId(String stationId);
+
+    List<StationTimeSeriesDTO> getValueOfStationTimeSeries(StationTimeSeriesDTO seriesDTO);
 }

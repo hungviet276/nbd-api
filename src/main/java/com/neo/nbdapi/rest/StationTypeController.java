@@ -1048,4 +1048,23 @@ public class StationTypeController {
         DefaultResponseDTO defaultResponseDTO = stationManagementService.saveOrUpdateManualParameterPLSQL(params, false);
         return defaultResponseDTO;
     }
+
+    @PostMapping("/delete-manual-parameter")
+    public DefaultResponseDTO deleteManualParameter(@RequestParam(name = "prodIds") String prodIds, @RequestParam(name = "table") String table) throws SQLException, JsonProcessingException {
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "delete from %s where ID in (%s) ";
+        sql = String.format(sql,table,prodIds);
+        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
+            //statement.setString(1, prodIds);
+            statement.execute();
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage("Xóa thành công");
+            return defaultResponseDTO;
+        } catch (Exception e) {
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
+            return defaultResponseDTO;
+        }
+    }
 }

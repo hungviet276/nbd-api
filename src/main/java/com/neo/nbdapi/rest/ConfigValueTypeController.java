@@ -33,7 +33,7 @@ public class ConfigValueTypeController {
 
     @PostMapping("/get-list-config-value-type")
     public DefaultPaginationDTO getListMailConfigPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        return configValueTypeService.getListConfigValueType(defaultRequestPagingVM);
+         return configValueTypeService.getListConfigValueType(defaultRequestPagingVM);
     }
 
     @PostMapping("/get-list-station")
