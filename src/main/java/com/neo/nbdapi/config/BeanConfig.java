@@ -27,10 +27,20 @@ public class BeanConfig {
         PropertiesConfiguration prop = new PropertiesConfiguration();
         prop.setDelimiterParsingDisabled(true);
         prop.setEncoding("UTF8");
-        prop.setPath("application_config.properties");
+        prop.setPath("station_quick_report_config.properties");
         prop.load();
         prop.setReloadingStrategy(new FileChangedReloadingStrategy());
+        return prop;
+    }
 
+    @Bean("configCdh")
+    public PropertiesConfiguration initBeanConfigCdh() throws ConfigurationException {
+        PropertiesConfiguration prop = new PropertiesConfiguration();
+        prop.setDelimiterParsingDisabled(true);
+        prop.setEncoding("UTF8");
+        prop.setPath("cdh-config.properties");
+        prop.load();
+        prop.setReloadingStrategy(new FileChangedReloadingStrategy());
         return prop;
     }
 }

@@ -1,6 +1,7 @@
 package com.neo.nbdapi.dao;
 
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.GuessDataDTO;
 import com.neo.nbdapi.entity.WaterLevel;
 import com.neo.nbdapi.entity.WaterLevelExecute;
 import com.neo.nbdapi.exception.BusinessException;
@@ -20,5 +21,5 @@ public interface WaterLevelDAO {
 
  List<WaterLevelExecute> executeWaterLevel(WaterLevelExecutedVM waterLevelExecutedVM) throws SQLException;
 
- List<Object> getInfoEdit(Long id) throws  SQLException;
+ DefaultResponseDTO insertTidalPrediction(List<GuessDataDTO> GuessDataDTO, String staionId) throws SQLException;
 }

@@ -6,7 +6,6 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
 import com.neo.nbdapi.entity.ADCP;
-import com.neo.nbdapi.entity.Station;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.StationManagementService;
@@ -54,7 +53,7 @@ public class ADCPController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/get-list-adcp-pagination")
-    public DefaultPaginationDTO getListStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getListADCPPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 
         logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
         try (Connection connection = ds.getConnection()) {
@@ -62,8 +61,8 @@ public class ADCPController {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("select a.*,b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from adcp a, stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r\n" +
-                    "where a.STATION_ID = b.STATION_ID(+) and b.river_id = r.river_id(+) and b.STATION_ID = c.STATION_ID(+) and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID(+) ");
+            StringBuilder sql = new StringBuilder("select a.*,liss.TOTAL_TURB,liss.SUSPENDED_MATERIAL, b.station_code, b.STATION_NAME, r.RIVER_ID, r.RIVER_NAME, d.OBJECT_TYPE, d.OBJECT_TYPE_SHORTNAME from adcp a, liss , stations b, stations_object_type c, OBJECT_TYPE d , RIVERS r \n" +
+                    "where a.STATION_ID = liss.STATION_ID(+) and a.WATER_FLOW = liss.WATER_FLOW(+) and a.STATION_ID = b.STATION_ID and b.river_id = r.river_id and a.STATION_ID = c.STATION_ID and c.OBJECT_TYPE_ID = d.OBJECT_TYPE_ID ");
             List<Object> paramSearch = new ArrayList<>();
             if (Strings.isNotEmpty(search)) {
                 try {
@@ -119,9 +118,9 @@ public class ADCPController {
                         .timeStart(rs.getDate("TIME_START"))
                         .timeEnd(rs.getDate("TIME_END"))
                         .timeAvg(rs.getDate("TIME_AVG"))
-                        .waterLevelStart(rs.getLong("WATER_LEVEL_START"))
-                        .waterLevelEnd(rs.getLong("WATER_LEVEL_END"))
-                        .waterLevelAvg(rs.getLong("WATER_LEVEL_AVG"))
+                        .waterLevelStart(rs.getFloat("WATER_LEVEL_START"))
+                        .waterLevelEnd(rs.getFloat("WATER_LEVEL_END"))
+                        .waterLevelAvg(rs.getFloat("WATER_LEVEL_AVG"))
                         .speedAvg(rs.getFloat("SPEED_AVG"))
                         .speedMax(rs.getFloat("SPEED_MAX"))
                         .deepAvg(rs.getFloat("DEEP_AVG"))
@@ -132,6 +131,8 @@ public class ADCPController {
                         .note(rs.getString("NOTE"))
                         .linkFile(rs.getString("LINK_FILE"))
                         .createdAt(rs.getDate("CREATED_AT"))
+                        .totalTurb(rs.getFloat("TOTAL_TURB"))
+                        .suspendedMaterial(rs.getFloat("SUSPENDED_MATERIAL"))
                         .build();
                 list.add(bo);
             }
@@ -175,10 +176,17 @@ public class ADCPController {
 
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql1 = "select decode(max(MEASURE_NTH),null,0,max(MEASURE_NTH)) from adcp where station_id = ?";
         String sql = "insert into adcp(ID,STATION_ID,TIME_START,TIME_END,TIME_AVG,WATER_LEVEL_START,WATER_LEVEL_END," +
-                "WATER_LEVEL_AVG,SPEED_AVG,SPEED_MAX,DEEP_AVG,DEEP_MAX,SQUARE_RIVER,WIDTH_RIVER,WATER_FLOW,NOTE,CREATED_AT,CREATED_BY,LINK_FILE)\n" +
-                "values(adcp_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,?,?,?,?,?,?,?,?,sysdate,?,?)";
-        try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
+                "WATER_LEVEL_AVG,SPEED_AVG,SPEED_MAX,DEEP_AVG,DEEP_MAX,SQUARE_RIVER,WIDTH_RIVER,WATER_FLOW,NOTE,CREATED_AT,CREATED_BY,LINK_FILE,MEASURE_NTH)\n" +
+                "values(adcp_seq.nextval,?,to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),to_date(?,'dd/MM/yyyy HH24:MI'),?,?,?,?,?,?,?,?,?,?,?,sysdate,?,?,?)";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement st = connection.prepareStatement(sql1);
+             PreparedStatement statement = connection.prepareStatement(sql);) {
+            st.setString(1, params.get("stationId"));
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            Integer num = rs.getInt(1);
             int i = 1;
             statement.setString(i++, params.get("stationId"));
             statement.setString(i++, params.get("timeStart"));
@@ -204,12 +212,14 @@ public class ADCPController {
             }else{
                 statement.setString(i++, null);
             }
+            statement.setString(i++, String.valueOf(num + 1));
             statement.execute();
 
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage("Thêm mới thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Thêm mới thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -243,7 +253,7 @@ public class ADCPController {
         //luu cac thong tin con lai vao bang
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "update adcp set TIME_START = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_END = to_date(?,'DD/MM/YYYY HH24:MI'),TIME_AVG = to_date(?,'DD/MM/YYYY HH24:MI'),WATER_LEVEL_START = ?,WATER_LEVEL_END = ?," +
-                "WATER_LEVEL_AVG = ?,SPEED_AVG = ?,SPEED_MAX = ?,DEEP_AVG = ?,DEEP_MAX = ?,SQUARE_RIVER = ?,WIDTH_RIVER = ?,WATER_FLOW = ?,NOTE = ?,CREATED_BY = ?,LINK_FILE = ?\n" +
+                "WATER_LEVEL_AVG = ?,SPEED_AVG = ?,SPEED_MAX = ?,DEEP_AVG = ?,DEEP_MAX = ?,SQUARE_RIVER = ?,WIDTH_RIVER = ?,WATER_FLOW = ?,NOTE = ?,UPDATED_BY = ?, UPDATED_AT = sysdate,LINK_FILE = ?\n" +
                 "where id =?";
         try (Connection connection = ds.getConnection(); PreparedStatement statement = connection.prepareStatement(sql);) {
             int i = 1;
@@ -269,7 +279,11 @@ public class ADCPController {
             if(linkFile != null) {
                 statement.setString(i++, linkFile);
             }else{
-                statement.setString(i++, null);
+                if(params.get("linkFileName") != null){
+                    statement.setString(i++, params.get("linkFileName"));
+                }else {
+                    statement.setString(i++, null);
+                }
             }
             statement.setString(i++, params.get("id"));
             statement.execute();
@@ -278,6 +292,7 @@ public class ADCPController {
             defaultResponseDTO.setMessage("Cập nhật thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Cập nhật thất bại: " + e.getMessage());
             return defaultResponseDTO;
@@ -298,6 +313,7 @@ public class ADCPController {
             defaultResponseDTO.setMessage("Xóa thành công");
             return defaultResponseDTO;
         } catch (Exception e) {
+            log.error(e.getMessage());
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;

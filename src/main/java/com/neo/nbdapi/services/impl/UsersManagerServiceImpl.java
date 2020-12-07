@@ -5,6 +5,7 @@ import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
 import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.entity.CasbinRule;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.MailConfig;
 import com.neo.nbdapi.entity.UserInfo;
@@ -20,6 +21,7 @@ import oracle.jdbc.OracleTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
+import org.casbin.jcasbin.main.Enforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +52,9 @@ public class UsersManagerServiceImpl implements UsersManagerService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private Enforcer enforcer;
+
     @Override
     public DefaultPaginationDTO getListUsersPagination(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
             logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
@@ -60,8 +65,8 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                 String search = defaultRequestPagingVM.getSearch();
 
 //                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete FROM user_info u join group_user_info g on u.office_code = g.id ) where is_delete = 0")select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete FROM user_info u join group_user_info g on u.office_code = g.id ) where is_delete = 0");
-                StringBuilder sql = new StringBuilder("select * from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete");
-                sql.append(" FROM user_info u left join group_detail gd on u.id = gd.user_info_id left join group_user_info g on gd.group_id = g.id ) where is_delete = 0");
+                StringBuilder sql = new StringBuilder("select id,password,name,mobile,position,email,gender,genders,status,createdDate,check_role,card_number,code,office_code,date_role,created_by,status_id,created_date,is_delete,LISTAGG(group_name, ', ') WITHIN GROUP (ORDER BY group_name) group_names from( SELECT u.id,u.password,u.name,u.mobile,u.position,u.email,u.gender,case when u.gender = 1 then 'Nam' else 'Nữ' end genders ,case when u.status_id = 1 then 'Hoạt động' else 'Không hoạt động' end status,TO_CHAR(u.created_date,'dd/mm/yyyy') createdDate,u.check_role,u.card_number,u.code,u.office_code,u.date_role,u.created_by,u.status_id,u.created_date,g.name group_name,u.is_delete");
+                sql.append(" FROM user_info u left join group_detail gd on u.id = gd.user_info_id left join group_user_info g on gd.group_id = g.id ) where is_delete = 0 ");
                 List<Object> paramSearch = new ArrayList<>();
                 logger.debug("Object search: {}", search);
                 if (Strings.isNotEmpty(search)) {
@@ -119,7 +124,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             sql.append(" and created_date <= TO_DATE (?, 'dd/mm/yyyy')");
                             paramSearch.add(objectSearch.getToDate());
                         }
-                        sql.append(" order by created_date desc");
+                        sql.append(" GROUP BY id,password,name,mobile,position,email,gender,genders,status,createdDate,check_role,card_number,code,office_code,date_role,created_by,status_id,created_date,is_delete order by created_date desc");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -141,7 +146,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
                             .statusId(resultSetListData.getInt("status_id"))
                             .checkRole(resultSetListData.getInt("check_role"))
                             .code(resultSetListData.getString("code"))
-                            .officeCode(resultSetListData.getString("group_name"))
+                            .officeCode(resultSetListData.getString("group_names"))
                             .createdDates(resultSetListData.getString("createdDate"))
                             .createdDate(resultSetListData.getDate("created_date"))
                             .cardNumbers(resultSetListData.getString("card_number"))
@@ -463,11 +468,7 @@ public class UsersManagerServiceImpl implements UsersManagerService {
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             ResultSet rs = st.executeQuery();
             List<ComboBox> list = new ArrayList<>();
-            ComboBox stationType = ComboBox.builder()
-                    .id(-1L)
-                    .text("Lựa chọn")
-                    .build();
-            list.add(stationType);
+            ComboBox stationType;
             while (rs.next()) {
                 stationType = ComboBox.builder()
                         .id(rs.getLong("ID"))
@@ -483,115 +484,141 @@ public class UsersManagerServiceImpl implements UsersManagerService {
     @Override
     public String createUser(UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
         String proc = "begin ?:= users_manage.new_user_info(?,?,?,?,?,?,?,?,?,?,?,?,?) ;end;";
-        long startTime = System.nanoTime();
-        List<Map<String, String>> list = new ArrayList<>();
-        Connection conn = null;
-        CallableStatement ps = null;
+        String casbinSql = "select DISTINCT mad.URL_API,mad.ptype,trim(?) username,mad.method from\n" +
+                " user_menu_act_pro utp,menu_act_detail mad where utp.menu_id = mad.menu_id\n" +
+                " and utp.act = mad.act and thread_id = ?";
+        if(usersManagerVM.getCheck_roke() == 1){
+            casbinSql = "select ptype,trim(?) username,method,url_api from (select DISTINCT a.menu_id,a.act,mad.ptype,mad.url_api,mad.METHOD from \n" +
+                    "        (select  mac.menu_id,mac.act from permission_group_temp u,menu_access_act mac\n" +
+                    "        where u.role_id = mac.role_id and u.thread_id = ? ) a,menu_act_detail mad where a.menu_id = mad.menu_id and a.act = mad.act)";
+        }
         ResultSet rs = null;
-        try {
-            conn = ds.getConnection();
+        List<CasbinRule> casbinRules = new ArrayList<>();
+        try(Connection conn = ds.getConnection();
+            CallableStatement cs = conn.prepareCall(proc);
+            PreparedStatement st = conn.prepareStatement(casbinSql);) {
             Long valueId = new Date().getTime();
-            ps = conn.prepareCall(proc);
-            ps.registerOutParameter(1, OracleTypes.VARCHAR);
-            ps.setString(2, usersManagerVM.getId());
-            ps.setString(3, passwordEncoder.encode(usersManagerVM.getPassword()));
-            ps.setString(4, usersManagerVM.getName());
-            ps.setString(5, usersManagerVM.getMobile());
-            ps.setString(6, usersManagerVM.getEmail());
-            ps.setInt(7, usersManagerVM.getGender());
-            ps.setInt(8, usersManagerVM.getStatus_id());
-            ps.setInt(9, usersManagerVM.getCheck_roke());
-            ps.setString(10, usersManagerVM.getCard_number());
-            ps.setInt(11, usersManagerVM.getGroup_user_id());
-            ps.setString(12, usersManagerVM.getCheck_download_time());
-            ps.setString(13, usersManagerVM.getThread_id());
-            ps.setString(14, usersManagerVM.getUser_login());
-            ps.execute();
-            String result = ps.getString(1);
+            int i = 1;
+            cs.registerOutParameter(i++, OracleTypes.VARCHAR);
+            cs.setString(i++, usersManagerVM.getId());
+            cs.setString(i++, passwordEncoder.encode(usersManagerVM.getPassword()));
+            cs.setString(i++, usersManagerVM.getName());
+            cs.setString(i++, usersManagerVM.getMobile());
+            cs.setString(i++, usersManagerVM.getEmail());
+            cs.setInt(i++, usersManagerVM.getGender());
+            cs.setInt(i++, usersManagerVM.getStatus_id());
+            cs.setInt(i++, usersManagerVM.getCheck_roke());
+            cs.setString(i++, usersManagerVM.getCard_number());
+            cs.setInt(i++, usersManagerVM.getGroup_user_id());
+            cs.setString(i++, usersManagerVM.getCheck_download_time());
+            cs.setString(i++, usersManagerVM.getThread_id());
+            cs.setString(i++, usersManagerVM.getUser_login());
+            cs.execute();
+            String result = cs.getString(1);
+
+            if("true".equals(result)){
+                //cap nhat vao casbin rule
+                st.setString(1,usersManagerVM.getId());
+                st.setString(2,usersManagerVM.getThread_id());
+                rs = st.executeQuery();
+                while (rs.next()){
+                    CasbinRule bo = CasbinRule.builder()
+                            .pType(rs.getString("PTYPE"))
+                            .v0(rs.getString("username"))
+                            .v1(rs.getString("URL_API"))
+                            .v2(rs.getString("method"))
+                            .v3(null)
+                            .v4(null)
+                            .v5(null)
+                            .build();
+                    casbinRules.add(bo);
+                }
+                boolean isSuccess = false;
+                for (CasbinRule casbinRule : casbinRules) {
+                    isSuccess = enforcer.addPolicy(casbinRule.getV0(), casbinRule.getV1(), casbinRule.getV2());
+                    if (isSuccess) enforcer.savePolicy();
+                }
+                rs.close();
+                logger.info("add casbin : " + isSuccess);
+            }
+
             return result;
         } catch (Exception e) {
             logger.info("exception {} ExtendDao get list Customer_reg", e);
             return "false";
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.error("resultSet.close Exception : {}", e);
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    logger.error("preparedStatement.close Exception : {}", e);
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    logger.error("connection.close Exception : {}", e);
-                }
-            }
         }
     }
 
     @Override
     public String editUsers(UsersManagerVM usersManagerVM) throws SQLException, BusinessException {
         String proc = "begin ?:= users_manage.edit_user_info(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ;end;";
-        long startTime = System.nanoTime();
-        List<Map<String, String>> list = new ArrayList<>();
-        Connection conn = null;
-        CallableStatement ps = null;
+        String casbinDelete ="delete casbin_rule where v0 =  trim(?)";
+        String casbinSql = "select DISTINCT mad.URL_API,mad.ptype,trim(?) username,mad.method from" +
+                " user_menu_act_pro utp,menu_act_detail mad where utp.menu_id = mad.menu_id" +
+                " and utp.act = mad.act and thread_id = ? ";
+        if(usersManagerVM.getCheck_roke() == 1){
+            casbinSql = "select ptype,trim(?) username,method,url_api from (select DISTINCT a.menu_id,a.act,mad.ptype,mad.url_api,mad.METHOD from " +
+                    "   (select  mac.menu_id,mac.act from permission_group_temp u,menu_access_act mac" +
+                    "   where u.role_id = mac.role_id and u.thread_id = ? ) a,menu_act_detail mad where a.menu_id = mad.menu_id and a.act = mad.act)";
+        }
         ResultSet rs = null;
-        try {
-            conn = ds.getConnection();
+        List<CasbinRule> casbinRules = new ArrayList<>();
+        try(Connection conn = ds.getConnection();
+            CallableStatement cs = conn.prepareCall(proc);
+            PreparedStatement st1 = conn.prepareStatement(casbinDelete);
+            PreparedStatement st = conn.prepareStatement(casbinSql);) {
             Long valueId = new Date().getTime();
-            ps = conn.prepareCall(proc);
-            ps.registerOutParameter(1, OracleTypes.VARCHAR);
-            ps.setString(2, usersManagerVM.getId());
-            ps.setString(3, passwordEncoder.encode(usersManagerVM.getPassword()));
-            ps.setString(4, usersManagerVM.getName());
-            ps.setString(5, usersManagerVM.getMobile());
-            ps.setString(6, usersManagerVM.getEmail());
-            ps.setInt(7, usersManagerVM.getGender());
-            ps.setInt(8, usersManagerVM.getStatus_id());
-            ps.setInt(9, usersManagerVM.getCheck_roke());
-            ps.setString(10, usersManagerVM.getCard_number());
-            ps.setInt(11, usersManagerVM.getGroup_user_id());
-            ps.setString(12, usersManagerVM.getCheck_download_time());
-            ps.setString(13, usersManagerVM.getThread_id());
-            ps.setString(14, usersManagerVM.getUser_login());
-            ps.setString(15, usersManagerVM.getCheck_edit_pass());
-            ps.execute();
-            String result = ps.getString(1);
+            int i = 1;
+            cs.registerOutParameter(i++, OracleTypes.VARCHAR);
+            cs.setString(i++, usersManagerVM.getId());
+            cs.setString(i++, passwordEncoder.encode(usersManagerVM.getPassword()));
+            cs.setString(i++, usersManagerVM.getName());
+            cs.setString(i++, usersManagerVM.getMobile());
+            cs.setString(i++, usersManagerVM.getEmail());
+            cs.setInt(i++, usersManagerVM.getGender());
+            cs.setInt(i++, usersManagerVM.getStatus_id());
+            cs.setInt(i++, usersManagerVM.getCheck_roke());
+            cs.setString(i++, usersManagerVM.getCard_number());
+            cs.setInt(i++, usersManagerVM.getGroup_user_id());
+            cs.setString(i++, usersManagerVM.getCheck_download_time());
+            cs.setString(i++, usersManagerVM.getThread_id());
+            cs.setString(i++, usersManagerVM.getUser_login());
+            cs.setString(i++, usersManagerVM.getCheck_edit_pass());
+            cs.execute();
+            String result = cs.getString(1);
+
+            if("true".equals(result)){
+                st1.setString(1,usersManagerVM.getId());
+                st1.execute();
+                //cap nhat vao casbin rule
+                st.setString(1,usersManagerVM.getId());
+                st.setString(2,usersManagerVM.getThread_id());
+                rs = st.executeQuery();
+                while (rs.next()){
+                    CasbinRule bo = CasbinRule.builder()
+                            .pType(rs.getString("PTYPE"))
+                            .v0(rs.getString("username"))
+                            .v1(rs.getString("URL_API"))
+                            .v2(rs.getString("method"))
+                            .v3(null)
+                            .v4(null)
+                            .v5(null)
+                            .build();
+                    casbinRules.add(bo);
+                }
+                boolean isSuccess = false;
+                for (CasbinRule casbinRule : casbinRules) {
+                    isSuccess = enforcer.addPolicy(casbinRule.getV0(), casbinRule.getV1(), casbinRule.getV2());
+                    if (isSuccess) enforcer.savePolicy();
+                }
+                rs.close();
+                logger.info("add casbin : " + isSuccess);
+            }
+
             return result;
         } catch (Exception e) {
             logger.info("exception {} ExtendDao get list Customer_reg", e);
             return "false";
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    logger.error("resultSet.close Exception : {}", e);
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    logger.error("preparedStatement.close Exception : {}", e);
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    logger.error("connection.close Exception : {}", e);
-                }
-            }
         }
     }
 

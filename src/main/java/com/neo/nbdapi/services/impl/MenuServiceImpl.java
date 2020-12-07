@@ -95,10 +95,16 @@ public class MenuServiceImpl implements MenuService {
                         sql.append(" AND menu_level = ? ");
                         paramSearch.add(objectSearch.getMenuLevel());
                     }
+                    if (Strings.isNotEmpty(objectSearch.getPublish())) {
+                        sql.append(" AND publish = ?");
+                        paramSearch.add(objectSearch.getPublish());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
+            sql.append(" ORDER BY created_date DESC, display_order DESC");
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
             // get result query by paging
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);

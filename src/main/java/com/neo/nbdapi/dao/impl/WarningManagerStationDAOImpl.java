@@ -1,16 +1,15 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.WarningManagerStationDAO;
-import com.neo.nbdapi.dto.DefaultResponseDTO;
-import com.neo.nbdapi.dto.WarningManagerDetailDTO;
-import com.neo.nbdapi.dto.WarningManagerStationDTO;
-import com.neo.nbdapi.dto.WarningMangerDetailInfoDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
+import com.neo.nbdapi.rest.vm.WarningStationHistoryVM;
+import com.neo.nbdapi.utils.DateUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,23 +31,23 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             String sql = "select DISTINCT pt.parameter_type_id, pt.parameter_type_code, pt.parameter_type_name from warning_threshold_value wv inner join parameter_type pt on pt.parameter_type_id = wv.parameter_type_id where wv.station_id = ?";
-            if(selectVM.getTerm()!=null){
-                sql+="  and (pt.parameter_type_code like ? or pt.parameter_type_name like ?) ";
+            if (selectVM.getTerm() != null) {
+                sql += "  and (pt.parameter_type_code like ? or pt.parameter_type_name like ?) ";
             }
             PreparedStatement statement = connection.prepareStatement(sql);
-            if(selectVM.getId()==null){
+            if (selectVM.getId() == null) {
                 return comboBoxes;
             }
             statement.setString(1, selectVM.getId());
-            if(selectVM.getTerm()!=null){
-                statement.setString(2, "%"+selectVM.getTerm()+"%");
-                statement.setString(3, "%"+selectVM.getTerm()+"%");
+            if (selectVM.getTerm() != null) {
+                statement.setString(2, "%" + selectVM.getTerm() + "%");
+                statement.setString(3, "%" + selectVM.getTerm() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             ComboBox comboBox = null;
             while (resultSet.next()) {
                 comboBox = ComboBox.builder().id(resultSet.getLong("parameter_type_id"))
-                        .text(resultSet.getString("parameter_type_code")+"-"+resultSet.getString("parameter_type_name")).build();
+                        .text(resultSet.getString("parameter_type_code") + "-" + resultSet.getString("parameter_type_name")).build();
                 comboBoxes.add(comboBox);
             }
             return comboBoxes;
@@ -60,16 +59,16 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
             String sql = "select wt.id, wt.code from warning_threshold wt inner join warning_threshold_value wv on wt.warning_threshold_value_id = wv.id where wv.parameter_type_id = ?";
-            if(selectVM.getTerm()!=null){
-                sql+="  and wt.code like ? ";
+            if (selectVM.getTerm() != null) {
+                sql += "  and wt.code like ? ";
             }
             PreparedStatement statement = connection.prepareStatement(sql);
-            if(selectVM.getId()==null){
+            if (selectVM.getId() == null) {
                 return comboBoxes;
             }
             statement.setLong(1, selectVM.getId());
-            if(selectVM.getTerm()!=null){
-                statement.setString(2, "%"+selectVM.getTerm()+"%");
+            if (selectVM.getTerm() != null) {
+                statement.setString(2, "%" + selectVM.getTerm() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             ComboBox comboBox = null;
@@ -105,12 +104,12 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         String sqlCreateWarningManageStation = "insert into warning_manage_stations(id, code, name, description, content, color, icon, station_id, created_by, created_at) values (WARNING_MANAGER_STATION_SEQ.nextval,?,?,?,?,?,?,?,?,sysdate)";
         String sqlCreateWarningManagerDetail = "insert into warning_manage_detail(id, warning_manage_station_id, warning_threshold_id, created_by, created_at) values (WARNING_MANAGER_DETAIL_SEQ.nextval, WARNING_MANAGER_STATION_SEQ.CURRVAL,?,?,sysdate)";
 
-        logger.info("WarningManagerStationDAOImpl sql : {}",sqlCreateWarningManageStation);
+        logger.info("WarningManagerStationDAOImpl sql : {}", sqlCreateWarningManageStation);
 
-        logger.info("WarningManagerStationDAOImpl sql : {}",sqlCreateWarningManagerDetail);
+        logger.info("WarningManagerStationDAOImpl sql : {}", sqlCreateWarningManagerDetail);
 
         Connection connection = ds.getConnection();
-        try{
+        try {
             connection.setAutoCommit(false);
             PreparedStatement stmCreateWarningManageStation = connection.prepareStatement(sqlCreateWarningManageStation);
             PreparedStatement stmCreateWarningManagerDetail = connection.prepareStatement(sqlCreateWarningManagerDetail);
@@ -129,7 +128,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             // insert stmCreateWarningManagerDetail
             List<WarningManagerDetailDTO> dataWarning = warningManagerStationDTO.getDataWarning();
 
-            for (WarningManagerDetailDTO obj: dataWarning) {
+            for (WarningManagerDetailDTO obj : dataWarning) {
                 stmCreateWarningManagerDetail.setLong(1, obj.getWarningThresholdId());
                 stmCreateWarningManagerDetail.setString(2, obj.getCreateBy());
                 stmCreateWarningManagerDetail.addBatch();
@@ -141,12 +140,12 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
             stmCreateWarningManageStation.close();
             stmCreateWarningManagerDetail.close();
-        } catch (Exception e){
-            logger.info("WarningManagerStationDAOImpl Exception : {}",e.getMessage());
-            if(e instanceof SQLIntegrityConstraintViolationException){
+        } catch (Exception e) {
+            logger.info("WarningManagerStationDAOImpl Exception : {}", e.getMessage());
+            if (e instanceof SQLIntegrityConstraintViolationException) {
                 return DefaultResponseDTO.builder().status(0).message("Mã cảnh báo đã tồn tại").build();
             }
-             return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
+            return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
         } finally {
             connection.close();
         }
@@ -161,10 +160,10 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setLong(1, WarningManageStationId);
             ResultSet resultSet = statement.executeQuery();
-            List<WarningMangerDetailInfoDTO>  warningMangerDetailInfoDTOs =  new ArrayList<>();
+            List<WarningMangerDetailInfoDTO> warningMangerDetailInfoDTOs = new ArrayList<>();
             while (resultSet.next()) {
                 WarningMangerDetailInfoDTO warningMangerDetailInfoDTO = WarningMangerDetailInfoDTO.builder()
-                       .id(resultSet.getLong("id"))
+                        .id(resultSet.getLong("id"))
                         .idParameter(resultSet.getLong("parameter_type_id"))
                         .idWarningThreshold(resultSet.getLong("warning_threshold_id"))
                         .nameParameter(resultSet.getString("parameter_type_name"))
@@ -182,20 +181,20 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     }
 
     @Override
-    public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO, List<WarningManagerDetailDTO> deletes,  List<WarningManagerDetailDTO> creates) throws SQLException {
+    public DefaultResponseDTO editWarningManagerStation(WarningManagerStationDTO warningManagerStationDTO, List<WarningManagerDetailDTO> deletes, List<WarningManagerDetailDTO> creates) throws SQLException {
         String sqlUpdate = "update warning_manage_stations set code = ?, name = ?, description = ? , content = ? , color = ? , icon = ? where id = ?";
         String sqlDelete = "delete from warning_manage_detail where id = ?";
         String sqlCreate = "insert into warning_manage_detail(id, warning_manage_station_id, warning_threshold_id, created_by, created_at) values (WARNING_MANAGER_DETAIL_SEQ.nextval,?,?,?,sysdate)";
 
-        logger.info("WarningManagerStationDAOImpl sql : {}",sqlUpdate);
+        logger.info("WarningManagerStationDAOImpl sql : {}", sqlUpdate);
 
-        logger.info("WarningManagerStationDAOImpl sql : {}",sqlDelete);
+        logger.info("WarningManagerStationDAOImpl sql : {}", sqlDelete);
 
-        logger.info("WarningManagerStationDAOImpl sql : {}",sqlCreate);
+        logger.info("WarningManagerStationDAOImpl sql : {}", sqlCreate);
 
         Connection connection = ds.getConnection();
 
-        try{
+        try {
             connection.setAutoCommit(false);
             PreparedStatement stmUpdate = connection.prepareStatement(sqlUpdate);
             PreparedStatement stmDelete = connection.prepareStatement(sqlDelete);
@@ -213,7 +212,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
             // thực hiện thêm mới
 
-            for (WarningManagerDetailDTO obj: creates) {
+            for (WarningManagerDetailDTO obj : creates) {
                 stmCreate.setLong(1, warningManagerStationDTO.getId());
                 stmCreate.setLong(2, obj.getWarningThresholdId());
                 stmCreate.setString(3, obj.getCreateBy());
@@ -223,7 +222,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmCreate.executeBatch();
             // thực hiện xóa
 
-            for (WarningManagerDetailDTO obj: deletes) {
+            for (WarningManagerDetailDTO obj : deletes) {
                 stmDelete.setLong(1, obj.getId());
                 stmDelete.addBatch();
 
@@ -231,16 +230,16 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmDelete.executeBatch();
             connection.commit();
 
-             stmUpdate.close();
-             stmDelete.close();
-             stmCreate.close();
+            stmUpdate.close();
+            stmDelete.close();
+            stmCreate.close();
 
-        } catch (Exception e){
-            logger.info("WarningManagerStationDAOImpl Exception : {}",e.getMessage());
-            if(e instanceof SQLIntegrityConstraintViolationException){
+        } catch (Exception e) {
+            logger.info("WarningManagerStationDAOImpl Exception : {}", e.getMessage());
+            if (e instanceof SQLIntegrityConstraintViolationException) {
                 return DefaultResponseDTO.builder().status(0).message("Mã cảnh báo đã tồn tại").build();
             }
-            logger.info("WarningManagerStationDAOImpl exception : {}",e.getMessage());
+            logger.info("WarningManagerStationDAOImpl exception : {}", e.getMessage());
         } finally {
             connection.close();
         }
@@ -253,13 +252,13 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
         String sqlDeleteDetail = "delete from warning_manage_detail where warning_manage_station_id = ?";
 
         Connection connection = ds.getConnection();
-        try{
+        try {
             connection.setAutoCommit(false);
             PreparedStatement stmDetateManager = connection.prepareStatement(sqlDeleteManager);
             PreparedStatement stmDeleteDetail = connection.prepareStatement(sqlDeleteDetail);
 
-            for (Long tmp: id) {
-                stmDeleteDetail.setLong(1,tmp);
+            for (Long tmp : id) {
+                stmDeleteDetail.setLong(1, tmp);
                 stmDeleteDetail.addBatch();
                 stmDetateManager.setLong(1, tmp);
                 stmDetateManager.addBatch();
@@ -268,7 +267,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             stmDetateManager.executeBatch();
             connection.commit();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             connection.rollback();
             logger.error("WarningManagerStationDAOImpl exception : {}", e.getMessage());
             return DefaultResponseDTO.builder().status(0).message("Không thành công").build();
@@ -284,24 +283,102 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     public List<ComboBoxStr> getWarningComboBox(SelectWarningManagerStrVM selectVM) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String sql = "select id,code, name from warning_manage_stations where 1 = 1 and station_id = ? ";
-            if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
-                sql = sql+ " code like ? or name like ?";
+            if (selectVM.getTerm() != null && !selectVM.getTerm().equals("")) {
+                sql = sql + " code like ? or name like ?";
             }
             sql = sql + " and rownum < 100";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, selectVM.getId());
-            if(selectVM.getTerm()!=null && !selectVM.getTerm().equals("")){
-                statement.setString(2,"%"+selectVM.getTerm()+"%");
-                statement.setString(3,"%"+selectVM.getTerm()+"%");
+            if (selectVM.getTerm() != null && !selectVM.getTerm().equals("")) {
+                statement.setString(2, "%" + selectVM.getTerm() + "%");
+                statement.setString(3, "%" + selectVM.getTerm() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
             while (resultSet.next()) {
-                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2)+"-"+resultSet.getString(3)).build();
+                ComboBoxStr comboBox = ComboBoxStr.builder().id(resultSet.getString(1)).text(resultSet.getString(2) + "-" + resultSet.getString(3)).build();
                 comboBoxes.add(comboBox);
             }
             statement.close();
             return comboBoxes;
         }
+    }
+
+    @Override
+    public List<NotificationToDayDTO> getListWarningManagerStationByDate(String startDate, String endDate) throws SQLException {
+        logger.debug("START_DATE: {}, END_DATE: {}", startDate, endDate);
+        String sql = "SELECT DISTINCT wms.id, nh.id AS notification_history_id, wms.name, wms.description, wms.color, wms.icon, wms.created_at, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON wr.id = nh.warning_recipents_id WHERE nh.push_timestap >= to_date(?, 'dd/mm/yyyy HH24:mi')";
+        PreparedStatement preparedStatement = null;
+        List<NotificationToDayDTO> notificationToDayDTOList = new ArrayList<>();
+        try (
+                Connection connection = ds.getConnection();
+        ) {
+            if (endDate != null)
+                sql = sql + " AND nh.push_timestap <= to_date(?, 'dd/mm/yyyy HH24:mi')";
+            sql = sql + " ORDER BY nh.push_timestap DESC";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, startDate);
+            if (endDate != null)
+                preparedStatement.setString(2, endDate);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                NotificationToDayDTO notificationToDayDTO = NotificationToDayDTO.builder()
+                        .id(resultSet.getLong("notification_history_id"))
+                        .name(resultSet.getString("name"))
+                        .description(resultSet.getString("description"))
+                        .color(resultSet.getString("color"))
+                        .icon(resultSet.getString("icon"))
+                        .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
+                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
+                        .build();
+                notificationToDayDTOList.add(notificationToDayDTO);
+            }
+        } finally {
+            if (preparedStatement != null)
+                preparedStatement.close();
+        }
+        return notificationToDayDTOList;
+    }
+
+    @Override
+    public NotificationToDayDTO getWarningManagerStationById(Long notificationHistoryId) throws SQLException {
+        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE nh.id = ?";
+        NotificationToDayDTO notificationToDayDTO = null;
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setLong(1, notificationHistoryId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                notificationToDayDTO = NotificationToDayDTO.builder()
+                        .id(resultSet.getLong("id"))
+                        .code(resultSet.getString("code"))
+                        .name(resultSet.getString("name"))
+                        .description(resultSet.getString("description"))
+                        .content(resultSet.getString("content"))
+                        .color(resultSet.getString("color"))
+                        .icon(resultSet.getString("icon"))
+                        .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
+                        .stationName(resultSet.getString("station_name"))
+                        .stationId(resultSet.getString("station_id"))
+                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
+                        .build();
+            }
+        }
+        return notificationToDayDTO;
+    }
+
+    @Override
+    public List<WarningStationHistoryDTO> getWarningStationHistory(WarningStationHistoryVM warningStationHistoryVM) throws SQLException {
+        String sql = "SELECT * ";
+        NotificationToDayDTO notificationToDayDTO = null;
+        try (
+                Connection connection = ds.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+
+        }
+        return null;
     }
 }

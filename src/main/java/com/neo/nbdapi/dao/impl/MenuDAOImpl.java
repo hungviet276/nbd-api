@@ -3,12 +3,14 @@ package com.neo.nbdapi.dao.impl;
 import com.neo.nbdapi.dao.MenuDAO;
 import com.neo.nbdapi.dto.ApiUrlDTO;
 import com.neo.nbdapi.dto.MenuDTO;
-import com.neo.nbdapi.dto.UserAndMenuDTO;
 import com.neo.nbdapi.entity.Menu;
+import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
+import oracle.jdbc.driver.Const;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
@@ -24,9 +26,12 @@ public class MenuDAOImpl implements MenuDAO {
     @Autowired
     private HikariDataSource ds;
 
+    @Value(("${sysId}"))
+    private int sysId;
+
     @Override
     public List<Menu> findAll() throws SQLException {
-        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ";
+        String sql = "SELECT id, name, display_order, picture_file, detail_file, menu_level, parent_id, publish, created_date, modified_date, created_user, modified_user, sys_id FROM menu WHERE 1 = 1 ORDER BY created_date DESC, display_order DESC";
         List<Menu> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -160,26 +165,83 @@ public class MenuDAOImpl implements MenuDAO {
 
     @Override
     public List<MenuDTO> getListMenuAccessOfUserByUsername(String username) throws SQLException {
-        String sql = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level FROM user_info ui JOIN user_role ur ON ui.id = ur.user_id JOIN role r ON ur.role_id = r.id JOIN menu_access mnacc ON r.id = mnacc.role_id JOIN menu mn ON mn.id = mnacc.menu_id WHERE publish = 1 AND ui.id = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id";
+        String sqlGetCheckRole = "SELECT check_role FROM user_info ui WHERE id = ?";
+        String sqlGetMenuNotCheckRole = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN user_menu_act uma ON mn.id = uma.menu_id  JOIN user_info ui ON ui.id = uma.user_id JOIN menu_access_act mac ON mn.id = mac.menu_id WHERE ui.id = ? AND uma.sys_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC, mn.display_order ASC, mn.id ASC";
+        String sqlGetMenuCheckRoleOk = "SELECT mn.id menu_id, mn.name menu_name, mn.detail_file, mn.parent_id, mn.picture_file, mn.menu_level, mac.act FROM menu mn JOIN menu_access_act mac ON mn.id = mac.menu_id JOIN role_user_info rui ON rui.role_id = mac.role_id WHERE rui.user_id = ? AND mac.act LIKE ? AND mn.publish = ? ORDER BY mn.menu_level ASC , mn.display_order ASC, mn.id ASC";
         List<MenuDTO> menuList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
+                PreparedStatement statementGetCheckRole = connection.prepareStatement(sqlGetCheckRole);
+                PreparedStatement statementNotCheckRole = connection.prepareStatement(sqlGetMenuNotCheckRole);
+                PreparedStatement statementCheckRoleOk = connection.prepareStatement(sqlGetMenuCheckRoleOk);
         ) {
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                MenuDTO menu = MenuDTO
-                        .builder()
-                        .id(resultSet.getLong("menu_id"))
-                        .name(resultSet.getString("menu_name"))
-                        .detailFile(resultSet.getString("detail_file"))
-                        .parentId(resultSet.getLong("parent_id"))
-                        .pictureFile(resultSet.getString("picture_file"))
-                        .level(resultSet.getInt("menu_level"))
-                        .build();
-                menuList.add(menu);
+            statementGetCheckRole.setString(1, username);
+            ResultSet resultSetGetCheckRole = statementGetCheckRole.executeQuery();
+            int checkRole = Constants.USER_INFO.CHECK_ROLE_NOT_FOUNT;
+            if (resultSetGetCheckRole.next()) {
+                checkRole = resultSetGetCheckRole.getInt("check_role");
             }
+            if (checkRole == Constants.USER_INFO.CHECK_ROLE_NOT_OK) {
+                statementNotCheckRole.setString(1, username);
+                statementNotCheckRole.setInt(2, sysId);
+                statementNotCheckRole.setString(3, Constants.MENU.ACTION_VIEW_MENU + "%");
+                statementNotCheckRole.setInt(4, Constants.MENU.PUBLISH_OK);
+                ResultSet resultSet = statementNotCheckRole.executeQuery();
+                long currentMenuId = -1;
+                while (resultSet.next()) {
+                    long menuId = resultSet.getLong("menu_id");
+                    String act = resultSet.getString("act");
+                    if (currentMenuId != menuId) {
+                        List<String> listAct = new ArrayList<>();
+                        listAct.add(act);
+                        MenuDTO menu = MenuDTO
+                                .builder()
+                                .id(menuId)
+                                .name(resultSet.getString("menu_name"))
+                                .detailFile(resultSet.getString("detail_file"))
+                                .parentId(resultSet.getLong("parent_id"))
+                                .pictureFile(resultSet.getString("picture_file"))
+                                .level(resultSet.getInt("menu_level"))
+                                .listAct(listAct)
+                                .build();
+                        menuList.add(menu);
+                    } else {
+                        MenuDTO menuDTO = menuList.get(menuList.size() - 1);
+                        menuDTO.getListAct().add(act);
+                    }
+                    currentMenuId = menuId;
+                }
+            } else if (checkRole == Constants.USER_INFO.CHECK_ROLE_OK) {
+                statementCheckRoleOk.setString(1, username);
+                statementCheckRoleOk.setString(2, Constants.MENU.ACTION_VIEW_MENU + "%");
+                statementCheckRoleOk.setInt(3, Constants.MENU.PUBLISH_OK);
+                ResultSet resultSet = statementCheckRoleOk.executeQuery();
+                long currentMenuId = -1;
+                while (resultSet.next()) {
+                    long menuId = resultSet.getLong("menu_id");
+                    String act = resultSet.getString("act");
+                    if (currentMenuId != menuId) {
+                        List<String> listAct = new ArrayList<>();
+                        listAct.add(act);
+                        MenuDTO menu = MenuDTO
+                                .builder()
+                                .id(menuId)
+                                .name(resultSet.getString("menu_name"))
+                                .detailFile(resultSet.getString("detail_file"))
+                                .parentId(resultSet.getLong("parent_id"))
+                                .pictureFile(resultSet.getString("picture_file"))
+                                .level(resultSet.getInt("menu_level"))
+                                .listAct(listAct)
+                                .build();
+                        menuList.add(menu);
+                    } else {
+                        MenuDTO menuDTO = menuList.get(menuList.size() - 1);
+                        menuDTO.getListAct().add(act);
+                    }
+                    currentMenuId = menuId;
+                }
+            }
+
             return menuList;
         }
     }

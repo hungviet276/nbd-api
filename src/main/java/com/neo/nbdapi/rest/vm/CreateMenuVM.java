@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -28,6 +29,7 @@ public class CreateMenuVM {
      */
     @NotEmpty(message = "Độ ưu tiên không được trống")
     @Size(max = 6, message = "Độ ưu tiên không quá 999999")
+    @Pattern(regexp = "^[1-9][0-9]*$", message = "Độ ưu tiên phải lớn hơn 0")
     private String displayOrder;
 
     /**

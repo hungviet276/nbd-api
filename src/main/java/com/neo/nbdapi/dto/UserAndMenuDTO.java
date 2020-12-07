@@ -15,6 +15,7 @@ import java.util.List;
 public class UserAndMenuDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	private String userId;
 
     private List<MenuDTO> menus;

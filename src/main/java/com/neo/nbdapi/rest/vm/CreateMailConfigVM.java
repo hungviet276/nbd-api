@@ -36,6 +36,7 @@ public class CreateMailConfigVM {
      */
     @NotEmpty(message = "Username không được trống")
     @Size(max = 30, message = "Username dài tối đa 30 ký tự")
+    @Pattern(regexp = "^[a-zA-Z0-9_*&@#!%$]*$", message = "Tên đăng nhập chỉ gồm A-Z 0-9 và ký tự đặc biệt")
     private String username;
 
     /**
@@ -43,6 +44,7 @@ public class CreateMailConfigVM {
      */
     @NotEmpty(message = "password không được trống")
     @Size(max = 100, message = "password dài tối đa 100 ký tự")
+    @Pattern(regexp = "^[a-zA-Z0-9_*&@#!%$]*$", message = "Mật khẩu chỉ gồm A-Z 0-9 và ký tự đặc biệt")
     private String password;
 
     /**

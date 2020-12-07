@@ -32,20 +32,20 @@ public class ADCP implements Serializable {
 
     private String riverName;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm",timezone = "Asia/Ho_Chi_Minh")
     private Date timeStart;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm" ,timezone = "Asia/Ho_Chi_Minh")
     private Date timeEnd;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm",timezone = "Asia/Ho_Chi_Minh")
     private Date timeAvg;
 
-    private Long waterLevelStart;
+    private Float waterLevelStart;
 
-    private Long waterLevelEnd;
+    private Float waterLevelEnd;
 
-    private Long waterLevelAvg;
+    private Float waterLevelAvg;
 
     private Float speedAvg;
 
@@ -72,6 +72,12 @@ public class ADCP implements Serializable {
     private File fileUpload;
 
     private String linkFile;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss",timezone = "Asia/Ho_Chi_Minh")
     private Date createdAt;
+
+    private String dataTotalDeep;
+
+    private String dataDistance;
+
+    private Float suspendedMaterial;
 }
