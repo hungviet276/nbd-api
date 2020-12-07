@@ -234,8 +234,17 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             } else{
                 stmUpdateConfig.setFloat(4, configValueTypeDTO.getVariableSpatial());
             }
-            stmUpdateConfig.setDate(5,new Date(configValueTypeDTO.getStartDateApply().getTime()));
-            stmUpdateConfig.setDate(6,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+
+            if(configValueTypeDTO.getStartDateApply()!=null){
+                stmUpdateConfig.setDate(5,new Date(configValueTypeDTO.getStartDateApply().getTime()));
+            } else{
+                stmUpdateConfig.setDate(5,null);
+            }
+            if(configValueTypeDTO.getEndDateApply()!=null)
+                stmUpdateConfig.setDate(6,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+            else
+                stmUpdateConfig.setDate(6,null);
+
             stmUpdateConfig.setString(7,configValueTypeDTO.getCode());
             stmUpdateConfig.setLong(8,configValueTypeDTO.getId());
             stmUpdateConfig.executeUpdate();
@@ -322,6 +331,9 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         } else {
             sqlCheck="select id from config_value_types where (trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (start_apply_date is null and end_apply_date is null) and station_id = ? and parameter_type_id = ?";
         }
+        if(configValueTypeDTO.getId() != null){
+            sqlCheck = sqlCheck += "and id != ?";
+        }
 
         try (Connection connection = ds.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sqlCheck);
@@ -329,16 +341,25 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             if(configValueTypeDTO.getEndDateApply()==null && configValueTypeDTO.getStartDateApply() == null){
                 statement.setString(1, configValueTypeDTO.getStationId());
                 statement.setLong(2, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(3, configValueTypeDTO.getId());
+                }
 
             } else if(configValueTypeDTO.getStartDateApply() == null && configValueTypeDTO.getEndDateApply() != null){
                 statement.setDate(1, new Date(configValueTypeDTO.getEndDateApply().getTime()));
                 statement.setString(2, configValueTypeDTO.getStationId());
                 statement.setLong(3, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(4, configValueTypeDTO.getId());
+                }
 
             } else if(configValueTypeDTO.getEndDateApply() == null && configValueTypeDTO.getStartDateApply()!= null){
                 statement.setDate(1, new Date(configValueTypeDTO.getStartDateApply().getTime()));
                 statement.setString(2, configValueTypeDTO.getStationId());
                 statement.setLong(3, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(4, configValueTypeDTO.getId());
+                }
             } else{
                 statement.setDate(1, new Date(configValueTypeDTO.getEndDateApply().getTime()));
                 statement.setDate(2, new Date(configValueTypeDTO.getEndDateApply().getTime()));
@@ -346,6 +367,9 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
                 statement.setDate(4, new Date(configValueTypeDTO.getStartDateApply().getTime()));
                 statement.setString(5, configValueTypeDTO.getStationId());
                 statement.setLong(6, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(7, configValueTypeDTO.getId());
+                }
             }
             ResultSet resultSet = statement.executeQuery();
             boolean isCheck = true;
