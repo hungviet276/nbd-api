@@ -165,6 +165,8 @@ public class StationTimeSeriesDAOImpl implements StationTimeSeriesDAO {
         String sql = "SELECT * FROM " + seriesDTO.getStorage()
                 + " where ts_id = ? and TIMESTAMP >= to_date(?,\'DD/MM/YYYY HH24:MI:SS\') "
                 + " and TIMESTAMP <= to_date(?,\'DD/MM/YYYY HH24:MI:SS\') ";
+        logger.info("getValueOfStationTimeSeries seriesDTO : " + seriesDTO.toString());
+        logger.info("getValueOfStationTimeSeries sql : " + sql);
         try (
                 Connection connection = ds.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);

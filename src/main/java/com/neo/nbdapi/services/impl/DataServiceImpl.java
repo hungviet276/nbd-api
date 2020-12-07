@@ -88,7 +88,7 @@ public class DataServiceImpl implements DataService {
             case 1:
                 content.append("#" + station.getStationCode() + ".Manual|*|\n");
                 content.append("#REXCHANGE0001");
-                content.append("#|*|TZUTC+7|*|CUNITmm\\n\");");
+                content.append("#|*|TZUTC+7|*|CUNITmm\n");
                 content.append("#LAYOUT(timestamp, value, primary_status)|*|\n");
                 break;
             case 2:
@@ -110,12 +110,17 @@ public class DataServiceImpl implements DataService {
                     content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \n");
                     break;
                 case 2:
-                    content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::good\"\n");
+                    if (i % 2 == 0)
+                        content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::" + "good\n");
+                    if (i % 2 == 1)
+                        content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::" + "bad\n");
+
                     break;
                 case 3:
                     content.append("#REXCHANGE" + station.getStationCode() + "." + i + "|*| RINVAL-777|*|\n");
                     content.append("#LAYOUT(timestamp, value)|*|\n");
                     content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \n");
+                    content.append("\n");
             }
         }
         return content.toString();

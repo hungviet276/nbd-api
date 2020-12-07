@@ -23,4 +23,9 @@ public class StationTimeSeriesDTO {
     private String storage;
     private String stationId;
     private String stationCode;
+
+    @Override
+    public String toString() {
+        return "StationTimeSeriesDTO ==> tsId : " + tsId + "; getStartDate: " + startDate + "; stopDate: " + stopDate;
+    }
 }
