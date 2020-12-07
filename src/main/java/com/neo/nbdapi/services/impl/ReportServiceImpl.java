@@ -99,7 +99,7 @@ public class ReportServiceImpl implements ReportService {
             throw new BusinessException("User không có quyền điều khiển trạm");
 
         // step 3: lay ra danh sach parameter type id hien thi cua station
-        String listParameterTypeId = config.getString("station.getStationCode()");
+        String listParameterTypeId = config.getString(station.getStationCode());
         List<ParameterDisplayChartDTO> resposne = new ArrayList<>();
         Date now = new Date();
         if (listParameterTypeId != null) {

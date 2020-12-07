@@ -31,7 +31,7 @@ public class NotificationController {
     }
 
     @GetMapping("/detail")
-    public NotificationToDayDTO getNotificationToDayById(@RequestParam Long warningManagerStationId) throws SQLException {
-        return warningMangerStationService.getNotificationById(warningManagerStationId);
+    public NotificationToDayDTO getNotificationToDayById(@RequestParam Long notificationHistoryId) throws SQLException {
+        return warningMangerStationService.getNotificationById(notificationHistoryId);
     }
 }
