@@ -39,12 +39,12 @@ public class StationDAOImpl implements StationDAO {
         try (Connection connection = ds.getConnection()) {
             String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1";
             if (query != null && !query.equals("")) {
-                sql = sql + " and station_name like ?";
+                sql = sql + " and UPPER(station_name) like ?";
             }
             sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1 order by station_code";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
-                statement.setString(1, "%" + query + "%");
+                statement.setString(1, "%" + query.toUpperCase() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
