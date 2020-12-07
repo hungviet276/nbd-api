@@ -120,6 +120,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     @Override
     public DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
         try (Connection connection = ds.getConnection()) {
+            // thực hiện insert
             connection.setAutoCommit(false);
             String sqlInsertConfig = "insert into config_value_types (ID,STATION_ID,PARAMETER_TYPE_ID,MIN,MAX,VARIABLE_TIME,VARIABLE_SPATIAL,START_APPLY_DATE,END_APPLY_DATE,CODE) values(config_value_types_seq.nextval,?,?,?,?,?,?,?,?,?)";
             String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.nextval, ?,?)";
@@ -127,6 +128,8 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             PreparedStatement stmInsertConfig = connection.prepareStatement(sqlInsertConfig);
             PreparedStatement stmGetCurrentId = connection.prepareStatement(sqlGetCurrentId);
             PreparedStatement stmInsertSpatial = connection.prepareStatement(sqlInsertSpatial);
+            //check trùng khoảng thời gian
+
             // thêm cấu hình trạm mới
             stmInsertConfig.setString(1,configValueTypeDTO.getStationId());
             stmInsertConfig.setLong(2,configValueTypeDTO.getValueTypeId());
@@ -306,4 +309,52 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
+
+    @Override
+    public Boolean isInsert(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        String sqlCheck = "";
+        if(configValueTypeDTO.getEndDateApply()==null && configValueTypeDTO.getStartDateApply() == null){
+            sqlCheck ="select id from config_value_types where  station_id = ? and parameter_type_id = ?";
+        } else if(configValueTypeDTO.getStartDateApply() == null && configValueTypeDTO.getEndDateApply() != null){
+            sqlCheck = "select id from config_value_types where trunc(start_apply_date) <= trunc(?) or (start_apply_date is null and end_apply_date is null) and station_id = ? and parameter_type_id = ?";
+        } else if(configValueTypeDTO.getEndDateApply() == null && configValueTypeDTO.getStartDateApply()!= null){
+            sqlCheck = "select id from config_value_types where trunc(end_apply_date) >= trunc(?) or (start_apply_date is null and end_apply_date is null) and station_id = ? and parameter_type_id = ?";
+        } else {
+            sqlCheck="select id from config_value_types where (trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (start_apply_date is null and end_apply_date is null) and station_id = ? and parameter_type_id = ?";
+        }
+
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sqlCheck);
+
+            if(configValueTypeDTO.getEndDateApply()==null && configValueTypeDTO.getStartDateApply() == null){
+                statement.setString(1, configValueTypeDTO.getStationId());
+                statement.setLong(2, configValueTypeDTO.getValueTypeId());
+
+            } else if(configValueTypeDTO.getStartDateApply() == null && configValueTypeDTO.getEndDateApply() != null){
+                statement.setDate(1, new Date(configValueTypeDTO.getEndDateApply().getTime()));
+                statement.setString(2, configValueTypeDTO.getStationId());
+                statement.setLong(3, configValueTypeDTO.getValueTypeId());
+
+            } else if(configValueTypeDTO.getEndDateApply() == null && configValueTypeDTO.getStartDateApply()!= null){
+                statement.setDate(1, new Date(configValueTypeDTO.getStartDateApply().getTime()));
+                statement.setString(2, configValueTypeDTO.getStationId());
+                statement.setLong(3, configValueTypeDTO.getValueTypeId());
+            } else{
+                statement.setDate(1, new Date(configValueTypeDTO.getEndDateApply().getTime()));
+                statement.setDate(2, new Date(configValueTypeDTO.getEndDateApply().getTime()));
+                statement.setDate(3, new Date(configValueTypeDTO.getStartDateApply().getTime()));
+                statement.setDate(4, new Date(configValueTypeDTO.getStartDateApply().getTime()));
+                statement.setString(5, configValueTypeDTO.getStationId());
+                statement.setLong(6, configValueTypeDTO.getValueTypeId());
+            }
+            ResultSet resultSet = statement.executeQuery();
+            boolean isCheck = true;
+            while (resultSet.next()) {
+                isCheck = false;
+                break;
+            }
+            return isCheck;
+        }
+    }
+
 }

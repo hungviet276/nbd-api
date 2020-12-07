@@ -176,6 +176,10 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
 
     @Override
     public DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        boolean isInsert = configValueTypeDAO.isInsert(configValueTypeDTO);
+        if(!isInsert){
+            return DefaultResponseDTO.builder().status(0).message("Dữ liệu bị chồng lấn khoảng thời gian").build();
+        }
         return configValueTypeDAO.createConfigValuetype(configValueTypeDTO);
     }
 
