@@ -23,6 +23,8 @@ public class WarningManagerStation  implements Serializable {
 
     private String warningCode;
 
+    private String typeWarning;
+
     private String warningName;
 
     private String icon;
