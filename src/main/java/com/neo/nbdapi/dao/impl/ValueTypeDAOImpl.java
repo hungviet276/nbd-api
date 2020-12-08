@@ -26,12 +26,12 @@ public class ValueTypeDAOImpl implements ValueTypeDAO {
         try (Connection connection = ds.getConnection()) {
             String sql = "select parameter_type_id as id, parameter_type_code as code, parameter_type_name as name from parameter_type where 1=1";
             if (query != null && !query.equals("")) {
-                sql = sql + " and parameter_type_name like ?";
+                sql = sql + " and UPPER(parameter_type_name) like ?";
             }
             sql = sql + " and rownum < 100";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
-                statement.setString(1, "%" + query + "%");
+                statement.setString(1, "%" + query.toUpperCase() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBox> comboBoxes = new ArrayList<>();

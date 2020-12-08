@@ -5,10 +5,7 @@ import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.exception.BusinessException;
-import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
-import com.neo.nbdapi.rest.vm.SelectVM;
-import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
-import com.neo.nbdapi.rest.vm.SelectWarningManagerVM;
+import com.neo.nbdapi.rest.vm.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -28,4 +25,8 @@ public interface WarningMangerStationService {
     // function get list notitication today
     List<NotificationToDayDTO> getListNotificationToday() throws SQLException;
     NotificationToDayDTO getNotificationById(Long warningManagerStationId) throws SQLException;
+
+    // thanglv
+    // function get list warning station history
+    DefaultPaginationDTO getWarningStationHistory(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException;
 }

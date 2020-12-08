@@ -21,5 +21,6 @@ public interface ConfigValueTypeDAO {
     DefaultResponseDTO editConfigValuetype(ConfigValueTypeDTO configValueTypeDTO, List<ConfigStationsCommrelateDTO> deletesSpatial, List<ConfigStationsCommrelateDTO> createSpatial) throws Exception;
     List<ConfigStationsCommrelateDTO> getListConfigStationsCommrelateDTO(Long parentId) throws Exception;
     DefaultResponseDTO deleteConfigValuetype(Long id) throws Exception;
+    Boolean isInsert(ConfigValueTypeDTO configValueTypeDTO) throws Exception;
 
 }

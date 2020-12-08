@@ -24,6 +24,9 @@ public class WarningManagerStationSearch implements Serializable {
     @JsonProperty("s_code_warning")
     private String warningCode;
 
+    @JsonProperty("s_typeWarning")
+    private String suffixesTable;
+
     @JsonProperty("s_name_warning")
     private String warningName;
 

@@ -39,7 +39,7 @@ public class WarningManagerStationDTO implements Serializable {
     private String content;
 
     @Size(min = 0, max = 100, message = "độ dài của màu sắc trong khoảng 0 đến 100")
-    @JsonProperty("colorWarning")
+    @JsonProperty("color")
     private String color;
 
     @Size(min = 0, max = 100, message = "độ dài của icon trong khoảng 0 đến 100")
@@ -49,6 +49,10 @@ public class WarningManagerStationDTO implements Serializable {
     @NotEmpty(message = "Không được để trống mã trạm")
     @JsonProperty("stationWarning")
     private String stationId;
+
+    @NotEmpty(message = "Không được để trống loại cảnh báo")
+    @JsonProperty("typeWarning")
+    private String suffixesTable;
 
     @JsonProperty("createBy")
     private String createBy;

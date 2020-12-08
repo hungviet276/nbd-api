@@ -1,11 +1,13 @@
 package com.neo.nbdapi.dto;
 
+import com.neo.nbdapi.entity.NotificationHistoryDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author thanglv on 11/26/2020
@@ -40,4 +42,6 @@ public class NotificationToDayDTO implements Serializable {
     private String stationName;
 
     private String pushTimestamp;
+
+    private List<NotificationHistoryDetail> details;
 }

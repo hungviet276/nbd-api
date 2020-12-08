@@ -39,12 +39,12 @@ public class StationDAOImpl implements StationDAO {
         try (Connection connection = ds.getConnection()) {
             String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1";
             if (query != null && !query.equals("")) {
-                sql = sql + " and station_name like ?";
+                sql = sql + " and UPPER(station_name) like ?";
             }
             sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1 order by station_code";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
-                statement.setString(1, "%" + query + "%");
+                statement.setString(1, "%" + query.toUpperCase() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
@@ -174,15 +174,15 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-//        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
-//                "        from group_user_info gui ,group_detail gd ,stations s\n" +
-//                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
-//                "        and gd.user_info_id =?";
-        String sql = "SELECT station_id, station_name " +
-                "FROM stations " +
-                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
+        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+                "        from group_user_info gui ,group_detail gd ,stations s\n" +
+                "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
+                "        and gd.user_info_id =?";
+//        String sql = "SELECT station_id, station_name " +
+//                "FROM stations " +
+//                "where station_id in (SELECT DISTINCT station_id FROM station_time_series WHERE parametertype_name is not null)";
         try (Connection connection = ds.getConnection(); PreparedStatement st = connection.prepareStatement(sql)) {
-//            st.setString(1, userLogin.getUsername());
+            st.setString(1, userLogin.getUsername());
             ResultSet rs = st.executeQuery();
             ComboBoxStr stationType;
             while (rs.next()) {

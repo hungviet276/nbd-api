@@ -25,6 +25,16 @@ public class WarningMangerDetailInfoDTO {
 
     private Integer warningThresholdCancel;
 
+    private Float valueLevel1;
+
+    private Float valueLevel2;
+
+    private Float valueLevel3;
+
+    private Float valueLevel4;
+
+    private Float valueLevel5;
+
     private  String createBy;
 
     private String createAt;

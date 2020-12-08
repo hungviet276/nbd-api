@@ -1,6 +1,8 @@
 package com.neo.nbdapi.rest;
 
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.HistoryOutPutsDTO;
+import com.neo.nbdapi.dto.UserGroupDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.exception.BusinessException;
@@ -58,5 +60,15 @@ public class ManagerOfOutputController {
     @PostMapping("/editValueProd")
     public String editValueProd(@RequestBody @Valid ManageOutPutVM manageOutPutVM) throws SQLException, BusinessException {
         return manageOutputService.editValueProd(manageOutPutVM);
+    }
+
+    @GetMapping("/get_select2_time_searchHistory")
+    public List<ComboBoxStr>  get_select2_time_searchHistory(@RequestParam("prodId") String prodId,@RequestParam("prodTableName") String prodTableName) throws SQLException, BusinessException {
+        return manageOutputService.getListtimeHistory(prodId,prodTableName);
+    }
+
+    @GetMapping("/get_history_by_time")
+    public List<HistoryOutPutsDTO> getHistoryByTime(@RequestParam(name = "time") String time, @RequestParam(name = "prodId") String prodId) throws SQLException, BusinessException{
+        return manageOutputService.getHistoryByTimes(time,prodId);
     }
 }
