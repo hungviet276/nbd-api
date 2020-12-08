@@ -77,6 +77,8 @@ public class DataServiceImpl implements DataService {
             if (!resultSendFile)
                 return DefaultResponseDTO.builder().status(-4).message("Không connect được server").build();
             file1.delete();
+            file2.delete();
+            file3.delete();
             if (resultSendFile) return DefaultResponseDTO.builder().status(1).message("Thành công").build();
         }
         return DefaultResponseDTO.builder().status(-1).message("failed").build();
