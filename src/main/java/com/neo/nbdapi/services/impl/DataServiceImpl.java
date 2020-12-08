@@ -131,8 +131,10 @@ public class DataServiceImpl implements DataService {
     private File writeFile(String contentFile, Station station, String type) throws IOException {
         SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
         String SYSTEM_PATH = System.getProperty("user.dir");
+        String save_folder = cdhConfig.getString("save_folder");
+        String file_extention = cdhConfig.getString("file_extention");
         String fileName = station.getStationCode() + "_" + sf.format(new Date()) + "_" + type;
-        String FILE_PATH = SYSTEM_PATH + "/src/main/resources/mail/" + fileName + ".ZRXP";
+        String FILE_PATH = SYSTEM_PATH + save_folder + fileName + file_extention;
         FileWriter myWriter = new FileWriter(FILE_PATH);
         myWriter.write(contentFile);
         myWriter.close();
@@ -144,9 +146,9 @@ public class DataServiceImpl implements DataService {
         FileInputStream fis = null;
         boolean completed = false;
         try {
-            String serverIp = cdhConfig.getString("ip");
-            String username = cdhConfig.getString("username");
-            String password = cdhConfig.getString("password");
+            String serverIp = cdhConfig.getString("server_ip");
+            String username = cdhConfig.getString("server_username");
+            String password = cdhConfig.getString("server_password");
             client.connect(serverIp);
             client.login(username, password);
             boolean isConnect = client.isConnected();
