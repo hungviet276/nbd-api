@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.HistoryOutPutsDTO;
+import com.neo.nbdapi.dto.UserGroupDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.StationTimeSeries;
@@ -18,6 +20,7 @@ import com.neo.nbdapi.services.objsearch.SearchOutputsManger;
 import com.neo.nbdapi.services.objsearch.SearchUsesManager;
 import com.zaxxer.hikari.HikariDataSource;
 import oracle.jdbc.OracleTypes;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -342,6 +345,68 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                 }
             }
         }
+    }
+
+    @Override
+    public List<ComboBoxStr> getListtimeHistory(String prodId,String prodTableName) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder(" select to_char(peh.modify_date,'DD/MM/YYYY HH24:MI:ss') modify_date,peh.modify_users from "+prodTableName+" prod,prod_edit_history peh where prod.id = peh.id_prod and prod.id =? and rownum < 100 order by modify_date desc");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            st.setString(1, prodId);
+            ResultSet rs = st.executeQuery();
+
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("")
+                    .text("--Lựa chọn mốc thời gian--")
+                    .build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("modify_date"))
+                        .text(rs.getString("modify_users") + " - " + rs.getString("modify_date"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+            return list;
+        }
+    }
+
+    @Override
+    public List<HistoryOutPutsDTO> getHistoryByTimes(String time, String prodId) throws SQLException, BusinessException {
+        List<HistoryOutPutsDTO> uHistorys = new ArrayList<>();
+        if (StringUtils.isEmpty(time)) return uHistorys;
+        try (Connection connection = ds.getConnection()) {
+            StringBuilder sql = new StringBuilder("select * from(select ot.object_type_shortname,st.station_name,st.PARAMETERTYPE_NAME,u.unit_code,peh.id_prod,peh.value_old,peh.value_news,peh.modify_date,peh.modify_users \n" +
+                    " from station_time_series st\n" +
+                    " join parameter_type pt on st.parametertype_id = pt.parameter_type_id \n" +
+                    " join unit u on u.unit_id = pt.unit_id \n" +
+                    " join TEMPERATURE pr on st.ts_id = pr.ts_id \n" +
+                    " join prod_edit_history peh on pr.id = peh.id_prod\n" +
+                    " join stations_object_type sot on st.station_id = sot.station_id \n" +
+                    " join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1 \n" +
+                    " and id_prod = ? and  modify_date = TO_DATE('"+time+"', 'DD/MM/YYYY HH24:MI:SS') and rownum =1");
+            System.out.println("sql ====" + sql);
+            PreparedStatement ps = connection.prepareStatement(sql.toString());
+            ps.setString(1, prodId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                HistoryOutPutsDTO uGroup = HistoryOutPutsDTO.builder().stationTYpeName(rs.getString("object_type_shortname"))
+                        .stationName(rs.getString("station_name"))
+                        .paramerterName(rs.getString("PARAMETERTYPE_NAME"))
+                        .valueNews(rs.getString("value_news"))
+                        .valueOld(rs.getString("value_old"))
+                        .unitNews(rs.getString("unit_code"))
+                        .build();
+                uHistorys.add(uGroup);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return uHistorys;
     }
 }
 

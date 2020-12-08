@@ -58,37 +58,83 @@ public class DataServiceImpl implements DataService {
         Station station = stationDAO.getStationById(stationId);
         if (station == null)
             return DefaultResponseDTO.builder().status(-2).message("Không tìm thấy trạm").build();
-//        List<StationTimeSeriesDTO> seriesDTOS = stationTimeSeriesDAO.getValueOfStationTimeSeries(seriesDTOs);
         if (seriesDTOs.size() <= 0)
             return DefaultResponseDTO.builder().status(-3).message("Không tìm thấy giá trị phù hợp").build();
 
-        String fileContent = createFileContent(station, seriesDTOs);
-        File file = writeFile(fileContent, station);
-        if (file.exists()) {
-            boolean resultSendFile = sendFile(file);
-            if (!resultSendFile) return DefaultResponseDTO.builder().status(-4).message("Không connect được server").build();
-            file.delete();
+        String fileContent1 = createFileContent(station, seriesDTOs, 1);
+        String fileContent2 = createFileContent(station, seriesDTOs, 2);
+        String fileContent3 = createFileContent(station, seriesDTOs, 3);
+        File file1 = writeFile(fileContent1, station, "type1");
+        File file2 = writeFile(fileContent2, station, "type2");
+        File file3 = writeFile(fileContent3, station, "type3");
+        if (file1.exists()) {
+            boolean resultSendFile = sendFile(file1);
+            boolean resultSendFile2 = sendFile(file2);
+            boolean resultSendFile3 = sendFile(file3);
+            logger.info("resultSendFile " + resultSendFile);
+            logger.info("resultSendFile2 " + resultSendFile2);
+            logger.info("resultSendFile3 " + resultSendFile3);
+            if (!resultSendFile)
+                return DefaultResponseDTO.builder().status(-4).message("Không connect được server").build();
+            file1.delete();
+            file2.delete();
+            file3.delete();
             if (resultSendFile) return DefaultResponseDTO.builder().status(1).message("Thành công").build();
         }
         return DefaultResponseDTO.builder().status(-1).message("failed").build();
     }
 
-    private String createFileContent(Station station, List<StationTimeSeriesDTO> seriesDTOS) {
+    private String createFileContent(Station station, List<StationTimeSeriesDTO> seriesDTOS, int type) {
+        StringBuilder content = new StringBuilder();
+        switch (type) {
+            case 1:
+                content.append("#" + station.getStationCode() + ".Manual|*|\n");
+                content.append("#REXCHANGE0001");
+                content.append("#|*|TZUTC+7|*|CUNITmm\n");
+                content.append("#LAYOUT(timestamp, value, primary_status)|*|\n");
+                break;
+            case 2:
+                content.append("#" + station.getStationCode() + ".Manual|*|\n");
+                content.append("#TZAsia/Ho_Chi_Minh|*|");
+                content.append("#REXCHANGE0001" + station.getStationCode() + "|*|TZUTC+7|*|CUNITmm \n");
+                content.append("#LAYOUT(timestamp, value, primary_status, remark)|*|\n");
+                break;
+        }
 
-        StringBuilder s = new StringBuilder();
-        s.append("##station: " + seriesDTOS.get(0).getStationCode() + " \n");
-        s.append("#ZRXPVERSION3014.03|*|ZRXPCREATORKiIOSystem.Manual|*| \n");
-        s.append("#REXCHANGE" + station.getStationCode() + "|*|CUNITmm|*|RIVAL-777|*| \n");
-        s.append("#LAYOUT(timestamp,value,primary_status)|*| \n\"");
-        seriesDTOS.forEach(seriesDTO1 -> s.append(seriesDTO1.getTimeStamp() + " " + seriesDTO1.getValue() + " 0 \n"));
-        return s.toString();
+        for (int i = 0; i < seriesDTOS.size(); i++) {
+            StationTimeSeriesDTO seriesDTO = seriesDTOS.get(i);
+            String timeStamps = seriesDTO.getTimeStamp()
+                    .replace("/", "")
+                    .replace(" ", "")
+                    .replace(":", "");
+            switch (type) {
+                case 1:
+                    content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \n");
+                    break;
+                case 2:
+                    if (i % 2 == 0)
+                        content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::" + "good\n");
+                    if (i % 2 == 1)
+                        content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \"weather::" + "bad\n");
+
+                    break;
+                case 3:
+                    content.append("#REXCHANGE" + station.getStationCode() + "." + i + "|*| RINVAL-777|*|\n");
+                    content.append("#LAYOUT(timestamp, value)|*|\n");
+                    content.append(timeStamps + " " + seriesDTO.getValue() + " 0 \n");
+                    content.append("\n");
+            }
+        }
+        return content.toString();
     }
 
-    private File writeFile(String contentFile, Station station) throws IOException {
+    private File writeFile(String contentFile, Station station, String type) throws IOException {
         SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
         String SYSTEM_PATH = System.getProperty("user.dir");
-        String fileName = station.getStationCode() + "_" + sf.format(new Date());
-        String FILE_PATH = SYSTEM_PATH + "/src/main/resources/mail/" + fileName + ".ZRXP";
+        String save_folder = cdhConfig.getString("save_folder");
+        String file_extention = cdhConfig.getString("file_extention");
+        String fileName = station.getStationCode() + "_" + sf.format(new Date()) + "_" + type;
+        String FILE_PATH = SYSTEM_PATH + save_folder + fileName + file_extention;
         FileWriter myWriter = new FileWriter(FILE_PATH);
         myWriter.write(contentFile);
         myWriter.close();
@@ -100,9 +146,9 @@ public class DataServiceImpl implements DataService {
         FileInputStream fis = null;
         boolean completed = false;
         try {
-            String serverIp = cdhConfig.getString("ip");
-            String username = cdhConfig.getString("username");
-            String password = cdhConfig.getString("password");
+            String serverIp = cdhConfig.getString("server_ip");
+            String username = cdhConfig.getString("server_username");
+            String password = cdhConfig.getString("server_password");
             client.connect(serverIp);
             client.login(username, password);
             boolean isConnect = client.isConnected();

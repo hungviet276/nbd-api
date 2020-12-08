@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class ConfigValueTypeDTO {
+
     private Long id;
 
     @JsonProperty("station_add")
@@ -29,9 +30,9 @@ public class ConfigValueTypeDTO {
 
     private Float variableSpatial;
 
-    private Date startDateApply;
+    private String startDateApply;
 
-    private Date endDateApply;
+    private String endDateApply;
 
     private String code;
 

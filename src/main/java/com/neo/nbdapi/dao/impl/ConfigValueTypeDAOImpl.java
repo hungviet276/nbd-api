@@ -8,15 +8,21 @@ import com.neo.nbdapi.dto.StationValueTypeSpatialDTO;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
+
+    private Logger logger = LogManager.getLogger(ConfigValueTypeDAOImpl.class);
 
     @Autowired
     private HikariDataSource ds;
@@ -120,6 +126,7 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
     @Override
     public DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
         try (Connection connection = ds.getConnection()) {
+            // thực hiện insert
             connection.setAutoCommit(false);
             String sqlInsertConfig = "insert into config_value_types (ID,STATION_ID,PARAMETER_TYPE_ID,MIN,MAX,VARIABLE_TIME,VARIABLE_SPATIAL,START_APPLY_DATE,END_APPLY_DATE,CODE) values(config_value_types_seq.nextval,?,?,?,?,?,?,?,?,?)";
             String sqlInsertSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.nextval, ?,?)";
@@ -127,6 +134,8 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             PreparedStatement stmInsertConfig = connection.prepareStatement(sqlInsertConfig);
             PreparedStatement stmGetCurrentId = connection.prepareStatement(sqlGetCurrentId);
             PreparedStatement stmInsertSpatial = connection.prepareStatement(sqlInsertSpatial);
+            //check trùng khoảng thời gian
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
             // thêm cấu hình trạm mới
             stmInsertConfig.setString(1,configValueTypeDTO.getStationId());
             stmInsertConfig.setLong(2,configValueTypeDTO.getValueTypeId());
@@ -143,12 +152,12 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
                 stmInsertConfig.setFloat(6, configValueTypeDTO.getVariableSpatial());
             }
             if(configValueTypeDTO.getStartDateApply()!=null){
-                stmInsertConfig.setDate(7,new Date(configValueTypeDTO.getStartDateApply().getTime()));
+                stmInsertConfig.setDate(7,new Date(df.parse(configValueTypeDTO.getStartDateApply()).getTime()));
             } else{
                 stmInsertConfig.setDate(7,null);
             }
             if(configValueTypeDTO.getEndDateApply()!=null)
-                stmInsertConfig.setDate(8,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+                stmInsertConfig.setDate(8,new Date(df.parse(configValueTypeDTO.getEndDateApply()).getTime()));
             else
                 stmInsertConfig.setDate(8,null);
             stmInsertConfig.setString(9,configValueTypeDTO.getCode());
@@ -212,13 +221,14 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         Connection connection = ds.getConnection();
         try  {
             connection.setAutoCommit(false);
-            String sqlUpdateConfig = "update config_value_types set MIN = ? , MAX = ? , VARIABLE_TIME = ? , VARIABLE_SPATIAL = ?, START_APPLY_DATE = ?, END_APPLY_DATE = ?, CODE = ? where ID = ?";
+            String sqlUpdateConfig = "update config_value_types set MIN = ? , MAX = ? , VARIABLE_TIME = ? , VARIABLE_SPATIAL = ?, START_APPLY_DATE = TO_DATE(?, 'dd/mm/yyy'), END_APPLY_DATE = TO_DATE(?, 'dd/mm/yyy'), CODE = ? where ID = ?";
             String sqlDeleteSpatial = "delete from config_stations_commrelate where id  = ?";
             String sqlCreateSpatial = "insert into config_stations_commrelate (ID, CONFIG_VALUE_TYPES_ID,CONFIG_VALUE_TYPES_PARENT) values (config_stations_commrelate_seq.nextval, ?,?)";
             PreparedStatement stmUpdateConfig = connection.prepareStatement(sqlUpdateConfig);
             PreparedStatement stmDeleteSpatial = connection.prepareStatement(sqlDeleteSpatial);
             PreparedStatement stmCreateSpatial = connection.prepareStatement(sqlCreateSpatial);
             // sửa các thông tin của cấu hình
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
             stmUpdateConfig.setFloat(1,configValueTypeDTO.getMin());
             stmUpdateConfig.setFloat(2,configValueTypeDTO.getMax());
             if( configValueTypeDTO.getVariableTime() == null){
@@ -231,8 +241,17 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             } else{
                 stmUpdateConfig.setFloat(4, configValueTypeDTO.getVariableSpatial());
             }
-            stmUpdateConfig.setDate(5,new Date(configValueTypeDTO.getStartDateApply().getTime()));
-            stmUpdateConfig.setDate(6,new Date(configValueTypeDTO.getEndDateApply().getTime()));
+
+            if(configValueTypeDTO.getStartDateApply()!=null){
+                stmUpdateConfig.setDate(5,new Date(df.parse(configValueTypeDTO.getStartDateApply()).getTime()));
+            } else{
+                stmUpdateConfig.setDate(5,null);
+            }
+            if(configValueTypeDTO.getEndDateApply()!=null)
+                stmUpdateConfig.setDate(6,new Date(df.parse(configValueTypeDTO.getEndDateApply()).getTime()));
+            else
+                stmUpdateConfig.setDate(6,null);
+
             stmUpdateConfig.setString(7,configValueTypeDTO.getCode());
             stmUpdateConfig.setLong(8,configValueTypeDTO.getId());
             stmUpdateConfig.executeUpdate();
@@ -306,4 +325,69 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
+
+    @Override
+    public Boolean isInsert(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        String sqlCheck = "";
+        if(configValueTypeDTO.getEndDateApply()==null && configValueTypeDTO.getStartDateApply() == null){
+            sqlCheck ="select id from config_value_types where  station_id = ? and parameter_type_id = ?";
+        } else if(configValueTypeDTO.getStartDateApply() == null && configValueTypeDTO.getEndDateApply() != null){
+            sqlCheck = "select id from config_value_types where (trunc(start_apply_date) <= trunc(?) or (start_apply_date is null and end_apply_date is null)) and station_id = ? and parameter_type_id = ?";
+        } else if(configValueTypeDTO.getEndDateApply() == null && configValueTypeDTO.getStartDateApply()!= null){
+            sqlCheck = "select id from config_value_types where (trunc(end_apply_date) >= trunc(?) or (start_apply_date is null and end_apply_date is null)) and station_id = ? and parameter_type_id = ?";
+        } else {
+            sqlCheck="select id from config_value_types where ((trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (trunc(start_apply_date) <= trunc(?) and trunc(end_apply_date)>= trunc(?)) or (start_apply_date is null and end_apply_date is null)) and station_id = ? and parameter_type_id = ?";
+        }
+        if(configValueTypeDTO.getId() != null){
+            sqlCheck = sqlCheck += " and id != ?";
+        }
+        logger.info("sql : {}", sqlCheck);
+
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sqlCheck);
+
+            if(configValueTypeDTO.getEndDateApply()==null && configValueTypeDTO.getStartDateApply() == null){
+                statement.setString(1, configValueTypeDTO.getStationId());
+                statement.setLong(2, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(3, configValueTypeDTO.getId());
+                }
+
+            } else if(configValueTypeDTO.getStartDateApply() == null && configValueTypeDTO.getEndDateApply() != null){
+                statement.setDate(1, new Date(df.parse(configValueTypeDTO.getEndDateApply()).getTime()));
+                statement.setString(2, configValueTypeDTO.getStationId());
+                statement.setLong(3, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(4, configValueTypeDTO.getId());
+                }
+
+            } else if(configValueTypeDTO.getEndDateApply() == null && configValueTypeDTO.getStartDateApply()!= null){
+                statement.setDate(1, new Date(df.parse(configValueTypeDTO.getStartDateApply()).getTime()));
+                statement.setString(2, configValueTypeDTO.getStationId());
+                statement.setLong(3, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(4, configValueTypeDTO.getId());
+                }
+            } else{
+                statement.setDate(1, new Date(df.parse(configValueTypeDTO.getEndDateApply()).getTime()));
+                statement.setDate(2, new Date(df.parse(configValueTypeDTO.getEndDateApply()).getTime()));
+                statement.setDate(3, new Date(df.parse(configValueTypeDTO.getStartDateApply()).getTime()));
+                statement.setDate(4, new Date(df.parse(configValueTypeDTO.getStartDateApply()).getTime()));
+                statement.setString(5, configValueTypeDTO.getStationId());
+                statement.setLong(6, configValueTypeDTO.getValueTypeId());
+                if(configValueTypeDTO.getId() != null){
+                    statement.setLong(7, configValueTypeDTO.getId());
+                }
+            }
+            ResultSet resultSet = statement.executeQuery();
+            boolean isCheck = true;
+            while (resultSet.next()) {
+                isCheck = false;
+                break;
+            }
+            return isCheck;
+        }
+    }
+
 }
