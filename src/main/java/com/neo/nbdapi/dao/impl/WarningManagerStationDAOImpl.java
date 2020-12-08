@@ -4,6 +4,7 @@ import com.neo.nbdapi.dao.WarningManagerStationDAO;
 import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
+import com.neo.nbdapi.entity.NotificationHistoryDetail;
 import com.neo.nbdapi.entity.WarningThresholdINF;
 import com.neo.nbdapi.rest.vm.SelectVM;
 import com.neo.nbdapi.rest.vm.SelectWarningManagerStrVM;
@@ -343,29 +344,50 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
     @Override
     public NotificationToDayDTO getWarningManagerStationById(Long notificationHistoryId) throws SQLException {
-        String sql = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE nh.id = ?";
+        String sql1 = "SELECT wms.id, wms.code, wms.name, wms.description, wms.content, wms.color, wms.icon, wms.created_at, st.station_name, st.station_id, nh.push_timestap FROM warning_manage_stations wms JOIN warning_recipents wr ON wms.id = wr.manage_warning_stations JOIN notification_history nh ON nh.warning_recipents_id = wr.id JOIN stations st ON wms.station_id = st.station_id WHERE nh.id = ?";
+        String sql2 = "SELECT id, notification_history_id, parameter_type_id, parameter_type_name, parameter_value FROM notification_history_detail WHERE notification_history_id = ?";
         NotificationToDayDTO notificationToDayDTO = null;
         try (
                 Connection connection = ds.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                PreparedStatement statementGetNotification = connection.prepareStatement(sql1);
+
         ) {
-            preparedStatement.setLong(1, notificationHistoryId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
+            statementGetNotification.setLong(1, notificationHistoryId);
+            ResultSet resultSet1 = statementGetNotification.executeQuery();
+            if (resultSet1.next()) {
                 notificationToDayDTO = NotificationToDayDTO.builder()
-                        .id(resultSet.getLong("id"))
-                        .code(resultSet.getString("code"))
-                        .name(resultSet.getString("name"))
-                        .description(resultSet.getString("description"))
-                        .content(resultSet.getString("content"))
-                        .color(resultSet.getString("color"))
-                        .icon(resultSet.getString("icon"))
-                        .createdAt(DateUtils.getStringFromDateFormat(resultSet.getDate("created_at"), "dd/MM/yyyy"))
-                        .stationName(resultSet.getString("station_name"))
-                        .stationId(resultSet.getString("station_id"))
-                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
+                        .id(resultSet1.getLong("id"))
+                        .code(resultSet1.getString("code"))
+                        .name(resultSet1.getString("name"))
+                        .description(resultSet1.getString("description"))
+                        .content(resultSet1.getString("content"))
+                        .color(resultSet1.getString("color"))
+                        .icon(resultSet1.getString("icon"))
+                        .createdAt(DateUtils.getStringFromDateFormat(resultSet1.getDate("created_at"), "dd/MM/yyyy"))
+                        .stationName(resultSet1.getString("station_name"))
+                        .stationId(resultSet1.getString("station_id"))
+                        .pushTimestamp(DateUtils.getStringFromDateFormat(resultSet1.getDate("push_timestap"), "dd/MM/yyyy HH:mm"))
                         .build();
+
+                PreparedStatement statementGetDetail = connection.prepareStatement(sql2);
+                statementGetDetail.setLong(1, notificationHistoryId);
+                ResultSet resultSet2 = statementGetDetail.executeQuery();
+                List<NotificationHistoryDetail> listDetail = new ArrayList<>();
+                while (resultSet2.next()) {
+                    NotificationHistoryDetail detail = NotificationHistoryDetail
+                            .builder()
+                            .id(resultSet2.getLong("id"))
+                            .notificationHistoryId(resultSet2.getLong("notification_history_id"))
+                            .parameterTypeId(resultSet2.getLong("parameter_type_id"))
+                            .parameterTypeName(resultSet2.getString("parameter_type_name"))
+                            .parameterValue(resultSet2.getFloat("parameter_value"))
+                            .build();
+                    listDetail.add(detail);
+                }
+                notificationToDayDTO.setDetails(listDetail);
             }
+
+
         }
         return notificationToDayDTO;
     }
