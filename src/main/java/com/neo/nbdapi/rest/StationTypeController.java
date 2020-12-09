@@ -708,7 +708,8 @@ public class StationTypeController {
                 }
 
             }else{
-                os.write(params.get("command").trim());
+                //os.write(params.get("command").trim());
+                os.write("show ftp_url");
                 os.newLine(); // kết thúc dòng
                 os.flush();  // đẩy dữ liệu đi.
             }
