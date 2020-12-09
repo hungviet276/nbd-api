@@ -701,13 +701,13 @@ public class StationTypeController {
                 }
                 List<DataLogger> list = getCollectionCommand(params.get("stationCode"),"ftp_interval");
                 for(DataLogger bo : list){
-                    os.write(bo.getParameterName() + " " + value);
+                    os.write((bo.getParameterName() + " " + value).trim());
                     os.newLine(); // kết thúc dòng
                     os.flush();  // đẩy dữ liệu đi.
                 }
 
             }else{
-                os.write(params.get("command"));
+                os.write(params.get("command").trim());
                 os.newLine(); // kết thúc dòng
                 os.flush();  // đẩy dữ liệu đi.
             }
@@ -715,6 +715,9 @@ public class StationTypeController {
             String responseLine;
             boolean getData = false;
             while ((responseLine = is.readLine()) != null) {
+                if(!is.ready()){
+                    break;
+                }
                 if(getData){
                     result += responseLine;
                 }
@@ -722,9 +725,6 @@ public class StationTypeController {
                     getData = true;
                 }
                 if (responseLine.indexOf("OK") != -1) {
-                    break;
-                }
-                if(!is.ready()){
                     break;
                 }
                 System.out.println("response: "+ responseLine);
