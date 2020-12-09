@@ -711,7 +711,7 @@ public class StationTypeController {
                 os.newLine(); // kết thúc dòng
                 os.flush();  // đẩy dữ liệu đi.
             }
-
+            System.out.println("command: "+ params.get("command"));
             String responseLine;
             boolean getData = false;
             while ((responseLine = is.readLine()) != null) {
@@ -727,7 +727,9 @@ public class StationTypeController {
                 if(!is.ready()){
                     break;
                 }
+                System.out.println("response: "+ responseLine);
             }
+            System.out.println("KT response: "+ responseLine);
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage(result);
         } catch (UnknownHostException e) {
