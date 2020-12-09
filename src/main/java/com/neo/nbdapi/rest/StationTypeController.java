@@ -689,6 +689,7 @@ public class StationTypeController {
 
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String result = "";
+        System.out.println(objectMapper.writeValueAsBytes(params));
         try (Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
              BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
              BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
