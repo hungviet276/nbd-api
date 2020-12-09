@@ -8,6 +8,11 @@ import com.neo.nbdapi.filter.TokenProvider;
 import com.neo.nbdapi.rest.vm.LoginVM;
 import com.neo.nbdapi.services.UserInfoService;
 import com.neo.nbdapi.utils.Constants;
+import com.neo.nbdapi.utils.DateUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * @author thanglv on 10/9/2020
@@ -32,6 +41,9 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + Constants.APPLICATION_API.MODULE.URI_LOGIN)
 public class UserJWTController {
+
+    private Logger logger = LogManager.getLogger(UserJWTController.class);
+    private Marker makerLoggerCrud = MarkerManager.getMarker(Constants.LOGGER.MAKER_LOG_ACTION_CRUD);
 
     private final TokenProvider tokenProvider;
 
@@ -55,7 +67,9 @@ public class UserJWTController {
      * @throws SQLException
      */
     @PostMapping
-    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException, JsonProcessingException {
+    public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException, JsonProcessingException, UnsupportedEncodingException {
+        // {menuName} {action} {date} {username}
+        logger.info(makerLoggerCrud,"{} {} {} {}", URLEncoder.encode("Trang chủ", StandardCharsets.UTF_8.toString()), Constants.LOG_ACT.ACTION_CREATE, URLEncoder.encode(DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm") == null ? "" : DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm"), StandardCharsets.UTF_8.toString()), SecurityContextHolder.getContext().getAuthentication().getName());
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);

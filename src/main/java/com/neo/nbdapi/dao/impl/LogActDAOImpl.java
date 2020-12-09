@@ -29,12 +29,12 @@ public class LogActDAOImpl implements LogActDAO {
     @Override
     public List<LogActDTO> getListLogActByObjSearch(SearchLogAct objectSearch) throws SQLException {
 
-        StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.id AS menu_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
+        StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, la.menu_name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la WHERE 1 = 1 ");
         List<Object> paramSearch = new ArrayList<>();
         // set param query to sql
-        if (Strings.isNotEmpty(objectSearch.getMenuId())) {
-            sql.append(" AND menu_id = ? ");
-            paramSearch.add(objectSearch.getMenuId());
+        if (Strings.isNotEmpty(objectSearch.getMenuName())) {
+            sql.append(" AND UPPER(menu_name) LIKE UPPER(?)");
+            paramSearch.add("%" + objectSearch.getMenuName() + "%");
         }
         if (Strings.isNotEmpty(objectSearch.getAct())) {
             sql.append(" AND act = ? ");
@@ -71,7 +71,6 @@ public class LogActDAOImpl implements LogActDAO {
                 LogActDTO logActDTO = LogActDTO
                         .builder()
                         .id(resultSet.getLong("log_id"))
-                        .menuId(resultSet.getLong("menu_id"))
                         .menuName(resultSet.getString("menu_name"))
                         .act(resultSet.getString("act"))
                         .createdAt(DateUtils.convertDateToString(resultSet.getDate("created_at")))
