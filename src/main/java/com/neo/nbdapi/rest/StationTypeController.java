@@ -683,24 +683,53 @@ public class StationTypeController {
     }
 
     @PostMapping("/control")
-    public DefaultResponseDTO controlStation(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException {
+    public DefaultResponseDTO controlStation(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException, BusinessException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String result = "";
         try (Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
              BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
              BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
+            if(params.get("command").contains("set ftp_interval")){
+                String value = params.get("command").substring("set ftp_interval".length()).trim();
+                if(Long.parseLong(value) >= 60){
+                    value = "\"01:00:00\"";
+                }else{
+                    value = "\"00:" + value + ":00\"";
+                }
+                List<DataLogger> list = getCollectionCommand(params.get("stationCode"),"ftp_interval");
+                for(DataLogger bo : list){
+                    os.write(bo.getParameterName() + " " + value);
+                    os.newLine(); // kết thúc dòng
+                    os.flush();  // đẩy dữ liệu đi.
+                }
 
-            os.write(params.get("command"));
-            os.newLine(); // kết thúc dòng
-            os.flush();  // đẩy dữ liệu đi.
-
+            }else{
+                os.write(params.get("command"));
+                os.newLine(); // kết thúc dòng
+                os.flush();  // đẩy dữ liệu đi.
+            }
+            System.out.println("command: "+ params.get("command"));
             String responseLine;
+            boolean getData = false;
             while ((responseLine = is.readLine()) != null) {
-                result += responseLine + "\n";
+                if(getData){
+                    result += responseLine;
+                }
+                if(responseLine.startsWith("TAG")){
+                    getData = true;
+                }
                 if (responseLine.indexOf("OK") != -1) {
                     break;
                 }
+                if(!is.ready()){
+                    break;
+                }
+                System.out.println("response: "+ responseLine);
             }
+            System.out.println("KT response: "+ responseLine);
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage(result);
         } catch (UnknownHostException e) {
@@ -713,7 +742,16 @@ public class StationTypeController {
             result = e.getMessage();
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage(result);
+        } catch (BusinessException e) {
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
         }
+
+        //ghi nhan ket qua thuc hien
+        String commandDesc = params.get("command") + ": " + params.get("description");
+        writeLogControlStation(params.get("stationCode"),params.get("host"),params.get("port")
+                ,commandDesc,"CONTROL",userLogin.getUsername(),result);
         return defaultResponseDTO;
     }
 
@@ -1065,6 +1103,42 @@ public class StationTypeController {
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage("Xóa thất bại: " + e.getMessage());
             return defaultResponseDTO;
+        }
+    }
+
+
+    public List<DataLogger> getCollectionCommand(String stationCode,String command) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select * from DATA_LOGGERS_VALUE where NAME = ? and COMMAND = ?");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            st.setString(1,stationCode);
+            st.setString(2,command);
+            ResultSet rs = st.executeQuery();
+            List<DataLogger> list = new ArrayList<>();
+            while (rs.next()) {
+                DataLogger bo = DataLogger.builder()
+                        .dataLoggerCode(rs.getString("NAME"))
+                        .parameterName(rs.getString("PARAMETER_NAME").trim())
+                        .build();
+                list.add(bo);
+            }
+            return list;
+        }
+    }
+    public void writeLogControlStation(String stationCode,String host, String port,String commandDesc, String control,String createBy,String result) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("insert into stations_his(STATION_CODE,STATION_NAME,ELEVATION,ADDRESS,ACTION,CREATED_BY_ID,CREATED_AT,IMAGE) values(?,?,?,?,?,?,sysdate,?)");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            connection.setAutoCommit(false);
+            st.setString(1,stationCode);
+            st.setString(2,host);
+            st.setString(3,port);
+            st.setString(4,commandDesc);
+            st.setString(5,control);
+            st.setString(6,createBy);
+            st.setString(7,result);
+            st.execute();
+            connection.commit();
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
     }
 }

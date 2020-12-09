@@ -1,12 +1,16 @@
 package com.neo.nbdapi.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neo.nbdapi.dao.MailConfigDAO;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UsersManagerDAO;
 import com.neo.nbdapi.dto.DefaultPaginationDTO;
+import com.neo.nbdapi.dto.DefaultResponseDTO;
+import com.neo.nbdapi.dto.EmailBuilder;
 import com.neo.nbdapi.entity.ComboBox;
 import com.neo.nbdapi.entity.ComboBoxStr;
 import com.neo.nbdapi.entity.NotificationHistory;
+import com.neo.nbdapi.entity.WarningManagerStation;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.SendMailHistoryService;
@@ -25,22 +29,34 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Service
 public class SendMailHistoryServiceImpl implements SendMailHistoryService {
 
     private Logger logger = LogManager.getLogger(SendMailHistoryServiceImpl.class);
+    @Autowired
+    private MailConfigDAO mailConfigDAO;
 
     @Autowired
     private PaginationDAO paginationDAO;
@@ -379,6 +395,88 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         sheet.autoSizeColumn((short)6);
 
         return workbook;
+    }
+
+    @Override
+    public DefaultResponseDTO sendEmail(List<Long> groupEmailid, Long warningStationId) throws MessagingException, SQLException {
+        MimeMessage message = createMailMessage(groupEmailid, warningStationId);
+        System.out.println("sending...");
+        Transport.send(message);
+        System.out.println("Sent message successfully....");
+        return null;
+    }
+
+    private MimeMessage createMailMessage(List<Long> groupEmailid, Long warningStationId) throws MessagingException {
+        String bccRecipient = getBccEmail(groupEmailid);
+        EmailBuilder mail = createMail(warningStationId);
+        Session session = createSession(mail);
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(mail.getMailFrom()));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(mail.getMailFrom()));
+        if (!bccRecipient.isEmpty())
+            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipient));
+        Multipart multipart = new MimeMultipart();
+        MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setContent(mail.getContent(), "text/html; charset=utf-8");
+        multipart.addBodyPart(textPart);
+        message.setSubject(mail.getSubject(), "UTF-8");
+        message.setContent(multipart);
+
+        return message;
+    }
+
+    private EmailBuilder createMail(Long warningStationId) {
+        EmailBuilder mail = mailConfigDAO.getEmailConfig();
+        WarningManagerStation warningManagerStation = mailConfigDAO.getMailContent(warningStationId);
+        mail.setSubject(warningManagerStation.getDescription());
+        mail.setContent(warningManagerStation.getContent());
+        configEmailHtml(mail);
+        return mail;
+    }
+
+    private void configEmailHtml(EmailBuilder emailBuilder) {
+        Properties properties = new Properties();
+        properties.setProperty("input.encoding", "UTF-8");
+        properties.setProperty("output.encoding", "UTF-8");
+        properties.setProperty("resource.loader", "file, class, jar");
+        properties.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        VelocityContext velocityContext = new VelocityContext();
+        velocityContext.put("subject", emailBuilder.getSubject());
+        velocityContext.put("content", emailBuilder.getContent());
+        VelocityEngine velocityEngine = new VelocityEngine(properties);
+
+        Template templateEngine = velocityEngine.getTemplate(EmailBuilder.TEMPLATE);
+        StringWriter stringWriter = new StringWriter();
+        templateEngine.merge(velocityContext, stringWriter);
+        emailBuilder.setContent(stringWriter.toString());
+    }
+
+    private Session createSession(EmailBuilder mailConfig) {
+        Properties properties = System.getProperties();
+        // Setup mail server
+        properties.put("mail.smtp.host", mailConfig.getIp());
+        properties.put("mail.smtp.port", mailConfig.getPort());
+        properties.put("mail.smtp.**ssl.enable", true);
+        properties.put("mail.smtp.auth", true);
+        // Get the Session object.// and pass
+        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(mailConfig.getUsername(), mailConfig.getPassword());
+            }
+        });
+        session.setDebug(true);
+        return session;
+    }
+
+    private String getBccEmail(List<Long> groupEmailid) {
+        List<String> mailRiecieve = mailConfigDAO.getGroupRieveMail(groupEmailid);
+        String bccRecipient = "";
+        int size = mailRiecieve.size();
+        for (int i = 0; i < size; i++) {
+            bccRecipient += mailRiecieve.get(i);
+            if (i < size - 1) bccRecipient += ",";
+        }
+        return bccRecipient;
     }
 
 

@@ -176,6 +176,10 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
 
     @Override
     public DefaultResponseDTO createConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        boolean isInsert = configValueTypeDAO.isInsert(configValueTypeDTO);
+        if(!isInsert){
+            return DefaultResponseDTO.builder().status(0).message("Dữ liệu bị chồng lấn khoảng thời gian").build();
+        }
         return configValueTypeDAO.createConfigValuetype(configValueTypeDTO);
     }
 
@@ -186,6 +190,10 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
 
     @Override
     public DefaultResponseDTO editConfigValuetype(ConfigValueTypeDTO configValueTypeDTO) throws Exception {
+        boolean isInsert = configValueTypeDAO.isInsert(configValueTypeDTO);
+        if(!isInsert){
+            return DefaultResponseDTO.builder().status(0).message("Dữ liệu bị chồng lấn khoảng thời gian").build();
+        }
         //láy ra danh sách config đã tồn tại về không gian
         List<ConfigStationsCommrelateDTO> configStationsCommrelateDTOTmps = configValueTypeDAO.getListConfigStationsCommrelateDTO(configValueTypeDTO.getId());
         // chia ra làm 2 danh sách 1 danh sách để xóa, 1 danh sách để thêm mới

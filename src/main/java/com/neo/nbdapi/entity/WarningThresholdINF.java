@@ -16,4 +16,14 @@ public class WarningThresholdINF implements Serializable {
     private Integer warningThreshold;
 
     private Integer warningThresholdCancel;
+
+    private Float valueLevel1;
+
+    private Float valueLevel2;
+
+    private Float valueLevel3;
+
+    private Float valueLevel4;
+
+    private Float valueLevel5;
 }

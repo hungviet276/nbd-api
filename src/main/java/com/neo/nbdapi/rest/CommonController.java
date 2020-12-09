@@ -464,4 +464,24 @@ public class CommonController {
             return list;
         }
     }
+
+    @GetMapping("/get-station-ip")
+    public List<DataLogger> getStationsIP(@RequestParam(name = "stationCode") String stationCode) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder("select * from DATA_LOGGERS where DATA_LOGGER_CODE = ?");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString()); ) {
+            st.setString(1,stationCode);
+            ResultSet rs = st.executeQuery();
+            List<DataLogger> list = new ArrayList<>();
+            while (rs.next()) {
+                DataLogger comboBox = DataLogger.builder()
+                        .dataLoggerId(rs.getLong("DATA_LOGGER_ID"))
+                        .dataLoggerCode(rs.getString("DATA_LOGGER_CODE"))
+                        .modem(rs.getString("MODEM"))
+                        .port(rs.getInt("PORT"))
+                        .build();
+                list.add(comboBox);
+            }
+            return list;
+        }
+    }
 }
