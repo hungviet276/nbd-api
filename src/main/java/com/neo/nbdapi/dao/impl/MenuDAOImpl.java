@@ -16,7 +16,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class MenuDAOImpl implements MenuDAO {
@@ -192,7 +194,7 @@ public class MenuDAOImpl implements MenuDAO {
                     long menuId = resultSet.getLong("menu_id");
                     String act = resultSet.getString("act");
                     if (currentMenuId != menuId) {
-                        List<String> listAct = new ArrayList<>();
+                        Set<String> listAct = new HashSet<>();
                         listAct.add(act);
                         MenuDTO menu = MenuDTO
                                 .builder()
@@ -221,7 +223,7 @@ public class MenuDAOImpl implements MenuDAO {
                     long menuId = resultSet.getLong("menu_id");
                     String act = resultSet.getString("act");
                     if (currentMenuId != menuId) {
-                        List<String> listAct = new ArrayList<>();
+                        Set<String> listAct = new HashSet<>();
                         listAct.add(act);
                         MenuDTO menu = MenuDTO
                                 .builder()
