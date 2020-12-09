@@ -16,8 +16,6 @@ import lombok.NoArgsConstructor;
 public class LogActDTO {
     private long id;
 
-    private long menuId;
-
     private String menuName;
 
     private String act;
