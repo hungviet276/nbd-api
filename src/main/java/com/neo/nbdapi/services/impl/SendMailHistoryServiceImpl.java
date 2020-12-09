@@ -93,7 +93,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                 try {
                     SearchSendMailHistory objectSearch = objectMapper.readValue(search, SearchSendMailHistory.class);
                     if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-                        sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+                        sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from notification_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
                         if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                             sql.append(" and station_code  like ?");
                             paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -136,7 +136,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
                         }
                         sql.append(" order by push_timestap desc");
                     }else{
-                        sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+                        sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from notification_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
                     }
 
                 } catch (Exception e) {
@@ -240,7 +240,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
         List<Object> paramSearch = new ArrayList<>();
         // set param query to sql
         if (Strings.isNotEmpty(objectSearch.getStationId()) && Strings.isNotEmpty(objectSearch.getWarningId())) {
-            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
+            sql.append("select * from (select wms.id,wms.code,wms.name warning_name,wms.description,nh.push_timestap,to_char(nh.push_timestap,'DD/MM/YYYY HH:MI:SS') timestampChar,nh.status,s.station_code,s.station_name,s.station_id,grm.name gr_mail_name from notification_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id  join group_receive_mail grm on   grm.id = wr.group_receive_mail_id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where 1=1");
             if (Strings.isNotEmpty(objectSearch.getStation_no())) {
                 sql.append(" and station_code  like ?");
                 paramSearch.add("%" +objectSearch.getStation_no()+ "%");
@@ -284,7 +284,7 @@ public class SendMailHistoryServiceImpl implements SendMailHistoryService {
             }
             sql.append(" order by push_timestap desc");
         }else{
-            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from nofication_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
+            sql.append("select * from (select wms.id,wms.code,wms.name,wms.description,nh.push_timestap,nh.status,s.station_code,s.station_name,s.station_id from notification_history nh join warning_recipents wr on nh.warning_recipents_id = wr.id join warning_manage_stations wms on wms.id = wr.manage_warning_stations join stations s on s.station_id = wms.station_id ) where rownum <1");
         }
         System.out.println("sql sendmail history Export =" +sql);
         try (
