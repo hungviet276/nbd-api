@@ -84,7 +84,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
     @Override
     public WarningThresholdINF getInFoWarningThreshold(Long idThreshold) throws SQLException {
-        String sql = "select level_warning, level_clean from warning_threshold where id = ?";
+        String sql = "select w.level_warning, w.level_clean, wv.value_level1, wv.value_level2, wv.value_level3, wv.value_level4, wv.value_level5 from warning_threshold w inner join warning_threshold_value wv on wv.id = w.warning_threshold_value_id where w.id = ?";
         logger.info("sql get WarningThresholdINF : {}", sql);
         try (Connection connection = ds.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -94,7 +94,13 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
             while (resultSet.next()) {
                 warningThresholdINF = WarningThresholdINF.builder()
                         .warningThreshold(resultSet.getInt("level_warning"))
-                        .warningThresholdCancel(resultSet.getInt("level_clean")).build();
+                        .warningThresholdCancel(resultSet.getInt("level_clean"))
+                        .valueLevel1(resultSet.getFloat("value_level1"))
+                        .valueLevel2(resultSet.getFloat("value_level2"))
+                        .valueLevel3(resultSet.getFloat("value_level3"))
+                        .valueLevel4(resultSet.getFloat("value_level4"))
+                        .valueLevel5(resultSet.getFloat("value_level5"))
+                        .build();
             }
             return warningThresholdINF;
         }
@@ -156,7 +162,7 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
 
     @Override
     public List<WarningMangerDetailInfoDTO> getWarningMangerDetailInfoDTOs(Long WarningManageStationId) throws SQLException {
-        String sql = "select wd.id, pt.parameter_type_id, wt.id as warning_threshold_id, pt.parameter_type_name, wt.code, wt.level_warning, wt.level_clean, wd.created_by, wd.created_at from warning_manage_detail wd inner join warning_threshold wt on wt.id = wd.warning_threshold_id inner join warning_threshold_value wv on wv.id = wt.warning_threshold_value_id inner join parameter_type pt on pt.parameter_type_id = wv.parameter_type_id where wd.warning_manage_station_id = ?";
+        String sql = "select wd.id, pt.parameter_type_id, wt.id as warning_threshold_id, pt.parameter_type_name, wt.code, wt.level_warning, wt.level_clean, wd.created_by, wd.created_at, wv.value_level1, wv.value_level2, wv.value_level3, wv.value_level4, wv.value_level5 from warning_manage_detail wd inner join warning_threshold wt on wt.id = wd.warning_threshold_id inner join warning_threshold_value wv on wv.id = wt.warning_threshold_value_id inner join parameter_type pt on pt.parameter_type_id = wv.parameter_type_id where wd.warning_manage_station_id = ?";
         logger.info("sql get WarningThresholdINF : {}", sql);
         try (Connection connection = ds.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -172,6 +178,11 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
                         .warningThresholdCode(resultSet.getString("code"))
                         .warningThreshold(resultSet.getInt("level_warning"))
                         .warningThresholdCancel(resultSet.getInt("level_clean"))
+                        .valueLevel1(resultSet.getFloat("value_level1"))
+                        .valueLevel2(resultSet.getFloat("value_level2"))
+                        .valueLevel3(resultSet.getFloat("value_level3"))
+                        .valueLevel4(resultSet.getFloat("value_level4"))
+                        .valueLevel5(resultSet.getFloat("value_level5"))
                         .createBy(resultSet.getString("created_by"))
                         .createAt(resultSet.getString("created_at"))
                         .build();
