@@ -202,37 +202,39 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         variablesSpatials = (List<VariablesSpatial>) datas.get(1);
 
         nearest = (Float) datas.get(2);
-        Boolean continude = false;
-        if(waterLevelVM.getValue() < variableTime.getMin() && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        Boolean continude = true;
+
+        if(continude && variableTime != null && waterLevelVM.getValue() < variableTime.getMin()){
             waterLevelVM.setWarning(2);
-            continude = true;
+            continude = false;
         }
 
-        if(waterLevelVM.getValue() > variableTime.getMax() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        if(continude && variableTime != null && waterLevelVM.getValue() > variableTime.getMax()){
             waterLevelVM.setWarning(3);
-            continude = true;
-            //update và return
+            continude = false;
         }
-
-        if(nearest!=null){
-            if(Math.abs(waterLevelVM.getValue() - nearest) > variableTime.getVariableTime() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        if(nearest!=null && variableTime != null && continude){
+            Float percentTmp = waterLevelVM.getValue()/ nearest;
+            Float percent = 100 - percentTmp*100;
+            if(Math.abs(percent) > variableTime.getVariableTime() && continude){
                 waterLevelVM.setWarning(4);
-                continude = true;
+                continude = false;
             }
         }
 
-        if(!continude){
+        if(continude && variableTime!= null){
+            float spatial = variableTime.getVariableSpatial();
+            float tmp = waterLevelVM.getValue();
             for(VariablesSpatial variablesSpatial : variablesSpatials){
-                if(variablesSpatial.getMin() - waterLevelVM.getValue() > variableTime.getVariableSpatial()){
-                    waterLevelVM.setWarning(5);
-                    break;
-                } else if(waterLevelVM.getValue() - variablesSpatial.getMax() > variableTime.getVariableSpatial()&& variablesSpatial.getMax()>0){
+                float percent = Math.abs(100 - (tmp/variablesSpatial.getValue())*100);
+                if(percent>spatial){
+                    continude = false;
                     waterLevelVM.setWarning(5);
                     break;
                 }
             }
         }
-        if(!continude){
+        if(continude){
             waterLevelVM.setWarning(1);
         }
         return waterLevelDAO.updateWaterLevel(waterLevelVM);
