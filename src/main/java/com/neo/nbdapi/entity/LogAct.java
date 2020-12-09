@@ -18,8 +18,6 @@ import java.util.Date;
 public class LogAct {
     private long id;
 
-    private long menuId;
-
     private String act;
 
     private String createdBy;

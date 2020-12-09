@@ -75,16 +75,16 @@ public class LogActServiceImpl implements LogActService, Constants {
             int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
             String search = defaultRequestPagingVM.getSearch();
 
-            StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, mn.id AS menu_id, mn.name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la JOIN menu mn ON la.menu_id = mn.id  WHERE 1 = 1 ");
+            StringBuilder sql = new StringBuilder("SELECT la.id AS log_id, la.menu_name AS menu_name, la.act, la.created_by, la.created_at FROM log_act la  WHERE 1 = 1 ");
             List<Object> paramSearch = new ArrayList<>();
             logger.debug( "Object search: {}", search);
             // set param query to sql
             if (Strings.isNotEmpty(search)) {
                 try {
                     SearchLogAct objectSearch = objectMapper.readValue(search, SearchLogAct.class);
-                    if (Strings.isNotEmpty(objectSearch.getMenuId())) {
-                        sql.append(" AND menu_id = ? ");
-                        paramSearch.add(objectSearch.getMenuId());
+                    if (Strings.isNotEmpty(objectSearch.getMenuName())) {
+                        sql.append(" AND menu_name LIKE ? ");
+                        paramSearch.add("%" + objectSearch.getMenuName() + "%");
                     }
                     if (Strings.isNotEmpty(objectSearch.getAct())) {
                         sql.append(" AND act = ? ");
@@ -122,7 +122,6 @@ public class LogActServiceImpl implements LogActService, Constants {
                 LogActDTO logAct = LogActDTO
                         .builder()
                         .id(resultSetListData.getLong("log_id"))
-                        .menuId(resultSetListData.getLong("menu_id"))
                         .menuName(resultSetListData.getString("menu_name"))
                         .act(resultSetListData.getString("act"))
                         .createdBy(resultSetListData.getString("created_by"))
@@ -170,6 +169,10 @@ public class LogActServiceImpl implements LogActService, Constants {
      */
     @Override
     public SXSSFWorkbook export(SearchLogAct objectSearch) throws SQLException {
+
+        if (Strings.isEmpty(objectSearch.getToDate()))
+            objectSearch.setToDate(DateUtils.getCurrentDateString("dd/MM/yyyy"));
+
         List<LogActDTO> logActDAOList = logActDAO.getListLogActByObjSearch(objectSearch);
 
         // create streaming workbook optimize memory of apache poi

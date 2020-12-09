@@ -6,7 +6,6 @@ import com.neo.nbdapi.dto.MenuDTO;
 import com.neo.nbdapi.entity.Menu;
 import com.neo.nbdapi.utils.Constants;
 import com.zaxxer.hikari.HikariDataSource;
-import oracle.jdbc.driver.Const;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

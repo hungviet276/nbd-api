@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+
 /**
  * @author thanglv on 10/9/2020
  * @project NBD
@@ -17,8 +19,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchLogAct {
 
-    @JsonProperty("s_menu_id")
-    private String menuId;
+    @JsonProperty("s_menu_name")
+    private String menuName;
 
     @JsonProperty("s_act")
     private String act;
