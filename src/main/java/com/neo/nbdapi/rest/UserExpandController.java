@@ -33,4 +33,9 @@ public class UserExpandController {
         return userExpandService.getListMailConfigPagination(defaultRequestPagingVM);
     }
 
+    @PostMapping
+    public DefaultPaginationDTO createUserExpand(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        return userExpandService.getListMailConfigPagination(defaultRequestPagingVM);
+    }
+
 }

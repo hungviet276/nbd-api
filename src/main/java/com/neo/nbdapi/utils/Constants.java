@@ -44,9 +44,7 @@ public interface Constants {
     }
 
     class LOGGER {
-        public static final String MAKER_LOG_STATION = "LOG_STATION";
         public static final String MAKER_LOG_ACTION_CRUD = "LOG_ACTION_CRUD";
-        public static final String MAKER_LOG_DEBUG= "LOG_DEBUG";
     }
 
     class ConstantParams{
@@ -75,6 +73,13 @@ public interface Constants {
 
     class LOG_ACT {
         public static final String FILE_NAME_EXPORT_LOG_ACT = "log_act";
+
+        public static final String ACTION_CREATE = "CREATE";
+        public static final String ACTION_EDIT = "EDIT";
+        public static final String ACTION_DELETE = "DELETE";
+        public static final String ACTION_EXPORT= "EXPORT";
+        public static final String ACTION_DOWNLOAD_FILE = "DOWNLOAD_FILE";
+        public static final String ACTION_LOGIN = "LOGIN";
     }
     class LOG_CDH {
         public static final String FILE_NAME_EXPORT_LOG_CDH= "LOG_CDH";
@@ -99,6 +104,8 @@ public interface Constants {
 
         public static final  String REGEX_FILE_UPLOAD = ".*.dat$";
         public static final String FILE_CONFIG = "tides.cfg";
+        public static final String URL_GUESS = "http://192.168.1.20:8082/water-level/guess";
+        public static final String URL_EXECUTE = "http://192.168.1.20:8082/water-level/excute";
     }
 
     class STATION {

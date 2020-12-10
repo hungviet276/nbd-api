@@ -11,11 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VariablesSpatial {
 
-    private String StationId;
+    private String stationId;
 
-    private Float variableSpatial;
+    private String tsId;
 
-    private Float min;
+    private Float value;
 
-    private Float max;
 }

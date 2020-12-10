@@ -45,28 +45,31 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
         PreparedStatement stmValueNearest = null;
         try{
             connection.setAutoCommit(false);
-            String sqlMinMaxVariableTime =
-                    "select max(c.min) min, min(c.max) max, min(c.variable_time) variable_time, min(c.variable_spatial) as variable_spatial from config_value_types c " +
-                    "where id in " +
-                    "(select c.id from config_value_types c " +
-                    "    where station_id = ? and c.start_apply_date <= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') \n" +
-                    "    and c.end_apply_date+1 >= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF')" +
-                    ")  " +
+            String sqlMinMaxVariableTime = "select c.min , c.max , c.variable_time, c.variable_spatial from config_value_types c " +
+                    "where c.id in " +
+                    "(select c1.id from config_value_types c1 " +
+                    "    where c1.station_id = ? and c1.start_apply_date <= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF')" +
+                    "    and c1.end_apply_date+1 >= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF')" +
+                    ")   " +
                     "and c.parameter_type_id = "+ Constants.WATER_LEVEL.PARAMETER_TYPE_ID;
-            String sqlVariableSpatial =
-                    "select STATION_ID,VARIABLE_SPATIAL, max(VALUE) as max, min(value) as min from " +
-                            "(select tmp.station_id, tmp.variable_spatial, tmp.ts_id,w.value from " +
-                            "    (select ct.station_id, ct.variable_spatial, ss.ts_id from config_value_types ct inner join station_time_series ss on ss.station_id = ct.station_id " +
-                            "        where ct.id in " +
-                            "            (select cc.config_value_types_id from config_value_types c inner join config_stations_commrelate cc on cc.config_value_types_parent = c.id where station_id = ? ) " +
-                            "             and ct.parameter_type_id =  " +Constants.WATER_LEVEL.PARAMETER_TYPE_ID+
-                            "             and ct.start_apply_date <= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
-                            "             and ct.end_apply_date +1 > TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF')" +
-                            "    ) tmp  " +
-                            "        inner join water_level w on w.ts_id = tmp.ts_id where w.timestamp >= trunc(TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') -1) " +
-                            "        and w.timestamp <trunc(TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') +1) " +
-                            ") group by STATION_ID, VARIABLE_SPATIAL";
-            String sqlValueNearest = "select * from (select w.value from water_level w where w.ts_id in (select tmp.ts_id from water_level tmp  where tmp.id = ?) and w.timestamp <  (select timestamp from water_level where id = ?) and w.warning = 1 order by w.timestamp desc)where  rownum = 1";
+            String sqlVariableSpatial ="select tmp.station_id, tmp.ts_id,w.value from " +
+                    "    (select ct.station_id, ss.ts_id from config_value_types ct inner join station_time_series ss on ss.station_id = ct.station_id " +
+                    "        where ct.id in " +
+                    "            (select cc.config_value_types_id from config_value_types c inner join config_stations_commrelate cc on cc.config_value_types_parent = c.id where station_id = ? ) " +
+                    "             and ct.parameter_type_id = " + Constants.WATER_LEVEL.PARAMETER_TYPE_ID +
+                    "             and ct.start_apply_date <= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
+                    "             and ct.end_apply_date +1 > TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
+                    "    ) tmp  " +
+                    "inner join water_level w on w.ts_id = tmp.ts_id where w.timestamp >= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') + (1/1440*-30) " +
+                    "and w.timestamp <TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') +  (1/1440*30) ";
+            String sqlValueNearest = "select value from (" +
+                    "    select w.value from water_level w where w.ts_id = " +
+                    "    (select tmp.ts_id from water_level tmp  where tmp.id = ?) " +
+                    "    and w.timestamp <  (select timestamp from water_level where id = ?)" +
+                    "    and w.timestamp > (select timestamp from water_level where id = ?) - (1/1440*60)" +
+                    "    and w.warning = 1 order by w.timestamp desc" +
+                    "    " +
+                    ")where  rownum = 1";
             logger.info("WaterLevelDAOImpl : {}",sqlMinMaxVariableTime);
             logger.info("WaterLevelDAOImpl : {}",sqlVariableSpatial);
             logger.info("WaterLevelDAOImpl : {}",sqlValueNearest);
@@ -96,14 +99,15 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
             ResultSet resultSetVariableSpatial = stmVariableSpatial.executeQuery();
             while(resultSetVariableSpatial.next()){
                 VariablesSpatial variablesSpatial = VariablesSpatial.builder()
-                        .max(resultSetVariableSpatial.getFloat("max"))
-                        .min(resultSetVariableSpatial.getFloat("min"))
-                        .variableSpatial(resultSetVariableSpatial.getFloat("VARIABLE_SPATIAL"))
+                        .stationId(resultSetVariableSpatial.getString("station_id"))
+                        .tsId(resultSetVariableSpatial.getString("ts_id"))
+                        .value(resultSetVariableSpatial.getFloat("value"))
                         .build();
                 variablesSpatials.add(variablesSpatial);
             }
             stmValueNearest.setLong(1,waterLevelVM.getId());
             stmValueNearest.setLong(2,waterLevelVM.getId());
+            stmValueNearest.setLong(3,waterLevelVM.getId());
             ResultSet resultSetValueNearest = stmValueNearest.executeQuery();
 
             while (resultSetValueNearest .next()){
@@ -198,7 +202,22 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                 connection.close();
             }
         }
-        return DefaultResponseDTO.builder().message("Chỉnh sửa thành công").status(waterLevelVM.getWarning()).build();
+        String message = "";
+        if(waterLevelVM.getWarning() == 1){
+            message = "Thành công";
+        } else if(waterLevelVM.getWarning() == 2){
+            message = "Nhỏ hơn giá trị min config";
+        }
+        else if(waterLevelVM.getWarning() == 3){
+            message = "Lớn hơn max được config";
+        }
+        else if(waterLevelVM.getWarning() == 4){
+            message = "Chênh lệch quá lớn với thời điểm đo đúng gần nhất";
+        }
+        else if(waterLevelVM.getWarning() == 5){
+            message = "Chênh lệch quá lớn so với giá trị của các trạm trong một nhóm được đo cùng khoảng thời gian";
+        }
+        return DefaultResponseDTO.builder().message(message).status(waterLevelVM.getWarning()).build();
     }
 
     @Override

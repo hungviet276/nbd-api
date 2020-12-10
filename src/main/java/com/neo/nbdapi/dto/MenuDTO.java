@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -25,5 +26,5 @@ public class MenuDTO {
 
     private int level;
 
-    private List<String> listAct;
+    private Set<String> listAct;
 }

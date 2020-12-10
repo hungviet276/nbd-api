@@ -77,6 +77,7 @@ public class MailGroupConfigServiceImpl implements MailGroupConfigService {
                     e.printStackTrace();
                 }
             }
+            sql.append(" ORDER BY created_at");
             ResultSet resultSetListData = paginationDAO.getResultPagination(connection, sql.toString(), pageNumber + 1, recordPerPage, paramSearch);
 
             while (resultSetListData.next()) {

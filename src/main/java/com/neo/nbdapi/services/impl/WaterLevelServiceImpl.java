@@ -202,37 +202,39 @@ public class WaterLevelServiceImpl implements WaterLevelService {
         variablesSpatials = (List<VariablesSpatial>) datas.get(1);
 
         nearest = (Float) datas.get(2);
-        Boolean continude = false;
-        if(waterLevelVM.getValue() < variableTime.getMin() && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        Boolean continude = true;
+
+        if(continude && variableTime != null && waterLevelVM.getValue() < variableTime.getMin()){
             waterLevelVM.setWarning(2);
-            continude = true;
+            continude = false;
         }
 
-        if(waterLevelVM.getValue() > variableTime.getMax() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        if(continude && variableTime != null && waterLevelVM.getValue() > variableTime.getMax()){
             waterLevelVM.setWarning(3);
-            continude = true;
-            //update và return
+            continude = false;
         }
-
-        if(nearest!=null){
-            if(Math.abs(waterLevelVM.getValue() - nearest) > variableTime.getVariableTime() && !continude && variableTime.getMin()!=0 && variableTime.getMax()!=0){
+        if(nearest!=null && variableTime != null && continude){
+            Float percentTmp = waterLevelVM.getValue()/ nearest;
+            Float percent = 100 - percentTmp*100;
+            if(Math.abs(percent) > variableTime.getVariableTime() && continude){
                 waterLevelVM.setWarning(4);
-                continude = true;
+                continude = false;
             }
         }
 
-        if(!continude){
+        if(continude && variableTime!= null){
+            float spatial = variableTime.getVariableSpatial();
+            float tmp = waterLevelVM.getValue();
             for(VariablesSpatial variablesSpatial : variablesSpatials){
-                if(variablesSpatial.getMin() - waterLevelVM.getValue() > variableTime.getVariableSpatial()){
-                    waterLevelVM.setWarning(5);
-                    break;
-                } else if(waterLevelVM.getValue() - variablesSpatial.getMax() > variableTime.getVariableSpatial()&& variablesSpatial.getMax()>0){
+                float percent = Math.abs(100 - (tmp/variablesSpatial.getValue())*100);
+                if(percent>spatial){
+                    continude = false;
                     waterLevelVM.setWarning(5);
                     break;
                 }
             }
         }
-        if(!continude){
+        if(continude){
             waterLevelVM.setWarning(1);
         }
         return waterLevelDAO.updateWaterLevel(waterLevelVM);
@@ -324,7 +326,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(Constants.WATER_LEVEL.URL_EXECUTE, entity, String.class);
             String dataResponse = response.getBody();
             DataResponse object = objectMapper.readValue(dataResponse, DataResponse.class);
             tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(object.getTidalHarmonicConstantes());
@@ -483,9 +485,40 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity( "http://192.168.1.20:8082/water-level/guess", request , String.class );
+            ResponseEntity<String> response = restTemplate.postForEntity( Constants.WATER_LEVEL.URL_GUESS, request , String.class );
             String dataResponse = response.getBody();
             List<GuessDataDTO> guessDataDTOs = objectMapper.readValue(dataResponse, new TypeReference<List<GuessDataDTO>>(){});
+
+            //Kiểm tra file log xem chạy đúng hay sai
+            FileInputStream fileInputStream = null;
+            BufferedReader bufferedReader = null;
+            int k = 0;
+            try{
+                fileInputStream = new FileInputStream((pathDirectory.toUpperCase()+"/"+fileNameConf.toUpperCase()+ ".log"));
+                bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+                String line = bufferedReader.readLine();
+                while (line != null) {
+                    k++;
+                    System.out.println(line);
+                    line = bufferedReader.readLine();
+                }
+
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } finally {
+                try {
+                    bufferedReader.close();
+                    fileInputStream.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            if(k<=3){
+                return  DefaultResponseDTO.builder().message("Thực thi hằng số điều hòa không thành công").status(0).build();
+            }
+
             return  waterLevelDAO.insertTidalPrediction(guessDataDTOs, stationId);
         }catch (Exception e){
             e.printStackTrace();
