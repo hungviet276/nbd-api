@@ -26,7 +26,7 @@
             </PatternLayout>
         </RollingFile>
 
-        <RollingFile name="AsyncLogAction" fileName="logs/log-action.log"
+        <RollingFile name="AsyncLogAction" fileName="/nbd-api-log/logs/log-action.log"
                      filePattern="/nbd-api-log-action/nbd-log-action-%d{yyyy-MM-dd}-%i.log">
             <MarkerFilter marker="LOG_ACTION_CRUD" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
