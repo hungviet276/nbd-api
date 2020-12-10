@@ -45,7 +45,7 @@ public class MainReportController {
         List<Float> totalList = new ArrayList<>();
         List<String> timeList = new ArrayList<>();
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "select CUR_TS_TYPE_ID from stations where STATION_ID = ?";
+        String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
         String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
         String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
         String sql4= "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
@@ -62,6 +62,7 @@ public class MainReportController {
             }
             rs1.next();
             Integer curTypeId = rs1.getInt("CUR_TS_TYPE_ID");
+            String stationName = rs1.getString("STATION_NAME");
             if (curTypeId != null) {
                 statement2.setInt(1, Integer.parseInt(params.get("parameterTypeId")));
                 statement2.setString(2, params.get("stationId"));
@@ -111,6 +112,7 @@ public class MainReportController {
                     resultReport.add(avgList);
                     resultReport.add(totalList);
                     resultReport.add(timeList);
+                    resultReport.add(stationName);
                     if (valueList.size()>= Integer.parseInt(params.get("trend"))){
                         switch (params.get("feature")){
                             case "value":
