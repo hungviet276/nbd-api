@@ -689,47 +689,46 @@ public class StationTypeController {
 
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String result = "";
+        System.out.println(objectMapper.writeValueAsString(params));
         try (Socket socketOfClient = new Socket(params.get("host"), Integer.parseInt(params.get("port")));
              BufferedReader is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
              BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));) {
+            Thread.sleep(500l);
             if(params.get("command").contains("set ftp_interval")){
                 String value = params.get("command").substring("set ftp_interval".length()).trim();
                 if(Long.parseLong(value) >= 60){
-                    value = "\"01:00:00\"";
+                    value = "\"01:00:00\"\r";
                 }else{
-                    value = "\"00:" + value + ":00\"";
+                    value = "\"00:" + value + ":00\"\r";
                 }
                 List<DataLogger> list = getCollectionCommand(params.get("stationCode"),"ftp_interval");
                 for(DataLogger bo : list){
-                    os.write(bo.getParameterName() + " " + value);
-                    os.newLine(); // kết thúc dòng
+                    os.write((bo.getParameterName() + " " + value).trim());
+//                    os.newLine(); // kết thúc dòng
                     os.flush();  // đẩy dữ liệu đi.
                 }
 
             }else{
-                os.write(params.get("command"));
-                os.newLine(); // kết thúc dòng
+                os.write(params.get("command").trim() + "\r");
+//                os.write("show ftp_url");
+//                os.newLine(); // kết thúc dòng
                 os.flush();  // đẩy dữ liệu đi.
             }
-            System.out.println("command: "+ params.get("command"));
-            String responseLine;
-            boolean getData = false;
-            while ((responseLine = is.readLine()) != null) {
-                if(getData){
-                    result += responseLine;
-                }
-                if(responseLine.startsWith("TAG")){
-                    getData = true;
-                }
-                if (responseLine.indexOf("OK") != -1) {
-                    break;
-                }
+            //System.out.println("command: "+ params.get("command"));
+
+            boolean dk = true;
+            while (dk) {
+                Thread.sleep(1);
+                int i = is.read();
+//                System.out.print((char) i);
+                result += (char)i;
                 if(!is.ready()){
-                    break;
+                    dk = false;
                 }
-                System.out.println("response: "+ responseLine);
             }
-            System.out.println("KT response: "+ responseLine);
+            if(!params.get("command").contains("set")) {
+                result = result.substring(result.indexOf("TAG") + 3, result.indexOf("OK") + 2);
+            }
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage(result);
         } catch (UnknownHostException e) {
@@ -743,6 +742,10 @@ public class StationTypeController {
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage(result);
         } catch (BusinessException e) {
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        } catch (Exception e) {
             result = e.getMessage();
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage(result);
