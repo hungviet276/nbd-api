@@ -69,7 +69,7 @@ public class UserJWTController {
     @PostMapping
     public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException, JsonProcessingException, UnsupportedEncodingException {
         // {menuName} {action} {date} {username}
-        logger.info(makerLoggerCrud,"{} {} {} {}", URLEncoder.encode("Trang chủ", StandardCharsets.UTF_8.toString()), Constants.LOG_ACT.ACTION_CREATE, URLEncoder.encode(DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm") == null ? "" : DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm"), StandardCharsets.UTF_8.toString()), SecurityContextHolder.getContext().getAuthentication().getName());
+        logger.info(makerLoggerCrud,"{} {} {} {}", URLEncoder.encode("Trang chủ", StandardCharsets.UTF_8.toString()), Constants.LOG_ACT.ACTION_CREATE, URLEncoder.encode(DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm") == null ? "" : DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm"), StandardCharsets.UTF_8.toString()), URLEncoder.encode(SecurityContextHolder.getContext().getAuthentication().getName(), StandardCharsets.UTF_8.toString()));
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
