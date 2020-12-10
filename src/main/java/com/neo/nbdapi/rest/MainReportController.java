@@ -166,6 +166,119 @@ public class MainReportController {
         return avgValue;
     }
 
+    @GetMapping("/get-data-report-multiple-element")
+    public ResponseEntity<List<Object>> getDataReportMultipleElment(@RequestParam Map<String, String> params) {
+        List resultReport = new ArrayList();
+        List<Float> valueList = new ArrayList<>();
+
+        List<Float> minList = new ArrayList<>();
+        List<Float> maxList = new ArrayList<>();
+        List<Float> avgList = new ArrayList<>();
+        List<Float> totalList = new ArrayList<>();
+        List<String> timeList = new ArrayList<>();
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
+        String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
+        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID = ?";
+        String sql4= "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement statement1 = connection.prepareStatement(sql);
+             PreparedStatement statement2 = connection.prepareStatement(sql2)
+
+        ) {
+
+            statement1.setString(1, params.get("stationId"));
+            ResultSet rs1 = statement1.executeQuery();
+            if (!rs1.isBeforeFirst()) {
+
+            }
+            rs1.next();
+            Integer curTypeId = rs1.getInt("CUR_TS_TYPE_ID");
+            String stationName = rs1.getString("STATION_NAME");
+            if (curTypeId != null) {
+
+                statement2.setInt(1, Integer.parseInt(params.get("parameterTypeId")));
+                statement2.setString(2, params.get("stationId"));
+                statement2.setInt(3, curTypeId);
+                ResultSet rs2 = statement2.executeQuery();
+                if (!rs2.isBeforeFirst()) {
+
+                }
+                rs2.next();
+                String storage = rs2.getString("STORAGE");
+                Integer tsId = rs2.getInt("TS_ID");
+                if (storage != null && tsId != null) {
+                    String table = storage + "_" + params.get("step");
+                    sql3 = String.format(sql3, table);
+//                    sql3 = String.format(sql3, params.get("feature"), table);
+                    PreparedStatement statement3 = connection.prepareStatement(sql3);
+                    statement3.setString(1, params.get("startDate"));
+                    statement3.setString(2, params.get("endDate"));
+                    statement3.setInt(3, tsId);
+                    ResultSet rs3 = statement3.executeQuery();
+                    while (rs3.next()) {
+                        Float value = rs3.getFloat("VALUE");
+                        Float min = rs3.getFloat("MIN_VALUE");
+                        Float max = rs3.getFloat("MAX_VALUE");
+                        Float avg = rs3.getFloat("AVG_VALUE");
+                        Float total = rs3.getFloat("TOTAL_VALUE");
+
+                        String timestamp = rs3.getString("TIMESTAMP");
+                        valueList.add(value);
+                        minList.add(min);
+                        maxList.add(max);
+                        avgList.add(avg);
+                        totalList.add(total);
+                        timeList.add(timestamp);
+                    }
+                    // Tinh toan cua so truot
+//                    List<Float> newList = new ArrayList<>();
+//                    for (int i = 0; i < valueList.size() - Integer.parseInt(params.get("trend")) + 1; i++) {
+//                        for (int j = 0; j < Integer.parseInt(params.get("trend")); j++) {
+//                            newList.add(valueList.get(i + j));
+//                        }
+//                        trendList.add(getAverage(newList));
+//                        newList.clear();
+//                    }
+                    resultReport.add(valueList);
+                    resultReport.add(minList);
+                    resultReport.add(maxList);
+                    resultReport.add(avgList);
+                    resultReport.add(totalList);
+                    resultReport.add(timeList);
+                    resultReport.add(stationName);
+                    if (valueList.size()>= Integer.parseInt(params.get("trend"))){
+                        switch (params.get("feature")){
+                            case "value":
+                                resultReport.add(getTrendList(valueList,params.get("trend")));
+                                break;
+                            case "avg_value":
+                                resultReport.add(getTrendList(avgList,params.get("trend")));
+                                break;
+                            case "min_value":
+                                resultReport.add(getTrendList(minList,params.get("trend")));
+                                break;
+                            case "max_value":
+                                resultReport.add(getTrendList(maxList,params.get("trend")));
+                                break;
+                            case "sum_value":
+                                resultReport.add(getTrendList(totalList,params.get("trend")));
+                                break;
+                        }
+                    }
+
+                    statement3.close();
+                }
+            }
+
+            connection.commit();
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return new ResponseEntity<>(resultReport, HttpStatus.OK);
+    }
+
     @GetMapping("/get-data-report-hydrological")
     public ResponseEntity<List<Object>> getDataReportHydrological(@RequestParam Map<String, String> params) {
         List<Object> resultReport = new ArrayList();
