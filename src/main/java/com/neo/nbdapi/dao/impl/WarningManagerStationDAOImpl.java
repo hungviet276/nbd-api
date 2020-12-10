@@ -59,7 +59,8 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
     public List<ComboBox> getListParameterWarningThreshold(SelectWarningManagerVM selectVM) throws SQLException {
         List<ComboBox> comboBoxes = new ArrayList<>();
         try (Connection connection = ds.getConnection()) {
-            String sql = "select wt.id, wt.code from warning_threshold wt inner join warning_threshold_value wv on wt.warning_threshold_value_id = wv.id where wv.parameter_type_id = ?";
+            String sql = "select wt.id, wt.code from warning_threshold wt inner join warning_threshold_value wv on wt.warning_threshold_value_id = wv.id where wv.parameter_type_id = ? and wv.STATION_ID = ?";
+
             if (selectVM.getTerm() != null) {
                 sql += "  and wt.code like ? ";
             }
@@ -68,8 +69,9 @@ public class WarningManagerStationDAOImpl implements WarningManagerStationDAO {
                 return comboBoxes;
             }
             statement.setLong(1, selectVM.getId());
+            statement.setString(2, selectVM.getIdStation());
             if (selectVM.getTerm() != null) {
-                statement.setString(2, "%" + selectVM.getTerm() + "%");
+                statement.setString(3, "%" + selectVM.getTerm() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             ComboBox comboBox = null;

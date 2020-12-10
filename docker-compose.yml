@@ -10,3 +10,7 @@ services:
     tty: true
     volumes:
       - /home/tb5/harmony_constant/neo:/water_level
+      - /home/tb5/nbd-api-log-action:/nbd-api-log-action
+      - /home/tb5/nbd-api-log:/nbd-api-log
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"

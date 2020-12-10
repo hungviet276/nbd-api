@@ -16,6 +16,7 @@
         </Console>
         <RollingFile name="AsyncLogDebugFile" fileName="logs/nbd-api-debug.log"
                      filePattern="logs/debug/nbd-api-debug-%d{yyyy-MM-dd}-%i.log">
+<!--                <MarkerFilter marker="LOG_DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
             <Policies>
                 <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="2048 MB"/>
@@ -25,8 +26,8 @@
             </PatternLayout>
         </RollingFile>
 
-        <RollingFile name="AsyncLogAction" fileName="logs/log-action.log"
-                     filePattern="logs/log-action/nbd-log-action-%d{yyyy-MM-dd}-%i.log">
+        <RollingFile name="AsyncLogAction" fileName="/nbd-api-log/logs/log-action.log"
+                     filePattern="/nbd-api-log-action/nbd-log-action-%d{yyyy-MM-dd}-%i.log">
             <MarkerFilter marker="LOG_ACTION_CRUD" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <OnStartupTriggeringPolicy />

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.nbdapi.dao.PaginationDAO;
 import com.neo.nbdapi.dao.UserInFoExpandDAO;
-import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.NameUserDTO;
-import com.neo.nbdapi.dto.SelectGroupDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.entity.UserInfoExpand;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
@@ -147,6 +145,21 @@ public class UserExpandServiceImpl implements UserExpandService {
     @Override
     public List<NameUserDTO> getNameUser(SelectGroupDTO selectGroupDTO) throws SQLException {
         return userInFoExpandDAO.getNameUser(selectGroupDTO);
+    }
+
+    @Override
+    public DefaultResponseDTO createUserExpand(UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        return userInFoExpandDAO.createUserExpand(userExpandDTO);
+    }
+
+    @Override
+    public DefaultResponseDTO editUser(UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        return userInFoExpandDAO.editUser(userExpandDTO);
+    }
+
+    @Override
+    public DefaultResponseDTO delete(Long id) throws SQLException, BusinessException {
+        return userInFoExpandDAO.delete(id);
     }
 
 }

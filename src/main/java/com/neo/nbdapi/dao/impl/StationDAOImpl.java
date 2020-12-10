@@ -174,7 +174,7 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+        String sql = "select s.STATION_ID,s.STATION_NAME, s.STATION_CODE\n" +
                 "        from group_user_info gui ,group_detail gd ,stations s\n" +
                 "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
                 "        and gd.user_info_id =?";
@@ -189,6 +189,7 @@ public class StationDAOImpl implements StationDAO {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("STATION_ID"))
                         .text(rs.getString("STATION_NAME"))
+                        .moreInfo(rs.getString("STATION_CODE"))
                         .build();
                 list.add(stationType);
             }
@@ -228,7 +229,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public List<StationMapDTO> getAllStationOwnedByUserAndObjectType(String username, String objectType) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND st.is_active = 1 AND gd.user_info_id = ? AND ot.object_type LIKE '" + objectType + "%'";
         List<StationMapDTO> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();
@@ -266,7 +267,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public List<StationMapDTO> getAllStationOwnedByUser(String username) throws SQLException {
-        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND gd.user_info_id = ?";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.image, st.longtitude, st.latitude, st.trans_miss, st.is_active, ot.object_type_shortname , ar.area_name, dst.district_name, prv.province_name, st.address, (SELECT COUNT(1) from warning_manage_stations wms JOIN warning_recipents wr ON wr.manage_warning_stations = wms.id JOIN notification_history nh ON nh.warning_recipents_id = wr.id WHERE wms.station_id = st.station_id AND nh.push_timestap >= to_date(?, 'dd/mm/yyyy') AND nh.push_timestap < to_date(?, 'dd/mm/yyyy')) AS count_warning FROM stations st JOIN group_user_info gui ON st.station_id = gui.station_id JOIN group_detail gd ON gd.group_id = gui.id JOIN stations_object_type sot ON st.station_id = sot.station_id JOIN object_type ot ON sot.object_type_id = ot.object_type_id LEFT JOIN areas ar ON st.area_id = ar.area_id LEFT JOIN districts dst ON dst.district_id = st.district_id LEFT JOIN provinces prv ON prv.province_id = st.province_id WHERE st.isdel = 0 AND st.is_active = 1 AND gd.user_info_id = ?";
         List<StationMapDTO> stationList = new ArrayList<>();
         try (
                 Connection connection = ds.getConnection();

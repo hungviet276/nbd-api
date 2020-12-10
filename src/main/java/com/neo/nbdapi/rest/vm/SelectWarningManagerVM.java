@@ -17,4 +17,5 @@ public class SelectWarningManagerVM implements Serializable {
     private String _type;
     @NotNull(message = "id không được để trống")
     private Long id;
+    private String idStation;
 }
