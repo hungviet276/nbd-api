@@ -174,7 +174,7 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+        String sql = "select s.STATION_ID,s.STATION_NAME, s.STATION_CODE\n" +
                 "        from group_user_info gui ,group_detail gd ,stations s\n" +
                 "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
                 "        and gd.user_info_id =?";
@@ -189,6 +189,7 @@ public class StationDAOImpl implements StationDAO {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("STATION_ID"))
                         .text(rs.getString("STATION_NAME"))
+                        .moreInfo(rs.getString("STATION_CODE"))
                         .build();
                 list.add(stationType);
             }
