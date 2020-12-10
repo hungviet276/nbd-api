@@ -77,7 +77,7 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                 }
                 if (objectSearch.getValueTypeId() != null) {
                     sql.append(" AND c.PARAMETER_TYPE_ID = ? ");
-                    paramSearch.add(objectSearch.getId());
+                    paramSearch.add(objectSearch.getValueTypeId());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStationName())) {
                     sql.append(" AND s.station_name LIKE ? ");
@@ -104,11 +104,11 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     paramSearch.add(objectSearch.getVariableSpatial());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStartDate() )) {
-                    sql.append(" AND c.start_apply_date >= to_date(?,'DD/MM/YYYY') ");
+                    sql.append(" AND trunc(c.start_apply_date) >= trunc(to_date(?,'DD/MM/YYYY')) ");
                     paramSearch.add(objectSearch.getStartDate());
                 }
                 if (Strings.isNotEmpty(objectSearch.getEndDate())) {
-                    sql.append(" AND c.end_apply_date <= to_date(?,'DD/MM/YYYY') ");
+                    sql.append(" AND trunc(c.end_apply_date) <= trunc(to_date(?,'DD/MM/YYYY')) ");
                     paramSearch.add(objectSearch.getEndDate());
                 }
             }
