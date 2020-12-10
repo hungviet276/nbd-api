@@ -326,7 +326,7 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             // build the request
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity("http://192.168.1.20:8082/water-level/excute", entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(Constants.WATER_LEVEL.URL_EXECUTE, entity, String.class);
             String dataResponse = response.getBody();
             DataResponse object = objectMapper.readValue(dataResponse, DataResponse.class);
             tidalHarmonicConstantsDAO.insertTidalHarmonicConstantsDAOs(object.getTidalHarmonicConstantes());
@@ -485,9 +485,40 @@ public class WaterLevelServiceImpl implements WaterLevelService {
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity( "http://192.168.1.20:8082/water-level/guess", request , String.class );
+            ResponseEntity<String> response = restTemplate.postForEntity( Constants.WATER_LEVEL.URL_GUESS, request , String.class );
             String dataResponse = response.getBody();
             List<GuessDataDTO> guessDataDTOs = objectMapper.readValue(dataResponse, new TypeReference<List<GuessDataDTO>>(){});
+
+            //Kiểm tra file log xem chạy đúng hay sai
+            FileInputStream fileInputStream = null;
+            BufferedReader bufferedReader = null;
+            int k = 0;
+            try{
+                fileInputStream = new FileInputStream((pathDirectory.toUpperCase()+"/"+fileNameConf.toUpperCase()+ ".log"));
+                bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+                String line = bufferedReader.readLine();
+                while (line != null) {
+                    k++;
+                    System.out.println(line);
+                    line = bufferedReader.readLine();
+                }
+
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } finally {
+                try {
+                    bufferedReader.close();
+                    fileInputStream.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            if(k<=3){
+                return  DefaultResponseDTO.builder().message("Thực thi hằng số điều hòa không thành công").status(0).build();
+            }
+
             return  waterLevelDAO.insertTidalPrediction(guessDataDTOs, stationId);
         }catch (Exception e){
             e.printStackTrace();
