@@ -1,6 +1,7 @@
 package com.neo.nbdapi.utils;
 
 import com.neo.nbdapi.exception.BusinessException;
+import org.apache.logging.log4j.util.Strings;
 
 import java.nio.Buffer;
 import java.sql.Timestamp;
@@ -35,7 +36,7 @@ public class DateUtils {
     }
 
     public static boolean isValid(String value, String dateFormatString) {
-        if (null == value) {
+        if (Strings.isEmpty(value)) {
             return true;
         }
         if (value.length() != dateFormatString.length()) {
@@ -65,6 +66,15 @@ public class DateUtils {
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
             return simpleDateFormat.format(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getCurrentDateString(String format) {
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+            return simpleDateFormat.format(new Date());
         } catch (Exception e) {
             return null;
         }
