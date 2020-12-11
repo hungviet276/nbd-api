@@ -66,7 +66,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                     "    select w.value from water_level w where w.ts_id = " +
                     "    (select tmp.ts_id from water_level tmp  where tmp.id = ?) " +
                     "    and w.timestamp <  (select timestamp from water_level where id = ?)" +
-                    "    and w.timestamp > (select timestamp from water_level where id = ?) - (1/1440*60)" +
+                    "    and w.timestamp > (select timestamp from water_level where id = ?) - (1/1440*30)" +
                     "    and w.warning = 1 order by w.timestamp desc" +
                     "    " +
                     ")where  rownum = 1";
