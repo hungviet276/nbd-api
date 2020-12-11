@@ -104,6 +104,8 @@ public interface Constants {
 
         public static final  String REGEX_FILE_UPLOAD = ".*.dat$";
         public static final String FILE_CONFIG = "tides.cfg";
+        public static final String URL_GUESS = "http://192.168.1.20:8082/water-level/guess";
+        public static final String URL_EXECUTE = "http://192.168.1.20:8082/water-level/excute";
     }
 
     class STATION {

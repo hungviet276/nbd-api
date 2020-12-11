@@ -893,6 +893,26 @@ public class StationTypeController {
                 .body(file);
     }
 
+    @PostMapping("/exportCustom")
+    public ResponseEntity<Resource> exportCustom(@RequestBody List<Map> fileContents
+            , @RequestParam("fileName") String fileName) {
+        String FILE_EXT = ".xlsx";
+        //String fileIn = request.getRealPath("") + "/templates/" + fileName;
+        String fileIn = "templates/" + fileName + FILE_EXT;
+        File fileOutput = new File(fileIn);
+        InputStreamResource file = null;
+        try {
+            file = new InputStreamResource(ExcelUtils.write2File(fileContents,fileIn,0,3));
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+    }
+
     @PostMapping("/get-list-station-his-pagination")
     public DefaultPaginationDTO getListStationHisPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 

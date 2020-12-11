@@ -1,8 +1,8 @@
 package com.neo.nbdapi.dao.impl;
 
 import com.neo.nbdapi.dao.UserInFoExpandDAO;
-import com.neo.nbdapi.dto.NameUserDTO;
-import com.neo.nbdapi.dto.SelectGroupDTO;
+import com.neo.nbdapi.dto.*;
+import com.neo.nbdapi.exception.BusinessException;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,4 +66,57 @@ public class UserInFoExpandDAOImpl implements UserInFoExpandDAO {
         }
         return nameUserDTOs;
     }
+
+    @Override
+    public DefaultResponseDTO createUserExpand(UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        String sql = "insert into user_info_expand (id, name, mobile, code, email, gender, status, card_number, position) values (USER_EXPAND_SEQ.nextval, ?, ?,?,?, ?,?,?,?)";
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, userExpandDTO.getNameOutSite());
+            statement.setString(2, userExpandDTO.getPhoneOutSite());
+            statement.setString(3, userExpandDTO.getCodeUserOutSite());
+            statement.setString(4, userExpandDTO.getEmailOutSite());
+            statement.setString(5, userExpandDTO.getSexOutSite());
+            statement.setInt(6, userExpandDTO.getStatusOutSite());
+            statement.setString(7, userExpandDTO.getIdOutSite());
+            statement.setString(8, userExpandDTO.getPositionOutSite());
+            statement.executeUpdate();
+            statement.close();
+        }
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
+
+    @Override
+    public DefaultResponseDTO editUser(UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        String sql = "update user_info_expand set name = ?, mobile = ?, code = ?, email = ?, gender = ?, status = ? , card_number =  ?, position = ? where id = ?";
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, userExpandDTO.getNameOutSite());
+            statement.setString(2, userExpandDTO.getPhoneOutSite());
+            statement.setString(3, userExpandDTO.getCodeUserOutSite());
+            statement.setString(4, userExpandDTO.getEmailOutSite());
+            statement.setString(5, userExpandDTO.getSexOutSite());
+            statement.setInt(6, userExpandDTO.getStatusOutSite());
+            statement.setString(7, userExpandDTO.getIdOutSite());
+            statement.setString(8, userExpandDTO.getPositionOutSite());
+            statement.setLong(9, userExpandDTO.getId());
+            statement.executeUpdate();
+            statement.close();
+        }
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
+
+    @Override
+    public DefaultResponseDTO delete(Long id) throws SQLException, BusinessException {
+        String sql = "delete user_info_expand where id = ?";
+        try (Connection connection = ds.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
+            statement.executeUpdate();
+            statement.close();
+        }
+        return DefaultResponseDTO.builder().status(1).message("Thành công").build();
+    }
+
+
 }
