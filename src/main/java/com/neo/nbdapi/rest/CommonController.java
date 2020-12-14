@@ -456,8 +456,9 @@ public class CommonController {
             list.add(comboBox);
             while (rs.next()) {
                 comboBox = ComboBoxStr.builder()
-                        .id(rs.getString("WATER_FLOW"))
+                        .id(rs.getString("MEASURE_NTH"))
                         .text(rs.getString("MEASURE_NTH"))
+                        .moreInfo(rs.getString("WATER_FLOW"))
                         .build();
                 list.add(comboBox);
             }

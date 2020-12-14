@@ -82,7 +82,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException {
-        String sql = "SELECT station_id, station_code, station_name, is_active, isdel, cur_ts_type_id FROM stations WHERE station_code = ?";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.is_active, st.isdel, st.cur_ts_type_id, ot.object_type FROM stations st JOIN stations_object_type sot ON sot.station_id = st.station_id JOIN object_type ot ON ot.object_type_id = sot.object_type_id WHERE station_code = ?";
         Station station = null;
         try (
                 Connection connection = ds.getConnection();
@@ -98,6 +98,7 @@ public class StationDAOImpl implements StationDAO {
                         .isActive(resultSet.getInt("is_active"))
                         .isDel(resultSet.getInt("isdel"))
                         .curTsTypeId(resultSet.getInt("cur_ts_type_id"))
+                        .objectType(resultSet.getString("object_type"))
                         .build();
             }
         }

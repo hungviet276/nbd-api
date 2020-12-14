@@ -1,17 +1,12 @@
 package com.neo.nbdapi.rest;
 
-import com.neo.nbdapi.dto.DefaultPaginationDTO;
-import com.neo.nbdapi.dto.NameUserDTO;
-import com.neo.nbdapi.dto.SelectGroupDTO;
+import com.neo.nbdapi.dto.*;
 import com.neo.nbdapi.exception.BusinessException;
 import com.neo.nbdapi.rest.vm.DefaultRequestPagingVM;
 import com.neo.nbdapi.services.UserExpandService;
 import com.neo.nbdapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.SQLException;
@@ -27,15 +22,23 @@ public class UserExpandController {
     public List<NameUserDTO> getUserInfo(SelectGroupDTO selectGroupDTO) throws SQLException {
         return userExpandService.getNameUser(selectGroupDTO);
     }
-
     @PostMapping("/users-info-expand")
-    public DefaultPaginationDTO getUserslist(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+    public DefaultPaginationDTO getUserslist(@RequestBody DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
         return userExpandService.getListMailConfigPagination(defaultRequestPagingVM);
     }
 
     @PostMapping
-    public DefaultPaginationDTO createUserExpand(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
-        return userExpandService.getListMailConfigPagination(defaultRequestPagingVM);
+    public DefaultResponseDTO createUserExpand(@RequestBody @Valid UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        return userExpandService.createUserExpand(userExpandDTO);
+    }
+    @PutMapping
+    public DefaultResponseDTO editUserExpand(@RequestBody @Valid UserExpandDTO userExpandDTO) throws SQLException, BusinessException {
+        return userExpandService.editUser(userExpandDTO);
+    }
+
+    @DeleteMapping
+    public DefaultResponseDTO deleteUserExpand(@RequestParam Long id) throws SQLException, BusinessException {
+        return userExpandService.delete(id);
     }
 
 }

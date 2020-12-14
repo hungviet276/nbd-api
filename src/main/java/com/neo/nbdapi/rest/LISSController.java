@@ -127,7 +127,7 @@ public class LISSController {
 //                        .deepAvg(rs.getLong("DEEP_AVG"))
 //                        .deepMax(rs.getLong("DEEP_MAX"))
 //                        .squareRiver(rs.getLong("SQUARE_RIVER"))
-//                        .widthRiver(rs.getLong("WIDTH_RIVER"))
+                        .measureNth(rs.getInt("MEASURE_NTH"))
                         .waterFlow(rs.getFloat("WATER_FLOW"))
                         .suspendedMaterial(rs.getFloat("SUSPENDED_MATERIAL"))
                         .linkFile(rs.getString("LINK_FILE"))
