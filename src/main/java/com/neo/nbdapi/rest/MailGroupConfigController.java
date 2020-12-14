@@ -26,7 +26,7 @@ public class MailGroupConfigController {
     }
 
     @PostMapping
-    public DefaultResponseDTO getListMailConfigPagination(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException, BusinessException {
+    public DefaultResponseDTO createMailConfig(@RequestBody @Valid MailGroupConFigVM mailGroupConFigVM) throws SQLException, BusinessException {
         return mailGroupConfigService.createMailGroupConfig(mailGroupConFigVM);
     }
 

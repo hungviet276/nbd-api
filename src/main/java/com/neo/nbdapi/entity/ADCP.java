@@ -80,4 +80,6 @@ public class ADCP implements Serializable {
     private String dataDistance;
 
     private Float suspendedMaterial;
+
+    private Integer measureNth;
 }
