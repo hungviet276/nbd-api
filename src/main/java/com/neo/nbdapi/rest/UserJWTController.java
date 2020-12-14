@@ -68,8 +68,6 @@ public class UserJWTController {
      */
     @PostMapping
     public ResponseEntity<UserAndMenuDTO> authorize(@Valid @RequestBody LoginVM loginVM) throws SQLException, JsonProcessingException, UnsupportedEncodingException {
-        // {menuName} {action} {date} {username}
-        logger.info(makerLoggerCrud,"{} {} {} {}", URLEncoder.encode("Trang chủ", StandardCharsets.UTF_8.toString()), Constants.LOG_ACT.ACTION_CREATE, URLEncoder.encode(DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm") == null ? "" : DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm"), StandardCharsets.UTF_8.toString()), URLEncoder.encode(SecurityContextHolder.getContext().getAuthentication().getName(), StandardCharsets.UTF_8.toString()));
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -81,6 +79,9 @@ public class UserJWTController {
 		String encodepass = encoder.encode(loginVM.getPassword());
 		UserAndMenuDTO userAndMenuDTO = userInfoService.getUserInfoAndListMenu();
 		userAndMenuDTO.setPassword(encodepass);
+
+        // {menuName} {action} {date} {username}
+        logger.info(makerLoggerCrud,"{} {} {} {}", URLEncoder.encode("Đăng nhập hệ thống", StandardCharsets.UTF_8.toString()), Constants.LOG_ACT.ACTION_LOGIN, URLEncoder.encode(DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm") == null ? "" : DateUtils.getCurrentDateString("dd/MM/yyyy HH:mm"), StandardCharsets.UTF_8.toString()), authentication.getName());
 		return new ResponseEntity<>(userAndMenuDTO,
 				httpHeaders, HttpStatus.OK);
 	}
