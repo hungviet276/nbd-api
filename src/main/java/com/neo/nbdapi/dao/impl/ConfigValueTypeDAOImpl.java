@@ -184,6 +184,8 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             stmInsertConfig.close();
             stmGetCurrentId.close();
             connection.commit();
+        } catch (SQLIntegrityConstraintViolationException e){
+            return DefaultResponseDTO.builder().status(0).message("Mã quản lý chuẩn hóa số liệu đã tồn tại").build();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
@@ -278,7 +280,10 @@ public class ConfigValueTypeDAOImpl implements ConfigValueTypeDAO {
             stmDeleteSpatial.close();
             stmUpdateConfig.close();
             connection.commit();
-        } finally {
+        } catch (SQLIntegrityConstraintViolationException e){
+            return DefaultResponseDTO.builder().status(0).message("Mã quản lý chuẩn hóa số liệu đã tồn tại").build();
+        }
+        finally {
             connection.close();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();

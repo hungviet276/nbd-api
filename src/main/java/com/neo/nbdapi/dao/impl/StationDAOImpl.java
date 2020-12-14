@@ -39,12 +39,13 @@ public class StationDAOImpl implements StationDAO {
         try (Connection connection = ds.getConnection()) {
             String sql = "select station_id as id, station_code as code,station_name as name from stations where 1=1";
             if (query != null && !query.equals("")) {
-                sql = sql + " and UPPER(station_name) like ?";
+                sql = sql + " and (UPPER(station_name) like ? or UPPER(station_code) like ?)";
             }
             sql = sql + " and rownum < 100 and ISDEL = 0 and IS_ACTIVE = 1 order by station_code";
             PreparedStatement statement = connection.prepareStatement(sql);
             if (query != null && !query.equals("")) {
                 statement.setString(1, "%" + query.toUpperCase() + "%");
+                statement.setString(2, "%" + query.toUpperCase() + "%");
             }
             ResultSet resultSet = statement.executeQuery();
             List<ComboBoxStr> comboBoxes = new ArrayList<>();
@@ -82,7 +83,7 @@ public class StationDAOImpl implements StationDAO {
 
     @Override
     public Station findStationByStationCodeAndActiveAndIsdel(String stationCode) throws SQLException {
-        String sql = "SELECT station_id, station_code, station_name, is_active, isdel, cur_ts_type_id FROM stations WHERE station_code = ?";
+        String sql = "SELECT st.station_id, st.station_code, st.station_name, st.is_active, st.isdel, st.cur_ts_type_id, ot.object_type FROM stations st JOIN stations_object_type sot ON sot.station_id = st.station_id JOIN object_type ot ON ot.object_type_id = sot.object_type_id WHERE station_code = ?";
         Station station = null;
         try (
                 Connection connection = ds.getConnection();
@@ -98,6 +99,7 @@ public class StationDAOImpl implements StationDAO {
                         .isActive(resultSet.getInt("is_active"))
                         .isDel(resultSet.getInt("isdel"))
                         .curTsTypeId(resultSet.getInt("cur_ts_type_id"))
+                        .objectType(resultSet.getString("object_type"))
                         .build();
             }
         }
@@ -174,7 +176,7 @@ public class StationDAOImpl implements StationDAO {
         List<ComboBoxStr> list = new ArrayList<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userLogin = (User) auth.getPrincipal();
-        String sql = "select s.STATION_ID,s.STATION_NAME\n" +
+        String sql = "select s.STATION_ID,s.STATION_NAME, s.STATION_CODE\n" +
                 "        from group_user_info gui ,group_detail gd ,stations s\n" +
                 "        where gui.id = gd.group_id and gui.station_id = s.station_id\n" +
                 "        and gd.user_info_id =?";
@@ -189,6 +191,7 @@ public class StationDAOImpl implements StationDAO {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("STATION_ID"))
                         .text(rs.getString("STATION_NAME"))
+                        .moreInfo(rs.getString("STATION_CODE"))
                         .build();
                 list.add(stationType);
             }

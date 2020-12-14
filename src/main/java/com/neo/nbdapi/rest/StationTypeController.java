@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.utils.ExcelUtils;
 import org.apache.logging.log4j.LogManager;
@@ -892,6 +893,26 @@ public class StationTypeController {
                 .body(file);
     }
 
+    @PostMapping("/exportCustom")
+    public ResponseEntity<Resource> exportCustom(@RequestBody List<Map> fileContents
+            , @RequestParam("fileName") String fileName) {
+        String FILE_EXT = ".xlsx";
+        //String fileIn = request.getRealPath("") + "/templates/" + fileName;
+        String fileIn = "templates/" + fileName + FILE_EXT;
+        File fileOutput = new File(fileIn);
+        InputStreamResource file = null;
+        try {
+            file = new InputStreamResource(ExcelUtils.write2File(fileContents,fileIn,0,3));
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+    }
+
     @PostMapping("/get-list-station-his-pagination")
     public DefaultPaginationDTO getListStationHisPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
 
@@ -1109,6 +1130,63 @@ public class StationTypeController {
         }
     }
 
+    @PostMapping("/get-list-control-station-pagination")
+    public DefaultPaginationDTO getListControlStationPagination(@RequestBody @Valid DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException {
+        logger.debug("defaultRequestPagingVM: {}", defaultRequestPagingVM);
+        try (Connection connection = ds.getConnection()) {
+            int pageNumber = Integer.parseInt(defaultRequestPagingVM.getStart());
+            int recordPerPage = Integer.parseInt(defaultRequestPagingVM.getLength());
+            String search = defaultRequestPagingVM.getSearch();
+            Map<String, String> params = objectMapper.readValue(search, Map.class);
+            List<Object> paramSearch = new ArrayList<>();
+            String sql = "select STATION_CODE, STATION_NAME, ELEVATION, IMAGE,ADDRESS,CREATED_AT,CREATED_BY_ID from stations_his where action='CONTROL' ";
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            if(params.get("s_stationCode") != null){
+                sql += " and STATION_CODE = ? ";
+                paramSearch.add(params.get("s_stationCode"));
+            }
+            sql += "  order by CREATED_AT desc";
+            ResultSet rs = paginationDAO.getResultPagination(connection, sql, pageNumber + 1, recordPerPage, paramSearch);
+            List<Station> list = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    Station bo = Station.builder()
+                            .stationCode(rs.getString("STATION_CODE"))
+                            .elevation(rs.getFloat("ELEVATION"))
+                            .stationName(rs.getString("STATION_NAME"))
+                            .image(rs.getString("IMAGE"))
+                            .address(rs.getString("ADDRESS"))
+                            .createdAt(rs.getDate("CREATED_AT"))
+                            .createById(rs.getString("CREATED_BY_ID"))
+                            .build();
+                    list.add(bo);
+                }
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
+            rs.close();
+            // count result
+            long total = paginationDAO.countResultQuery(sql, paramSearch);
+            return DefaultPaginationDTO
+                    .builder()
+                    .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                    .recordsFiltered(list.size())
+                    .recordsTotal(total)
+                    .content(list)
+                    .build();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return DefaultPaginationDTO
+                .builder()
+                .draw(Integer.parseInt(defaultRequestPagingVM.getDraw()))
+                .recordsFiltered(0)
+                .recordsTotal(0)
+                .content(0)
+                .build();
+    }
 
     public List<DataLogger> getCollectionCommand(String stationCode,String command) throws SQLException, BusinessException {
         StringBuilder sql = new StringBuilder("select * from DATA_LOGGERS_VALUE where NAME = ? and COMMAND = ?");

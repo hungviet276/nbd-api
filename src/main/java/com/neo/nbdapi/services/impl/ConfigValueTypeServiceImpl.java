@@ -72,20 +72,20 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     paramSearch.add(objectSearch.getStationId());
                 }
                 if (Strings.isNotEmpty(objectSearch.getCode())) {
-                    sql.append(" AND c.code LIKE ? ");
-                    paramSearch.add("%"+objectSearch.getCode()+"%");
+                    sql.append(" AND UPPER(c.code) LIKE ? ");
+                    paramSearch.add("%"+objectSearch.getCode().toUpperCase()+"%");
                 }
                 if (objectSearch.getValueTypeId() != null) {
                     sql.append(" AND c.PARAMETER_TYPE_ID = ? ");
-                    paramSearch.add(objectSearch.getId());
+                    paramSearch.add(objectSearch.getValueTypeId());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStationName())) {
-                    sql.append(" AND s.station_name LIKE ? ");
-                    paramSearch.add("%" + objectSearch.getStationName()+ "%");
+                    sql.append(" AND UPPER(s.station_name) LIKE ? ");
+                    paramSearch.add("%" + objectSearch.getStationName().toUpperCase()+ "%");
                 }
                 if (Strings.isNotEmpty(objectSearch.getValueTypename())) {
-                    sql.append(" AND v.parameter_type_name like ? ");
-                    paramSearch.add("%" + objectSearch.getValueTypename()+ "%");
+                    sql.append(" AND UPPER(v.parameter_type_name) like ? ");
+                    paramSearch.add("%" + objectSearch.getValueTypename().toUpperCase()+ "%");
                 }
                 if (objectSearch.getMin() != null) {
                     sql.append(" AND c.min = ? ");
@@ -104,11 +104,11 @@ public class ConfigValueTypeServiceImpl implements ConfigValueTypeService {
                     paramSearch.add(objectSearch.getVariableSpatial());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStartDate() )) {
-                    sql.append(" AND c.start_apply_date >= to_date(?,'DD/MM/YYYY') ");
+                    sql.append(" AND trunc(c.start_apply_date) >= trunc(to_date(?,'DD/MM/YYYY')) ");
                     paramSearch.add(objectSearch.getStartDate());
                 }
                 if (Strings.isNotEmpty(objectSearch.getEndDate())) {
-                    sql.append(" AND c.end_apply_date <= to_date(?,'DD/MM/YYYY') ");
+                    sql.append(" AND trunc(c.end_apply_date) <= trunc(to_date(?,'DD/MM/YYYY')) ");
                     paramSearch.add(objectSearch.getEndDate());
                 }
             }
