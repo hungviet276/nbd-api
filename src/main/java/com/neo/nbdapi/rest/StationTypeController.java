@@ -17,6 +17,7 @@ import javax.validation.Valid;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.neo.nbdapi.entity.*;
+import com.neo.nbdapi.services.ExportExcelService;
 import com.neo.nbdapi.utils.ExcelUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,6 +74,9 @@ public class StationTypeController {
     @Autowired
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ExportExcelService exportExcelService;
 
     @GetMapping("/get-list-object-type")
     public List<ComboBox> getListObjectType() throws SQLException, BusinessException {
@@ -894,23 +898,13 @@ public class StationTypeController {
     }
 
     @PostMapping("/exportCustom")
-    public ResponseEntity<Resource> exportCustom(@RequestBody List<Map> fileContents
-            , @RequestParam("fileName") String fileName) {
-        String FILE_EXT = ".xlsx";
-        //String fileIn = request.getRealPath("") + "/templates/" + fileName;
-        String fileIn = "templates/" + fileName + FILE_EXT;
-        File fileOutput = new File(fileIn);
-        InputStreamResource file = null;
-        try {
-            file = new InputStreamResource(ExcelUtils.write2File(fileContents,fileIn,0,3));
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }
-
+    public ResponseEntity<Resource> exportCustom(@RequestBody String paramSearch, @RequestParam("fileName") String fileName) throws SQLException, BusinessException {
+        InputStreamResource inputSource = exportExcelService.createExel(paramSearch, fileName);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(file);
+                .body(inputSource);
+
     }
 
     @PostMapping("/get-list-station-his-pagination")

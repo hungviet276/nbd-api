@@ -91,11 +91,11 @@ public class WarningMangerStationServiceImpl implements WarningMangerStationServ
                     paramSearch.add(objectSearch.getIcon());
                 }
                 if (Strings.isNotEmpty(objectSearch.getStartDate())) {
-                    sql.append(" and w.created_at > TO_DATE(?, 'dd/mm/yyyy') ");
+                    sql.append(" and trunc(w.created_at) >= trunc(TO_DATE(?, 'dd/mm/yyyy')) ");
                     paramSearch.add(objectSearch.getStartDate());
                 }
                 if (Strings.isNotEmpty(objectSearch.getEndDate())) {
-                    sql.append(" and w.created_at < TO_DATE(?, 'dd/mm/yyyy') ");
+                    sql.append(" and trunc(w.created_at) <= trunc(TO_DATE(?, 'dd/mm/yyyy')) ");
                     paramSearch.add(objectSearch.getEndDate());
                 }
                 if (Strings.isNotEmpty(objectSearch.getSuffixesTable())) {
