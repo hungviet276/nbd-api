@@ -67,7 +67,7 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                     "    (select tmp.ts_id from water_level tmp  where tmp.id = ?) " +
                     "    and w.timestamp <  (select timestamp from water_level where id = ?)" +
                     "    and w.timestamp > (select timestamp from water_level where id = ?) - (1/1440*30)" +
-                    "    and w.warning = 1 order by w.timestamp desc" +
+                    "    and w.warning = 1 and w.value != 0 order by w.timestamp desc" +
                     "    " +
                     ")where  rownum = 1";
             logger.info("WaterLevelDAOImpl : {}",sqlMinMaxVariableTime);

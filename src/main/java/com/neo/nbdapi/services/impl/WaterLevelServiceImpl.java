@@ -226,6 +226,9 @@ public class WaterLevelServiceImpl implements WaterLevelService {
             float spatial = variableTime.getVariableSpatial();
             float tmp = waterLevelVM.getValue();
             for(VariablesSpatial variablesSpatial : variablesSpatials){
+                if(variablesSpatial.getValue() == 0){
+                    continue;
+                }
                 float percent = Math.abs(100 - (tmp/variablesSpatial.getValue())*100);
                 if(percent>spatial){
                     continude = false;
