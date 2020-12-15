@@ -41,7 +41,6 @@ public class MainReportController {
     public ResponseEntity<List<Object>> getDataReport(@RequestParam Map<String, String> params) {
         List resultReport = new ArrayList();
         List<Float> valueList = new ArrayList<>();
-
         List<Float> minList = new ArrayList<>();
         List<Float> maxList = new ArrayList<>();
         List<Float> avgList = new ArrayList<>();
@@ -51,7 +50,7 @@ public class MainReportController {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
         String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
-        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
+        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID =?";
         String sql4 = "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
         try (Connection connection = ds.getConnection();
              PreparedStatement statement1 = connection.prepareStatement(sql);
@@ -85,6 +84,7 @@ public class MainReportController {
                     PreparedStatement statement3 = connection.prepareStatement(sql3);
                     statement3.setString(1, params.get("startDate"));
                     statement3.setString(2, params.get("endDate"));
+                    statement3.setInt(3, tsId);
                     ResultSet rs3 = statement3.executeQuery();
                     while (rs3.next()) {
                         Float value = rs3.getFloat("VALUE");
@@ -191,10 +191,6 @@ public class MainReportController {
             DateFormat df = new SimpleDateFormat("dd-MMM-yy");
             String startTime = df.format(startTime1);
             String endTime = df.format(endTime1);
-//            String startDate = params.get("startDate");
-//            statement1.setString(1, params.get("startDate"));
-//            statement1.setString(2, params.get("endDate"));
-//            statement1.setString(3, params.get("stationId"));
             statement1.setString(1, String.valueOf(startTime));
             statement1.setString(2, String.valueOf(endTime));
             statement1.setString(3, params.get("stationId"));
