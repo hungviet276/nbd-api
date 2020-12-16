@@ -24,6 +24,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -39,7 +41,6 @@ public class MainReportController {
     public ResponseEntity<List<Object>> getDataReport(@RequestParam Map<String, String> params) {
         List resultReport = new ArrayList();
         List<Float> valueList = new ArrayList<>();
-
         List<Float> minList = new ArrayList<>();
         List<Float> maxList = new ArrayList<>();
         List<Float> avgList = new ArrayList<>();
@@ -49,7 +50,7 @@ public class MainReportController {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
         String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
-        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
+        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID =?";
         String sql4 = "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
         try (Connection connection = ds.getConnection();
              PreparedStatement statement1 = connection.prepareStatement(sql);
@@ -83,6 +84,7 @@ public class MainReportController {
                     PreparedStatement statement3 = connection.prepareStatement(sql3);
                     statement3.setString(1, params.get("startDate"));
                     statement3.setString(2, params.get("endDate"));
+                    statement3.setInt(3, tsId);
                     ResultSet rs3 = statement3.executeQuery();
                     while (rs3.next()) {
                         Float value = rs3.getFloat("VALUE");
@@ -170,16 +172,56 @@ public class MainReportController {
         return avgValue;
     }
 
+    @GetMapping("/get-data-prediction")
+    public ResponseEntity<List<Object>> getDataPredictionReport(@RequestParam Map<String, String> params) {
+        List resultReport = new ArrayList();
+        List<Float> valueList = new ArrayList<>();
+        List<String> timeList = new ArrayList<>();
+
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "select VALUE , PREDICTION_TIME from TIDAL_PREDICTION where prediction_time >= TO_DATE(?,'dd-MON-yy')and prediction_time <= TO_DATE(?,'dd-MON-yy')+1 and STATION_ID =?";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement statement1 = connection.prepareStatement(sql)
+        ) {
+            String startDate = params.get("startDate");
+            String endDate = params.get("endDate");
+            SimpleDateFormat formatter=new SimpleDateFormat("yyyy/MM/dd");
+            Date startTime1 = formatter.parse(startDate);
+            Date endTime1 = formatter.parse(endDate);
+            DateFormat df = new SimpleDateFormat("dd-MMM-yy");
+            String startTime = df.format(startTime1);
+            String endTime = df.format(endTime1);
+            statement1.setString(1, String.valueOf(startTime));
+            statement1.setString(2, String.valueOf(endTime));
+            statement1.setString(3, params.get("stationId"));
+            ResultSet rs1 = statement1.executeQuery();
+
+            while (rs1.next()) {
+                Float value = rs1.getFloat("VALUE");
+                String time = rs1.getString("PREDICTION_TIME");
+                valueList.add(value);
+                timeList.add(time);
+            }
+            resultReport.add(valueList);
+            resultReport.add(timeList);
+            connection.close();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return new ResponseEntity<>(resultReport, HttpStatus.OK);
+    }
+
+
     @GetMapping("/get-data-report-multiple-element")
     public ResponseEntity<List<Object>> getDataReportMultipleElment(@RequestParam Map<String, String> params) throws SQLException {
         List resultReport = new ArrayList();
 
-        Map<Float,String> valueList = new HashMap<>();
-        Map<Float,String> minList = new HashMap<>();
-        Map<Float,String> maxList = new HashMap<>();
-        Map<Float,String> avgList = new HashMap<>();
-        Map<Float,String> totalList = new HashMap<>();
-        Map<Date,String> timeList = new HashMap<>();
+        Map<Float, String> valueList = new HashMap<>();
+        Map<Float, String> minList = new HashMap<>();
+        Map<Float, String> maxList = new HashMap<>();
+        Map<Float, String> avgList = new HashMap<>();
+        Map<Float, String> totalList = new HashMap<>();
+        Map<Date, String> timeList = new HashMap<>();
         List<ObjectValue> result = new ArrayList<>();
 
         String stationName = "";
@@ -189,7 +231,7 @@ public class MainReportController {
 //        String sql4 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID = ?";
         String sql5 = "";
         PreparedStatement st = null;
-        try (Connection connection = ds.getConnection();) {
+        try (Connection connection = ds.getConnection()) {
             String[] listParTypeId = params.get("parameterTypeId").split(",");
             String append = " and PARAMETERTYPE_ID in (";
             for (int i = 0; i < listParTypeId.length; i++) {

@@ -61,13 +61,13 @@ public class WaterLevelDAOImpl implements WaterLevelDAO {
                     "             and ct.end_apply_date +1 > TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') " +
                     "    ) tmp  " +
                     "inner join water_level w on w.ts_id = tmp.ts_id where w.timestamp >= TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') + (1/1440*-20) " +
-                    "and w.timestamp <TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') +  (1/1440*20) ";
+                    "and w.timestamp <TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI:SS.FF') +  (1/1440*20) and w.WARNING = 1";
             String sqlValueNearest = "select value from (" +
                     "    select w.value from water_level w where w.ts_id = " +
                     "    (select tmp.ts_id from water_level tmp  where tmp.id = ?) " +
                     "    and w.timestamp <  (select timestamp from water_level where id = ?)" +
                     "    and w.timestamp > (select timestamp from water_level where id = ?) - (1/1440*30)" +
-                    "    and w.warning = 1 order by w.timestamp desc" +
+                    "    and w.warning = 1 and w.value != 0 order by w.timestamp desc" +
                     "    " +
                     ")where  rownum = 1";
             logger.info("WaterLevelDAOImpl : {}",sqlMinMaxVariableTime);
