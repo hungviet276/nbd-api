@@ -475,7 +475,7 @@ public class CommonController {
             List<DataLogger> list = new ArrayList<>();
             while (rs.next()) {
                 DataLogger comboBox = DataLogger.builder()
-                        .dataLoggerId(rs.getLong("DATA_LOGGER_ID"))
+//                        .dataLoggerId(rs.getLong("DATA_LOGGER_ID"))
                         .dataLoggerCode(rs.getString("DATA_LOGGER_CODE"))
                         .modem(rs.getString("MODEM"))
                         .port(rs.getInt("PORT"))
