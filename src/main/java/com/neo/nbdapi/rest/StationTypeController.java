@@ -733,6 +733,30 @@ public class StationTypeController {
             }
             if(!params.get("command").contains("set")) {
                 result = result.substring(result.indexOf("TAG") + 3, result.indexOf("OK") + 2);
+            }else{
+                //neu la dieu khien tan suat tram thi lay gia trị tana suat de update vao bang statin
+                if(params.get("command").contains("set ftp_interval")){
+                    String val = params.get("command").substring("set ftp_interval".length()).trim();
+                    Integer minute = Integer.parseInt(val);
+                    minute = minute * 60;
+                    String sql = "select TS_TYPE_ID from TIME_SERIES_TYPE where VALUE = ?";
+                    try (Connection connection = ds.getConnection();) {
+                        PreparedStatement st = connection.prepareStatement(sql);
+                        connection.setAutoCommit(false);
+                        st.setInt(1, minute);
+                        ResultSet rs = st.executeQuery();
+                        Long tsTypeId = null;
+                        while (rs.next()) {
+                            tsTypeId = rs.getLong("TS_TYPE_ID");
+                        }
+                        sql = "update stations set CUR_TS_TYPE_ID = ? where STATION_CODE = ?";
+                        st = connection.prepareStatement(sql);
+                        st.setLong(1,tsTypeId);
+                        st.setString(2,params.get("stationCode"));
+                        st.execute();
+                        connection.commit();
+                    }
+                }
             }
             defaultResponseDTO.setStatus(1);
             defaultResponseDTO.setMessage(result);
