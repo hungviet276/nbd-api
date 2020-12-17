@@ -42,8 +42,13 @@ public class ManagerOfOutputController {
     }
 
     @GetMapping("/get_list_stations")
-    public List<ComboBoxStr>  get_list_group_users(@RequestParam("username") String userId) throws SQLException, BusinessException {
-        return manageOutputService.getListStations(userId);
+    public List<ComboBoxStr>  get_list_group_users(@RequestParam("username") String userId,@RequestParam("stationsType_search") String stationsType_search) throws SQLException, BusinessException {
+        return manageOutputService.getListStations(userId,stationsType_search);
+    }
+
+    @GetMapping("/get_list_stations_type")
+    public List<ComboBoxStr>  get_list_stations_type() throws SQLException, BusinessException {
+        return manageOutputService.getListStationsType();
     }
 
     @GetMapping("/getList_parameter_byStationId")
@@ -68,7 +73,7 @@ public class ManagerOfOutputController {
     }
 
     @GetMapping("/get_history_by_time")
-    public List<HistoryOutPutsDTO> getHistoryByTime(@RequestParam(name = "time") String time, @RequestParam(name = "prodId") String prodId) throws SQLException, BusinessException{
-        return manageOutputService.getHistoryByTimes(time,prodId);
+    public List<HistoryOutPutsDTO> getHistoryByTime(@RequestParam(name = "time") String time, @RequestParam(name = "prodId") String prodId, @RequestParam(name = "tablePrName") String tablePrName) throws SQLException, BusinessException{
+        return manageOutputService.getHistoryByTimes(time,prodId,tablePrName);
     }
 }

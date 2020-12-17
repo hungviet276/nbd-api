@@ -196,8 +196,8 @@ public class ManageOutputServiceImpl implements ManageOutputService {
     }
 
     @Override
-    public List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException {
-        StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where is_active = 1 and isdel = 0 and rownum < 100 ");
+    public List<ComboBoxStr> getListStations(String userId,String stationsType_search) throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder(" select station_id,station_code,station_name from stations where is_active = 1 and isdel = 0 and station_type_id= "+stationsType_search);
         try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
             List<Object> paramSearch = new ArrayList<>();
             logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
@@ -212,6 +212,31 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                 stationType = ComboBoxStr.builder()
                         .id(rs.getString("station_id"))
                         .text(rs.getString("station_code") + " - " + rs.getString("station_name"))
+                        .build();
+                list.add(stationType);
+            }
+            rs.close();
+            return list;
+        }
+    }
+
+    @Override
+    public List<ComboBoxStr> getListStationsType() throws SQLException, BusinessException {
+        StringBuilder sql = new StringBuilder(" select OBJECT_TYPE_ID,OBJECT_TYPE,OBJECT_TYPE_SHORTNAME from object_type ");
+        try (Connection connection = ds.getConnection();PreparedStatement st = connection.prepareStatement(sql.toString());) {
+            List<Object> paramSearch = new ArrayList<>();
+            logger.debug("NUMBER OF SEARCH : {}", paramSearch.size());
+            ResultSet rs = st.executeQuery();
+            List<ComboBoxStr> list = new ArrayList<>();
+            ComboBoxStr stationType = ComboBoxStr.builder()
+                    .id("-1")
+                    .text("Lựa chọn")
+                    .build();
+            list.add(stationType);
+            while (rs.next()) {
+                stationType = ComboBoxStr.builder()
+                        .id(rs.getString("OBJECT_TYPE_ID"))
+                        .text(rs.getString("OBJECT_TYPE_ID") + " - " + rs.getString("OBJECT_TYPE_SHORTNAME"))
                         .build();
                 list.add(stationType);
             }
@@ -375,7 +400,7 @@ public class ManageOutputServiceImpl implements ManageOutputService {
     }
 
     @Override
-    public List<HistoryOutPutsDTO> getHistoryByTimes(String time, String prodId) throws SQLException, BusinessException {
+    public List<HistoryOutPutsDTO> getHistoryByTimes(String time, String prodId,String tablePrName) throws SQLException, BusinessException {
         List<HistoryOutPutsDTO> uHistorys = new ArrayList<>();
         if (StringUtils.isEmpty(time)) return uHistorys;
         try (Connection connection = ds.getConnection()) {
@@ -383,12 +408,13 @@ public class ManageOutputServiceImpl implements ManageOutputService {
                     " from station_time_series st\n" +
                     " join parameter_type pt on st.parametertype_id = pt.parameter_type_id \n" +
                     " join unit u on u.unit_id = pt.unit_id \n" +
-                    " join TEMPERATURE pr on st.ts_id = pr.ts_id \n" +
+                    " join "+tablePrName+" pr on st.ts_id = pr.ts_id \n" +
                     " join prod_edit_history peh on pr.id = peh.id_prod\n" +
                     " join stations_object_type sot on st.station_id = sot.station_id \n" +
                     " join object_type ot on sot.object_type_id = ot.object_type_id ) where 1=1 \n" +
                     " and id_prod = ? and  modify_date = TO_DATE('"+time+"', 'DD/MM/YYYY HH24:MI:SS') and rownum =1");
             System.out.println("sql ====" + sql);
+            System.out.println("id_prod ====" + prodId);
             PreparedStatement ps = connection.prepareStatement(sql.toString());
             ps.setString(1, prodId);
             ResultSet rs = ps.executeQuery();
