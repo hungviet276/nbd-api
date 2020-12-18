@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.neo.nbdapi.entity.*;
 import com.neo.nbdapi.services.ExportExcelService;
+import com.neo.nbdapi.services.socket.ClientRead;
 import com.neo.nbdapi.utils.ExcelUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +27,7 @@ import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +61,19 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping(Constants.APPLICATION_API.API_PREFIX + "/station-type")
 public class StationTypeController {
+    private int port = 10001;
+
+    @Value("${remote.host}")
+    private String host ;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     private Logger logger = LogManager.getLogger(StationTypeController.class);
 
     private Logger loggerAction = LogManager.getLogger("ActionCrud");
@@ -771,6 +787,73 @@ public class StationTypeController {
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage(result);
         } catch (BusinessException e) {
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        } catch (Exception e) {
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        }
+
+        //ghi nhan ket qua thuc hien
+        String commandDesc = params.get("command") + ": " + params.get("description");
+        writeLogControlStation(params.get("stationCode"),params.get("host"),params.get("port")
+                ,commandDesc,"CONTROL",userLogin.getUsername(),result);
+        return defaultResponseDTO;
+    }
+
+    @PostMapping("/control-customs")
+    public DefaultResponseDTO controlCustomStation(@RequestBody @Valid Map<String, String> params) throws SQLException, JsonProcessingException, BusinessException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User userLogin = (User) auth.getPrincipal();
+
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String result = "";
+        System.out.println(objectMapper.writeValueAsString(params));
+        try (Socket m_Socket = new Socket(host, port);
+             BufferedReader is = new BufferedReader(new InputStreamReader(m_Socket.getInputStream()));
+             DataOutputStream outToServer = new DataOutputStream(m_Socket.getOutputStream());) {
+            Thread.sleep(500l);
+            ClientRead cl = new ClientRead(m_Socket);
+            cl.start();
+            ByteArrayOutputStream ouar = new ByteArrayOutputStream();
+
+            String command = ("use " + params.get("host")  + System.lineSeparator());
+            ouar.write(command.getBytes(), 0, command.length());
+            outToServer.write(ouar.toByteArray());
+
+            String sentence = params.get("command");
+            if(sentence.startsWith("send ip")){
+                command = "send ip ";
+                String value = params.get("command").substring("send ip".length()).trim();
+                value = "\"" + value + "\",\"" + port + "\"" + System.lineSeparator();
+                command = (command + value);
+                ouar.write(command.getBytes(), 0, command.length());
+                outToServer.write(ouar.toByteArray());
+
+                ouar.write(("send save" + System.lineSeparator()).getBytes(), 0, ("send save" + System.lineSeparator()).length());
+                outToServer.write(ouar.toByteArray());
+                ouar.flush();
+                outToServer.flush();
+                m_Socket.close();
+            }else{
+                command = params.get("command");
+                ouar.write(command.getBytes(), 0, command.length());
+                outToServer.write(ouar.toByteArray());
+                m_Socket.close();
+            }
+
+
+            defaultResponseDTO.setStatus(1);
+            defaultResponseDTO.setMessage(result);
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host " + params.get("host"));
+            result = e.getMessage();
+            defaultResponseDTO.setStatus(0);
+            defaultResponseDTO.setMessage(result);
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for the connection to " + params.get("host"));
             result = e.getMessage();
             defaultResponseDTO.setStatus(0);
             defaultResponseDTO.setMessage(result);
