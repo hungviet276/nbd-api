@@ -9,7 +9,7 @@ spring:
       enabled: false # we use Webpack dev server + BrowserSync for livereload
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.61)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.62)(PORT=1521))(LOAD_BALANCE=true)(FAILOVER=true)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kttv_warehouse)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC))))
+    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.61)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.151.2.61)(PORT=1521))(LOAD_BALANCE=true)(FAILOVER=true)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kttv_warehouse)(FAILOVER_MODE=(TYPE=SELECT)(METHOD=BASIC))))
     username: kttv
     password: kttv#123@
     driver-class-name: oracle.jdbc.OracleDriver

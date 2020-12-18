@@ -6,19 +6,21 @@ import com.neo.nbdapi.entity.ADCP2;
 import com.neo.nbdapi.entity.LISS;
 import com.neo.nbdapi.entity.ObjectValue;
 import com.neo.nbdapi.utils.Constants;
+import com.neo.nbdapi.utils.ExcelUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -50,7 +52,7 @@ public class MainReportController {
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
         String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
         String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
-        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID =?";
+        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID =? ORDER BY timestamp";
         String sql4 = "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
         try (Connection connection = ds.getConnection();
              PreparedStatement statement1 = connection.prepareStatement(sql);
@@ -94,11 +96,11 @@ public class MainReportController {
                         Float total = rs3.getFloat("TOTAL_VALUE");
 
                         String timestamp = rs3.getString("TIMESTAMP");
-                        valueList.add(value);
-                        minList.add(min);
-                        maxList.add(max);
-                        avgList.add(avg);
-                        totalList.add(total);
+                        valueList.add((float) (Math.round(value * 100.0) / 100.0));
+                        minList.add((float) (Math.round(min * 100.0) / 100.0));
+                        maxList.add((float) (Math.round(max * 100.0) / 100.0));
+                        avgList.add((float) (Math.round(avg * 100.0) / 100.0));
+                        totalList.add((float) (Math.round(total * 100.0) / 100.0));
                         timeList.add(timestamp);
                     }
                     // Tinh toan cua so truot
@@ -117,7 +119,7 @@ public class MainReportController {
                     resultReport.add(totalList);
                     resultReport.add(timeList);
                     resultReport.add(stationName);
-                    if (valueList.size() >= Integer.parseInt(params.get("trend"))) {
+                    if (valueList.size() >= Integer.parseInt(params.get("trend"))&&Integer.parseInt(params.get("trend"))!=0) {
                         switch (params.get("feature")) {
                             case "value":
                                 resultReport.add(getTrendList(valueList, params.get("trend")));
@@ -169,7 +171,7 @@ public class MainReportController {
             sumValue += valueList.get(i);
         }
         avgValue = sumValue / valueList.size();
-        return avgValue;
+        return (float) (Math.round(avgValue * 100.0) / 100.0);
     }
 
     @GetMapping("/get-data-prediction")
@@ -179,7 +181,7 @@ public class MainReportController {
         List<String> timeList = new ArrayList<>();
 
         DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
-        String sql = "select VALUE , PREDICTION_TIME from TIDAL_PREDICTION where prediction_time >= TO_DATE(?,'dd-MON-yy')and prediction_time <= TO_DATE(?,'dd-MON-yy')+1 and STATION_ID =?";
+        String sql = "select VALUE , PREDICTION_TIME from TIDAL_PREDICTION where prediction_time >= TO_DATE(?,'dd-MON-yy')and prediction_time <= TO_DATE(?,'dd-MON-yy')+1 and STATION_ID =? ORDER BY prediction_time";
         try (Connection connection = ds.getConnection();
              PreparedStatement statement1 = connection.prepareStatement(sql)
         ) {
@@ -199,7 +201,7 @@ public class MainReportController {
             while (rs1.next()) {
                 Float value = rs1.getFloat("VALUE");
                 String time = rs1.getString("PREDICTION_TIME");
-                valueList.add(value);
+                valueList.add((float) (Math.round(value * 100.0) / 100.0));
                 timeList.add(time);
             }
             resultReport.add(valueList);
@@ -280,6 +282,7 @@ public class MainReportController {
                     }
                     sql += "-1) union ";
                 }
+                sql+= "order by timestamp";
                 //xoa cai union cuoi cung di
                 sql = sql.substring(0, sql.lastIndexOf(" union "));
 //                sql += " GROUP BY STORAGE";
@@ -288,102 +291,20 @@ public class MainReportController {
                 rs = st.executeQuery();
                 while (rs.next()) {
                     ObjectValue bo = ObjectValue.builder()
-                            .minValue(rs.getFloat("MIN_VALUE"))
-                            .maxValue(rs.getFloat("MAX_VALUE"))
-                            .avgValue(rs.getFloat("AVG_VALUE"))
-                            .totalValue(rs.getFloat("TOTAL_VALUE"))
+                            .minValue((float) (Math.round(rs.getFloat("MIN_VALUE") * 100.0) / 100.0))
+                            .maxValue((float) (Math.round(rs.getFloat("MAX_VALUE") * 100.0) / 100.0))
+                            .avgValue((float) (Math.round(rs.getFloat("AVG_VALUE") * 100.0) / 100.0))
+                            .totalValue((float) (Math.round(rs.getFloat("TOTAL_VALUE") * 100.0) / 100.0))
                             .timestamp(rs.getDate("TIMESTAMP"))
                             .tblName(rs.getString("TBL_NAME"))
-                            .value(rs.getFloat("VALUE"))
+                            .value((float) (Math.round(rs.getFloat("VALUE") * 100.0) / 100.0))
                             .build();
-
                     result.add(bo);
-//                    valueList.put(bo.getAvgValue(), bo.getTblName());
-//                    minList.put(bo.getMinValue(), bo.getTblName());
-//                    maxList.put(bo.getMaxValue(), bo.getTblName());
-//                    avgList.put(bo.getAvgValue(), bo.getTblName());
-//                    totalList.put(bo.getTotalValue(), bo.getTblName());
-//                    timeList.put(bo.getTimestamp(), bo.getTblName());
-
                 }
                 resultReport.add(result);
-//                resultReport.add(minList);
-//                resultReport.add(maxList);
-//                resultReport.add(avgList);
-//                resultReport.add(totalList);
-//                resultReport.add(timeList);
+
             }
-//                if (listParTypeId.length == 2) {
-//                    sql5 = "select a.*,b.* from %s a, %s b where a.timestamp >= TO_DATE(?, 'YYYY-MM-DD') and a.timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and a.timestamp = b.timestamp";
-//                } else if (listParTypeId.length == 6) {
-//                    sql5 = "select a.*,b.*,c*,d*,e*,f* from %s a, %s b, %s c, %s d,%s e,%s f where a.timestamp >= TO_DATE(?, 'YYYY-MM-DD') and a.timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and a.timestamp = b.timestamp" +
-//                            "and a.timestamp = c.timestamp and a.timestamp = d.timestamp and a.timestamp = e.timestamp and a.timestamp = f.timestamp";
-//                }
-//
-//
-//                if (storageList.entrySet() != null && tsId != null) {
-//                    String table = storage + "_" + params.get("step");
-//                    sql3 = String.format(sql3, table);
-////                    sql3 = String.format(sql3, params.get("feature"), table);
-//                    PreparedStatement statement3 = connection.prepareStatement(sql3);
-//                    statement3.setString(1, params.get("startDate"));
-//                    statement3.setString(2, params.get("endDate"));
-//                    statement3.setInt(3, tsId);
-//                    ResultSet rs3 = statement3.executeQuery();
-//                    while (rs3.next()) {
-//                        Float value = rs3.getFloat("VALUE");
-//                        Float min = rs3.getFloat("MIN_VALUE");
-//                        Float max = rs3.getFloat("MAX_VALUE");
-//                        Float avg = rs3.getFloat("AVG_VALUE");
-//                        Float total = rs3.getFloat("TOTAL_VALUE");
-//                        stationName = rs3.getString("STATION_NAME");
-//
-//                        String timestamp = rs3.getString("TIMESTAMP");
-//                        valueList.add(value);
-//                        minList.add(min);
-//                        maxList.add(max);
-//                        avgList.add(avg);
-//                        totalList.add(total);
-//                        timeList.add(timestamp);
-//                    }
-//                    // Tinh toan cua so truot
-////                    List<Float> newList = new ArrayList<>();
-////                    for (int i = 0; i < valueList.size() - Integer.parseInt(params.get("trend")) + 1; i++) {
-////                        for (int j = 0; j < Integer.parseInt(params.get("trend")); j++) {
-////                            newList.add(valueList.get(i + j));
-////                        }
-////                        trendList.add(getAverage(newList));
-////                        newList.clear();
-////                    }
-//                    resultReport.add(valueList);
-//                    resultReport.add(minList);
-//                    resultReport.add(maxList);
-//                    resultReport.add(avgList);
-//                    resultReport.add(totalList);
-//                    resultReport.add(timeList);
-//                    resultReport.add(stationName);
-//                    if (valueList.size() >= Integer.parseInt(params.get("trend"))) {
-//                        switch (params.get("feature")) {
-//                            case "value":
-//                                resultReport.add(getTrendList(valueList, params.get("trend")));
-//                                break;
-//                            case "avg_value":
-//                                resultReport.add(getTrendList(avgList, params.get("trend")));
-//                                break;
-//                            case "min_value":
-//                                resultReport.add(getTrendList(minList, params.get("trend")));
-//                                break;
-//                            case "max_value":
-//                                resultReport.add(getTrendList(maxList, params.get("trend")));
-//                                break;
-//                            case "sum_value":
-//                                resultReport.add(getTrendList(totalList, params.get("trend")));
-//                                break;
-//                        }
-//                    }
-//
-//                    statement3.close();
-//                }
+
         } catch (Exception e) {
             log.error(e.getMessage());
         } finally {
@@ -400,8 +321,8 @@ public class MainReportController {
         List<ADCP2> adcpList = new ArrayList<>();
         List<LISS> lissList = new ArrayList<>();
 
-        String sql1 = "select a.*, b.STATION_NAME from adcp a , stations b  where a.TIME_START >= TO_DATE(?, 'YYYY-MM-DD') and a.TIME_END <= TO_DATE(?, 'YYYY-MM-DD' )+1 and a.STATION_ID = ? and a.STATION_ID = b.STATION_ID ";
-        String sql2 = "select a.*, b.STATION_NAME from liss a , stations b  where a.TIME_START >= TO_DATE(?, 'YYYY-MM-DD') and a.TIME_END <= TO_DATE(?, 'YYYY-MM-DD' )+1 and a.STATION_ID = ? and a.STATION_ID = b.STATION_ID ";
+        String sql1 = "select a.*, b.STATION_NAME from adcp a , stations b  where a.TIME_START >= TO_DATE(?, 'YYYY-MM-DD') and a.TIME_END <= TO_DATE(?, 'YYYY-MM-DD' )+1 and a.STATION_ID = ? and a.STATION_ID = b.STATION_ID order by a.TIME_START";
+        String sql2 = "select a.*, b.STATION_NAME from liss a , stations b  where a.TIME_START >= TO_DATE(?, 'YYYY-MM-DD') and a.TIME_END <= TO_DATE(?, 'YYYY-MM-DD' )+1 and a.STATION_ID = ? and a.STATION_ID = b.STATION_ID order by a.TIME_START";
         String sql3 = "select a.*, b.STATION_NAME from adcp a , stations b  where a.TIME_START >= TO_DATE('2020-11-23', 'YYYY-MM-DD') and a.TIME_END <= TO_DATE('2020-12-23', 'YYYY-MM-DD' )+1 and a.STATION_ID = '9_58_474_428' and a.STATION_ID = b.STATION_ID ;";
         if (params.get("rowNum") != null) {
             sql1 += "and ROWNUM <=7";
@@ -423,22 +344,22 @@ public class MainReportController {
                         .timeStart(rs1.getDate("TIME_START"))
                         .timeEnd(rs1.getDate("TIME_END"))
                         .timeAvg(rs1.getDate("TIME_AVG"))
-                        .waterLevelStart(rs1.getLong("WATER_LEVEL_START"))
-                        .waterLevelEnd(rs1.getLong("WATER_LEVEL_END"))
-                        .waterLevelAvg(rs1.getLong("WATER_LEVEL_AVG"))
-                        .speedAvg(rs1.getFloat("SPEED_AVG"))
-                        .speedMax(rs1.getFloat("SPEED_MAX"))
-                        .deepAvg(rs1.getFloat("DEEP_AVG"))
-                        .deepMax(rs1.getFloat("DEEP_MAX"))
-                        .squareRiver(rs1.getFloat("SQUARE_RIVER"))
-                        .widthRiver(rs1.getFloat("WIDTH_RIVER"))
-                        .waterFlow(rs1.getFloat("WATER_FLOW"))
+                        .waterLevelStart((long) (Math.round(rs1.getLong("WATER_LEVEL_START") * 100.0) / 100.0))
+                        .waterLevelEnd((long) (Math.round(rs1.getLong("WATER_LEVEL_END") * 100.0) / 100.0))
+                        .waterLevelAvg((long) (Math.round(rs1.getLong("WATER_LEVEL_AVG") * 100.0) / 100.0))
+                        .speedAvg((float) (Math.round(rs1.getFloat("SPEED_AVG") * 100.0) / 100.0))
+                        .speedMax((float) (Math.round(rs1.getFloat("SPEED_MAX") * 100.0) / 100.0))
+                        .deepAvg((float) (Math.round(rs1.getFloat("DEEP_AVG") * 100.0) / 100.0))
+                        .deepMax((float) (Math.round(rs1.getFloat("DEEP_MAX") * 100.0) / 100.0))
+                        .squareRiver((float) (Math.round(rs1.getFloat("SQUARE_RIVER") * 100.0) / 100.0))
+                        .widthRiver((float) (Math.round(rs1.getFloat("WIDTH_RIVER") * 100.0) / 100.0))
+                        .waterFlow((float) (Math.round(rs1.getFloat("WATER_FLOW") * 100.0) / 100.0))
                         .note(rs1.getString("NOTE"))
                         .createBy(rs1.getString("CREATED_BY"))
                         .updateBy(rs1.getString("UPDATED_BY"))
                         .linkFile(rs1.getString("LINK_FILE"))
                         .createdAt(rs1.getDate("CREATED_AT"))
-                        .measureNTH(rs1.getLong("MEASURE_NTH"))
+                        .measureNTH((long) (Math.round(rs1.getLong("MEASURE_NTH") * 100.0) / 100.0))
                         .updateAt(rs1.getDate("UPDATED_AT"))
                         .stationName(rs1.getString("STATION_NAME"))
                         .build();
@@ -453,7 +374,7 @@ public class MainReportController {
                 LISS liss = new LISS().builder()
                         .stationId(rs2.getString("STATION_ID"))
                         .createBy(rs2.getString("CREATED_BY"))
-                        .totalTurb(rs2.getFloat("TOTAL_TURB"))
+                        .totalTurb((float) (Math.round(rs2.getFloat("TOTAL_TURB") * 100.0) / 100.0))
                         .updateBy(rs2.getString("UPDATED_BY"))
                         .timeStart(rs2.getDate("TIME_START"))
                         .timeEnd(rs2.getDate("TIME_END"))
@@ -465,8 +386,8 @@ public class MainReportController {
                         .createdAt(rs2.getDate("CREATED_AT"))
                         .dataTotalDeep(rs2.getString("DATA_TOTAL_DEEP"))
                         .dataDistance(rs2.getString("DATA_DISTANCE"))
-                        .suspendedMaterial(rs2.getLong("SUSPENDED_MATERIAL"))
-                        .waterFlow(rs2.getFloat("WATER_FLOW"))
+                        .suspendedMaterial((long) (Math.round(rs2.getLong("SUSPENDED_MATERIAL") * 100.0) / 100.0))
+                        .waterFlow((float) (Math.round(rs2.getFloat("WATER_FLOW") * 100.0) / 100.0))
                         .stationName(rs2.getString("STATION_NAME"))
                         .build();
                 lissList.add(liss);
@@ -482,5 +403,93 @@ public class MainReportController {
         }
         return new ResponseEntity<>(resultReport, HttpStatus.OK);
     }
+    @PostMapping("/export-data-report")
+    public ResponseEntity<Resource> exportDataReport(@RequestParam Map<String, String> params)  {
+        String fileName = "ozone_vi.xlsx";
+        String fileIn = "templates/" + fileName;
+        InputStreamResource file = null;
+
+
+        List resultReport = new ArrayList();
+        List<Float> valueList = new ArrayList<>();
+        List<Float> minList = new ArrayList<>();
+        List<Float> maxList = new ArrayList<>();
+        List<Float> avgList = new ArrayList<>();
+        List<Float> totalList = new ArrayList<>();
+        List<String> timeList = new ArrayList<>();
+
+        DefaultResponseDTO defaultResponseDTO = DefaultResponseDTO.builder().build();
+        String sql = "select CUR_TS_TYPE_ID,STATION_NAME from stations where STATION_ID = ?";
+        String sql2 = "SELECT STORAGE,TS_ID from station_time_series where PARAMETERTYPE_ID = ?  and  STATION_ID = ?  and TS_TYPE_ID = ?";
+        String sql3 = "select VALUE,AVG_VALUE,MIN_VALUE,MAX_VALUE,TOTAL_VALUE, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1 and TS_ID =?";
+        String sql4 = "select %s, TIMESTAMP from %s where timestamp >= TO_DATE(?, 'YYYY-MM-DD') and timestamp < TO_DATE(?, 'YYYY-MM-DD' ) +1";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement statement1 = connection.prepareStatement(sql);
+             PreparedStatement statement2 = connection.prepareStatement(sql2)
+
+        ) {
+
+            statement1.setString(1, params.get("stationId"));
+            ResultSet rs1 = statement1.executeQuery();
+            if (!rs1.isBeforeFirst()) {
+
+            }
+            rs1.next();
+            Integer curTypeId = rs1.getInt("CUR_TS_TYPE_ID");
+            String stationName = rs1.getString("STATION_NAME");
+            if (curTypeId != null) {
+                statement2.setInt(1, Integer.parseInt(params.get("parameterTypeId")));
+                statement2.setString(2, params.get("stationId"));
+                statement2.setInt(3, curTypeId);
+                ResultSet rs2 = statement2.executeQuery();
+                if (!rs2.isBeforeFirst()) {
+
+                }
+                rs2.next();
+                String storage = rs2.getString("STORAGE");
+                Integer tsId = rs2.getInt("TS_ID");
+                if (storage != null && tsId != null) {
+                    String table = storage + "_" + params.get("step");
+                    sql3 = String.format(sql3, table);
+//                    sql3 = String.format(sql3, params.get("feature"), table);
+                    PreparedStatement statement3 = connection.prepareStatement(sql3);
+                    statement3.setString(1, params.get("startDate"));
+                    statement3.setString(2, params.get("endDate"));
+                    statement3.setInt(3, tsId);
+                    ResultSet rs3 = statement3.executeQuery();
+                    List<Map> list = new ArrayList<>();
+                    while (rs3.next()) {
+                        Map bo = new HashMap();
+                        bo.put("value", rs3.getFloat("VALUE"));
+                        bo.put("valueMin", rs3.getFloat("MIN_VALUE"));
+                        bo.put("valueMax", rs3.getFloat("MAX_VALUE"));
+                        bo.put("valueAvg", rs3.getFloat("AVG_VALUE"));
+                        bo.put("valueTotal", rs3.getFloat("TOTAL_VALUE"));
+                        bo.put("time", rs3.getFloat("TIMESTAMP"));
+                        bo.put("stationId", params.get("stationId"));
+                        bo.put("station", stationName);
+
+                    }
+
+                    file = new InputStreamResource(ExcelUtils.write2File(list,fileIn,0,3));
+                    statement3.close();
+                }
+            }
+
+            connection.commit();
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+
+
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+    }
+
 
 }
