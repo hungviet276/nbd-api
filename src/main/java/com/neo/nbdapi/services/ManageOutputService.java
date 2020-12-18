@@ -19,7 +19,9 @@ public interface ManageOutputService {
 
     DefaultPaginationDTO getListOutpust(DefaultRequestPagingVM defaultRequestPagingVM) throws SQLException, BusinessException;
 
-    List<ComboBoxStr> getListStations(String userId) throws SQLException, BusinessException;
+    List<ComboBoxStr> getListStations(String userId,String stationsType_search) throws SQLException, BusinessException;
+
+    List<ComboBoxStr> getListStationsType() throws SQLException, BusinessException;
 
     List<ComboBox> getListParameterByStations(String stationId) throws SQLException, BusinessException;
 
@@ -29,5 +31,5 @@ public interface ManageOutputService {
 
     List<ComboBoxStr> getListtimeHistory(String prodId,String prodTableName) throws SQLException, BusinessException;
 
-    List<HistoryOutPutsDTO> getHistoryByTimes(String time, String prodId) throws SQLException, BusinessException;
+    List<HistoryOutPutsDTO> getHistoryByTimes(String time, String prodId,String tablePrName) throws SQLException, BusinessException;
 }

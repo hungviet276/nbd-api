@@ -9,10 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +80,9 @@ public class UserInFoExpandDAOImpl implements UserInFoExpandDAO {
             statement.executeUpdate();
             statement.close();
         }
+        catch (SQLIntegrityConstraintViolationException e){
+            return DefaultResponseDTO.builder().status(0).message("Mã người dùng đã tồn tại").build();
+        }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
 
@@ -102,6 +102,9 @@ public class UserInFoExpandDAOImpl implements UserInFoExpandDAO {
             statement.setLong(9, userExpandDTO.getId());
             statement.executeUpdate();
             statement.close();
+        }
+        catch (SQLIntegrityConstraintViolationException e){
+            return DefaultResponseDTO.builder().status(0).message("Mã người dùng đã tồn tại").build();
         }
         return DefaultResponseDTO.builder().status(1).message("Thành công").build();
     }
